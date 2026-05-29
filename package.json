@@ -1,0 +1,51 @@
+{
+  "name": "@danzimon/compass-mcp",
+  "version": "0.2.0",
+  "description": "MCP server for the compass 'next-best-prompts' end-of-turn rule — end a substantive turn with 2-4 ranked, copy-paste-ready next moves, and skip when there's none. Pure guidance: no secrets, no network, no side-effecting tools. Install locally (stdio) for Claude Code / Claude Desktop, or use the hosted endpoint (this repo's remote/) for Claude.ai web + mobile connectors.",
+  "type": "module",
+  "bin": {
+    "compass-mcp": "dist/index.js",
+    "compass-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "ALWAYS-ON.md"
+  ],
+  "scripts": {
+    "embed": "node scripts/embed.mjs",
+    "check-sync": "node scripts/check-sync.mjs",
+    "prebuild": "node scripts/embed.mjs",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "node scripts/check-sync.mjs && npm run build",
+    "smoke": "node scripts/smoke.mjs",
+    "test": "npm run check-sync && npm run build && npm run smoke",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "claude-code",
+    "claude-desktop",
+    "next-best-prompts",
+    "compass",
+    "ai",
+    "prompt"
+  ],
+  "author": "Dan Zimon",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}

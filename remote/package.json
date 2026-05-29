@@ -1,0 +1,24 @@
+{
+  "name": "compass-mcp-remote",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Remote (always-on) MCP server for the compass next-best-prompts rule. Serves the rule over Streamable HTTP via mcp-handler on Vercel. No secrets, no compute, stateless.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "mcp-handler": "^1.1.0",
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
+  }
+}
