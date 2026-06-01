@@ -43,3 +43,43 @@ Ranked, numbered, copy-paste-ready options make it cheap to act — the user
 replies with one digit instead of composing the next instruction. The
 HIGH/MED/LOW tags expose your judgment about leverage. The skip-when-empty rule
 keeps it signal, not noise.
+
+## Cross-surface deliberation handoff (claude.ai)
+
+Claude Code is agentic and repo-aware. claude.ai (web/desktop/app) is the better
+surface for *wider deliberation*: conversational back-and-forth, the prism /
+council / pre-mortem / black-swan patterns, and the personal connectors (Gmail,
+Calendar, Drive). When the strongest next move is not execution here but a
+judgment call worth deliberating there, ALSO emit a **claude.ai deliberation
+prompt**: one self-contained, copy-paste-ready block the user drops into
+claude.ai, then brings the verdict back here to execute.
+
+This is the "two prompts in one" move — the user sends a single prompt to Claude
+Code and gets back both the work AND the ready-made claude.ai prompt, instead of
+hand-authoring the second one.
+
+### Format
+
+Emit it as a fenced code block (one-click copyable), led by a one-line pointer so
+it reads as distinct from the digit-menu. Place it after the next-best-prompts
+menu, or on its own when the deliberation is the only worthwhile next move:
+
+**→ Deliberate on claude.ai** (paste this there), then a fenced block containing
+the context the other surface can't see, the specific decision, and the named
+deliberation shape.
+
+### Rules (load-bearing)
+
+- **Self-contained.** claude.ai cannot see this repo, these tools, or this
+  conversation. Inline every fact it needs: the decision, the options, the
+  constraints, the numbers. "The plan we discussed" is useless there.
+- **Deliberation, not execution.** Only hand off judgment calls that get better
+  with wider reasoning; mechanical next steps stay in the menu to run here. If
+  nothing needs off-surface deliberation, emit nothing — the same skip-when-empty
+  discipline as the menu.
+- **Name the shape.** Request the specific deliberation the decision warrants
+  (N-prism, pre-mortem, red-team, black-swan), not "what do you think."
+- **Close the loop.** End the block by telling the user to bring the verdict back
+  here to execute; the surfaces are complementary, not parallel.
+- **At most one** handoff per turn — the single highest-value deliberation, never
+  a second menu.
