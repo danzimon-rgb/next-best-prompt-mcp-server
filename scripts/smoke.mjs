@@ -1,5 +1,5 @@
 // Smoke test: connect to the built stdio server and assert it exposes the
-// compass prompt, the get_next_best_prompts_rule tool, and the rule via the
+// next_best_prompt prompt, the get_next_best_prompts_rule tool, and the rule via the
 // instructions field. Run with: npm run smoke (after npm run build).
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
@@ -12,7 +12,7 @@ const transport = new StdioClientTransport({
   command: "node",
   args: [join(root, "dist", "index.js")],
 });
-const client = new Client({ name: "compass-smoke", version: "0" }, { capabilities: {} });
+const client = new Client({ name: "next_best_prompt-smoke", version: "0" }, { capabilities: {} });
 await client.connect(transport);
 
 const tools = (await client.listTools()).tools.map((t) => t.name);
@@ -31,7 +31,7 @@ const toolText = call.content?.[0]?.text ?? "";
 await client.close();
 
 const checks = {
-  "prompt 'compass' present": prompts.includes("compass"),
+  "prompt 'next_best_prompt' present": prompts.includes("next_best_prompt"),
   "tool 'get_next_best_prompts_rule' present": tools.includes("get_next_best_prompts_rule"),
   "instructions carry the rule": instructions.includes("next-best-prompts"),
   "tool returns the rule text": toolText.includes("Next-best-prompts"),

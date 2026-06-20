@@ -10,7 +10,7 @@ export default function Home() {
         color: "#1a1a1a",
       }}
     >
-      <h1 style={{ marginBottom: "0.25rem" }}>compass</h1>
+      <h1 style={{ marginBottom: "0.25rem" }}>next_best_prompt</h1>
       <p style={{ color: "#666", marginTop: 0 }}>
         next-best-prompts, served as a remote MCP server.
       </p>
@@ -39,7 +39,7 @@ export default function Home() {
           overflowX: "auto",
         }}
       >
-        <code>{`{ "mcpServers": { "compass": { "url": "https://<this-host>/api/mcp" } } }`}</code>
+        <code>{`{ "mcpServers": { "next_best_prompt": { "url": "https://<this-host>/api/mcp" } } }`}</code>
       </pre>
     </main>
   );

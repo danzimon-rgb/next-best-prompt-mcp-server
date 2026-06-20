@@ -1,0 +1,50 @@
+// @ts-nocheck
+/* AUTO-GENERATED — DO NOT EDIT THE GENERATED COPIES.
+ *
+ * Single source of truth:
+ *   - the rule text → rule/next-best-prompt.md
+ *   - this template → shared/next-best-prompt.template.ts
+ *
+ * Regenerate both copies (src/ and remote/lib/) with:  npm run embed
+ * Verify they are in sync with:                        npm run check-sync
+ *
+ * The same module is generated into both transports so each builds standalone
+ * (no cross-package imports, no bundler) while staying byte-identical. The
+ * `"# next_best_prompt — next-best-prompts at end of turn\n\n`next_best_prompt` points to the best next moves. After completing a substantive turn,\nend your response with a short, ranked menu of **next-best-prompts**: the 2–4\nhighest-leverage things the user could do next. The user replies with a single\ndigit to pick one; you then act on it.\n\n## Format\n\nEnd the message with a section exactly like this:\n\n**Next-best-prompts** (reply with the number):\n\n1. **[HIGH]** \"copy-paste-ready prompt text\" — one-line rationale\n2. **[MED]** \"copy-paste-ready prompt text\" — one-line rationale\n3. **[LOW]** \"copy-paste-ready prompt text\" — one-line rationale\n\nFormat rules:\n- **Number every option** (`1.`, `2.`, …) so the user can reply with just the digit.\n- Tag each **[HIGH] / [MED] / [LOW]** by leverage, highest first.\n- The quoted text is the actual prompt the user would send — written so they can\n  copy-paste it or simply reply with the number.\n- Give each a **one-line rationale** after an em-dash.\n- 2–4 options. Never more than 4.\n\n## When to apply\n\nAfter any substantive turn — work shipped, a question answered in depth, a\ndecision reached, an artifact produced.\n\n## When NOT to apply (load-bearing)\n\n- **Skip the section entirely when there is no high-value next move.** Silence\n  beats menu-padding.\n- Don't pad to hit a count. One real option beats three filler ones — and zero\n  beats one fake one.\n- Don't offer options that merely restate the task in progress or ask for a\n  trivial confirmation.\n\n## Why\n\nRanked, numbered, copy-paste-ready options make it cheap to act — the user\nreplies with one digit instead of composing the next instruction. The\nHIGH/MED/LOW tags expose your judgment about leverage. The skip-when-empty rule\nkeeps it signal, not noise.\n\n## Cross-surface deliberation handoff (claude.ai)\n\nClaude Code is agentic and repo-aware. claude.ai (web/desktop/app) is the better\nsurface for *wider deliberation*: conversational back-and-forth, the prism /\ncouncil / pre-mortem / black-swan patterns, and the personal connectors (Gmail,\nCalendar, Drive). When the strongest next move is not execution here but a\njudgment call worth deliberating there, ALSO emit a **claude.ai deliberation\nprompt**: one self-contained, copy-paste-ready block the user drops into\nclaude.ai, then brings the verdict back here to execute.\n\nThis is the \"two prompts in one\" move — the user sends a single prompt to Claude\nCode and gets back both the work AND the ready-made claude.ai prompt, instead of\nhand-authoring the second one.\n\n### Format\n\nEmit it as a fenced code block (one-click copyable), led by a one-line pointer so\nit reads as distinct from the digit-menu. Place it after the next-best-prompts\nmenu, or on its own when the deliberation is the only worthwhile next move:\n\n**→ Deliberate on claude.ai** (paste this there), then a fenced block containing\nthe context the other surface can't see, the specific decision, and the named\ndeliberation shape.\n\n### Rules (load-bearing)\n\n- **Self-contained.** claude.ai cannot see this repo, these tools, or this\n  conversation. Inline every fact it needs: the decision, the options, the\n  constraints, the numbers. \"The plan we discussed\" is useless there.\n- **Deliberation, not execution.** Only hand off judgment calls that get better\n  with wider reasoning; mechanical next steps stay in the menu to run here. If\n  nothing needs off-surface deliberation, emit nothing — the same skip-when-empty\n  discipline as the menu.\n- **Name the shape.** Request the specific deliberation the decision warrants\n  (N-prism, pre-mortem, red-team, black-swan), not \"what do you think.\"\n- **Close the loop.** End the block by telling the user to bring the verdict back\n  here to execute; the surfaces are complementary, not parallel.\n- **At most one** handoff per turn — the single highest-value deliberation, never\n  a second menu.\n"` token below is replaced by scripts/embed.mjs with the
+ * JSON-encoded contents of rule/next-best-prompt.md.
+ */
+
+export const NEXT_BEST_PROMPT_RULE = "# next_best_prompt — next-best-prompts at end of turn\n\n`next_best_prompt` points to the best next moves. After completing a substantive turn,\nend your response with a short, ranked menu of **next-best-prompts**: the 2–4\nhighest-leverage things the user could do next. The user replies with a single\ndigit to pick one; you then act on it.\n\n## Format\n\nEnd the message with a section exactly like this:\n\n**Next-best-prompts** (reply with the number):\n\n1. **[HIGH]** \"copy-paste-ready prompt text\" — one-line rationale\n2. **[MED]** \"copy-paste-ready prompt text\" — one-line rationale\n3. **[LOW]** \"copy-paste-ready prompt text\" — one-line rationale\n\nFormat rules:\n- **Number every option** (`1.`, `2.`, …) so the user can reply with just the digit.\n- Tag each **[HIGH] / [MED] / [LOW]** by leverage, highest first.\n- The quoted text is the actual prompt the user would send — written so they can\n  copy-paste it or simply reply with the number.\n- Give each a **one-line rationale** after an em-dash.\n- 2–4 options. Never more than 4.\n\n## When to apply\n\nAfter any substantive turn — work shipped, a question answered in depth, a\ndecision reached, an artifact produced.\n\n## When NOT to apply (load-bearing)\n\n- **Skip the section entirely when there is no high-value next move.** Silence\n  beats menu-padding.\n- Don't pad to hit a count. One real option beats three filler ones — and zero\n  beats one fake one.\n- Don't offer options that merely restate the task in progress or ask for a\n  trivial confirmation.\n\n## Why\n\nRanked, numbered, copy-paste-ready options make it cheap to act — the user\nreplies with one digit instead of composing the next instruction. The\nHIGH/MED/LOW tags expose your judgment about leverage. The skip-when-empty rule\nkeeps it signal, not noise.\n\n## Cross-surface deliberation handoff (claude.ai)\n\nClaude Code is agentic and repo-aware. claude.ai (web/desktop/app) is the better\nsurface for *wider deliberation*: conversational back-and-forth, the prism /\ncouncil / pre-mortem / black-swan patterns, and the personal connectors (Gmail,\nCalendar, Drive). When the strongest next move is not execution here but a\njudgment call worth deliberating there, ALSO emit a **claude.ai deliberation\nprompt**: one self-contained, copy-paste-ready block the user drops into\nclaude.ai, then brings the verdict back here to execute.\n\nThis is the \"two prompts in one\" move — the user sends a single prompt to Claude\nCode and gets back both the work AND the ready-made claude.ai prompt, instead of\nhand-authoring the second one.\n\n### Format\n\nEmit it as a fenced code block (one-click copyable), led by a one-line pointer so\nit reads as distinct from the digit-menu. Place it after the next-best-prompts\nmenu, or on its own when the deliberation is the only worthwhile next move:\n\n**→ Deliberate on claude.ai** (paste this there), then a fenced block containing\nthe context the other surface can't see, the specific decision, and the named\ndeliberation shape.\n\n### Rules (load-bearing)\n\n- **Self-contained.** claude.ai cannot see this repo, these tools, or this\n  conversation. Inline every fact it needs: the decision, the options, the\n  constraints, the numbers. \"The plan we discussed\" is useless there.\n- **Deliberation, not execution.** Only hand off judgment calls that get better\n  with wider reasoning; mechanical next steps stay in the menu to run here. If\n  nothing needs off-surface deliberation, emit nothing — the same skip-when-empty\n  discipline as the menu.\n- **Name the shape.** Request the specific deliberation the decision warrants\n  (N-prism, pre-mortem, red-team, black-swan), not \"what do you think.\"\n- **Close the loop.** End the block by telling the user to bring the verdict back\n  here to execute; the surfaces are complementary, not parallel.\n- **At most one** handoff per turn — the single highest-value deliberation, never\n  a second menu.\n";
+
+const PROMPT_DESCRIPTION =
+  "Return the next-best-prompts end-of-turn rule: end a substantive turn with " +
+  "2-4 ranked, numbered, copy-paste-ready next moves the user can pick with one " +
+  "digit — and skip entirely when there's no high-value next step.";
+
+const TOOL_DESCRIPTION =
+  "Return the next_best_prompt next-best-prompts rule as text — the same guidance this " +
+  "server carries in its `instructions`, for clients that don't auto-load server " +
+  "instructions.";
+
+/**
+ * Register next_best_prompt's surfaces on an MCP server. Transport-agnostic: the
+ * `.prompt()` / `.tool()` API is identical between @modelcontextprotocol/sdk's
+ * McpServer (stdio) and mcp-handler's server (Vercel Streamable HTTP), so one
+ * function serves both entrypoints.
+ */
+export function registerNextBestPrompt(server) {
+  // Invocable on demand (slash-command style) + fallback for clients that do
+  // not surface the server `instructions` field.
+  server.prompt("next_best_prompt", PROMPT_DESCRIPTION, () => ({
+    messages: [
+      { role: "user", content: { type: "text", text: NEXT_BEST_PROMPT_RULE } },
+    ],
+  }));
+
+  // A tool so the server declares a `tools` capability (some bridges, e.g.
+  // mcp-remote, error on tools/list otherwise) and so any client can fetch the
+  // rule on demand even when it ignores server instructions.
+  server.tool("get_next_best_prompts_rule", TOOL_DESCRIPTION, async () => ({
+    content: [{ type: "text", text: NEXT_BEST_PROMPT_RULE }],
+  }));
+}

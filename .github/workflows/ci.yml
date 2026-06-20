@@ -1,6 +1,6 @@
 name: CI
 
-# Drift guard: the rule lives in rule/compass.md and is embedded into the
+# Drift guard: the rule lives in rule/next-best-prompt.md and is embedded into the
 # generated transport copies (src/ + remote/lib/) by scripts/embed.mjs.
 # `npm test` runs check-sync (fails if a copy is stale, i.e. someone edited
 # the rule without re-running `npm run embed`), then build + smoke. This makes

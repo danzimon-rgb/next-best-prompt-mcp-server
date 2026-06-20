@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "compass — remote MCP",
+  title: "next_best_prompt — remote MCP",
   description: "The next-best-prompts end-of-turn rule, served as a remote MCP server.",
 };
 

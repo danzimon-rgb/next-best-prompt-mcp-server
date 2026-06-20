@@ -1,5 +1,5 @@
 // Drift-check: regenerate the shared module in memory and assert the committed
-// copies match. Fails (exit 1) if rule/compass.md or the template changed
+// copies match. Fails (exit 1) if rule/next-best-prompt.md or the template changed
 // without re-running `npm run embed`. Wired into `prepublishOnly`.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -7,13 +7,13 @@ import { dirname, join } from "node:path";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const rule = readFileSync(join(root, "rule", "compass.md"), "utf8");
-const template = readFileSync(join(root, "shared", "compass.template.ts"), "utf8");
-const expected = template.replaceAll("__COMPASS_RULE_JSON__", JSON.stringify(rule));
+const rule = readFileSync(join(root, "rule", "next-best-prompt.md"), "utf8");
+const template = readFileSync(join(root, "shared", "next-best-prompt.template.ts"), "utf8");
+const expected = template.replaceAll("__NEXT_BEST_PROMPT_RULE_JSON__", JSON.stringify(rule));
 
 const targets = [
-  join(root, "src", "compass.generated.ts"),
-  join(root, "remote", "lib", "compass.generated.ts"),
+  join(root, "src", "next-best-prompt.generated.ts"),
+  join(root, "remote", "lib", "next-best-prompt.generated.ts"),
 ];
 
 let ok = true;

@@ -1,6 +1,6 @@
-# compass — next-best-prompts at end of turn
+# next_best_prompt — next-best-prompts at end of turn
 
-`compass` points to the best next moves. After completing a substantive turn,
+`next_best_prompt` points to the best next moves. After completing a substantive turn,
 end your response with a short, ranked menu of **next-best-prompts**: the 2–4
 highest-leverage things the user could do next. The user replies with a single
 digit to pick one; you then act on it.

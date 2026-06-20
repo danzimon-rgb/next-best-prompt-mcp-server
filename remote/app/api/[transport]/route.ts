@@ -1,25 +1,25 @@
 import { createMcpHandler } from "mcp-handler";
-import { COMPASS_RULE, registerCompass } from "../../../lib/compass.generated";
+import { NEXT_BEST_PROMPT_RULE, registerNextBestPrompt } from "../../../lib/next-best-prompt.generated";
 
-// Node runtime; compass just returns text, so the default ceiling is plenty.
+// Node runtime; next_best_prompt just returns text, so the default ceiling is plenty.
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
 /**
- * Remote compass MCP server over Streamable HTTP (endpoint: /api/mcp).
+ * Remote next_best_prompt MCP server over Streamable HTTP (endpoint: /api/mcp).
  *
  * The rule + the prompt/tool registration come from the shared generated
- * module (single source of truth: rule/compass.md + shared/compass.template.ts),
+ * module (single source of truth: rule/next-best-prompt.md + shared/next-best-prompt.template.ts),
  * byte-identical with the stdio server in src/. Stateless: no Redis, no
  * secrets, no external calls.
  */
 const handler = createMcpHandler(
   (server) => {
-    registerCompass(server);
+    registerNextBestPrompt(server);
   },
   {
-    instructions: COMPASS_RULE,
-    serverInfo: { name: "compass", version: "0.2.0" },
+    instructions: NEXT_BEST_PROMPT_RULE,
+    serverInfo: { name: "next_best_prompt", version: "0.2.0" },
   },
   { basePath: "/api" },
 );

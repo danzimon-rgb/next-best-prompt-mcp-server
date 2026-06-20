@@ -2,19 +2,19 @@
 /* AUTO-GENERATED — DO NOT EDIT THE GENERATED COPIES.
  *
  * Single source of truth:
- *   - the rule text → rule/compass.md
- *   - this template → shared/compass.template.ts
+ *   - the rule text → rule/next-best-prompt.md
+ *   - this template → shared/next-best-prompt.template.ts
  *
  * Regenerate both copies (src/ and remote/lib/) with:  npm run embed
  * Verify they are in sync with:                        npm run check-sync
  *
  * The same module is generated into both transports so each builds standalone
  * (no cross-package imports, no bundler) while staying byte-identical. The
- * `__COMPASS_RULE_JSON__` token below is replaced by scripts/embed.mjs with the
- * JSON-encoded contents of rule/compass.md.
+ * `__NEXT_BEST_PROMPT_RULE_JSON__` token below is replaced by scripts/embed.mjs with the
+ * JSON-encoded contents of rule/next-best-prompt.md.
  */
 
-export const COMPASS_RULE = __COMPASS_RULE_JSON__;
+export const NEXT_BEST_PROMPT_RULE = __NEXT_BEST_PROMPT_RULE_JSON__;
 
 const PROMPT_DESCRIPTION =
   "Return the next-best-prompts end-of-turn rule: end a substantive turn with " +
@@ -22,22 +22,22 @@ const PROMPT_DESCRIPTION =
   "digit — and skip entirely when there's no high-value next step.";
 
 const TOOL_DESCRIPTION =
-  "Return the compass next-best-prompts rule as text — the same guidance this " +
+  "Return the next_best_prompt next-best-prompts rule as text — the same guidance this " +
   "server carries in its `instructions`, for clients that don't auto-load server " +
   "instructions.";
 
 /**
- * Register compass's surfaces on an MCP server. Transport-agnostic: the
+ * Register next_best_prompt's surfaces on an MCP server. Transport-agnostic: the
  * `.prompt()` / `.tool()` API is identical between @modelcontextprotocol/sdk's
  * McpServer (stdio) and mcp-handler's server (Vercel Streamable HTTP), so one
  * function serves both entrypoints.
  */
-export function registerCompass(server) {
+export function registerNextBestPrompt(server) {
   // Invocable on demand (slash-command style) + fallback for clients that do
   // not surface the server `instructions` field.
-  server.prompt("compass", PROMPT_DESCRIPTION, () => ({
+  server.prompt("next_best_prompt", PROMPT_DESCRIPTION, () => ({
     messages: [
-      { role: "user", content: { type: "text", text: COMPASS_RULE } },
+      { role: "user", content: { type: "text", text: NEXT_BEST_PROMPT_RULE } },
     ],
   }));
 
@@ -45,6 +45,6 @@ export function registerCompass(server) {
   // mcp-remote, error on tools/list otherwise) and so any client can fetch the
   // rule on demand even when it ignores server instructions.
   server.tool("get_next_best_prompts_rule", TOOL_DESCRIPTION, async () => ({
-    content: [{ type: "text", text: COMPASS_RULE }],
+    content: [{ type: "text", text: NEXT_BEST_PROMPT_RULE }],
   }));
 }
