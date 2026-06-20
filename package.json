@@ -1,6 +1,6 @@
 {
   "name": "@danzimon/next-best-prompt-mcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MCP server for the next_best_prompt 'next-best-prompts' end-of-turn rule — end a substantive turn with 2-4 ranked, copy-paste-ready next moves, and skip when there's none. Pure guidance: no secrets, no network, no side-effecting tools. Install locally (stdio) for Claude Code / Claude Desktop, or use the hosted endpoint (this repo's remote/) for Claude.ai web + mobile connectors.",
   "type": "module",
   "bin": {
