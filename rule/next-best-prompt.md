@@ -23,6 +23,29 @@ Format rules:
 - Give each a **one-line rationale** after an em-dash.
 - 2–4 options. Never more than 4.
 
+## Multi-agent routing (when more than one agent is in play)
+
+When the user is orchestrating **multiple agents in one workspace** — e.g. a builder and an
+independent reviewer, or two models split by role — a next-best-prompt is not just *what* to do
+next but *who* should do it. Turn each option into a **routing directive**: prefix it with the
+target agent, the model, and the effort/reasoning level, so the user can dispatch it without
+deciding any of that themselves.
+
+**Next-best-prompts** (reply with the number):
+
+1. **[HIGH] → `<agent> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
+2. **[MED] → `<agent> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
+
+Routing rules:
+- **Name three things** in the prefix: the target **agent** (who runs it), the **model**, and the
+  **effort / reasoning level** (how hard to think). Pick the agent by role fit, the model by task,
+  the effort by stakes. Use each target's own vocabulary (e.g. an "ultra"/max tier where it exists).
+- **Choose, don't hedge.** One concrete target per option — the point is to remove a decision, not
+  add one. If two agents could do it, pick the better fit and say why in the rationale.
+- **Inert when solo.** If only one agent is active, omit the routing prefix and emit the plain menu
+  above — this section changes nothing in single-agent sessions.
+- The digit still selects the option; the prefix only tells the user where to send it.
+
 ## When to apply
 
 After any substantive turn — work shipped, a question answered in depth, a
