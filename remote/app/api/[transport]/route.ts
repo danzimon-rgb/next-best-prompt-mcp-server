@@ -19,7 +19,7 @@ const handler = createMcpHandler(
   },
   {
     instructions: NEXT_BEST_PROMPT_RULE,
-    serverInfo: { name: "next_best_prompt", version: "0.2.0" },
+    serverInfo: { name: "next_best_prompt", version: "0.3.0" },
   },
   { basePath: "/api" },
 );

@@ -16,7 +16,7 @@ import { NEXT_BEST_PROMPT_RULE, registerNextBestPrompt } from "./next-best-promp
 
 async function main(): Promise<void> {
   const server = new McpServer(
-    { name: "next_best_prompt", version: "0.2.0" },
+    { name: "next_best_prompt", version: "0.3.0" },
     { instructions: NEXT_BEST_PROMPT_RULE },
   );
 

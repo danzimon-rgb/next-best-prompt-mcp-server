@@ -17,9 +17,10 @@
 export const NEXT_BEST_PROMPT_RULE = __NEXT_BEST_PROMPT_RULE_JSON__;
 
 const PROMPT_DESCRIPTION =
-  "Return the next-best-prompt end-of-turn rule: label who owns the next required " +
-  "action, include 2-4 ranked, numbered, copy-paste-ready next moves when useful, " +
-  "and skip the menu when there's no high-value next step.";
+  "Return the next-best-prompt end-of-turn rule: record the exact checkpoint, " +
+  "next actor/action, and any named human intervention; include 2-4 ranked, " +
+  "numbered, copy-paste-ready next moves when useful; skip the menu when there " +
+  "is no high-value next step.";
 
 const TOOL_DESCRIPTION =
   "Return the next_best_prompt next-best-prompts rule as text — the same guidance this " +
