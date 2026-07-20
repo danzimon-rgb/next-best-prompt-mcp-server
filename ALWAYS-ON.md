@@ -33,4 +33,16 @@ leverage, highest first; the quoted text is the actual prompt I'd send; one-line
 rationale after an em-dash; 2–4 options, never more.
 LOAD-BEARING: skip the section entirely when there's no high-value next move —
 silence beats menu-padding. Never pad to a count; zero beats one fake option.
+
+After every substantive response, append this scan-friendly block after any
+menu or deliberation handoff:
+**Execution handoff**
+- **State:** 🔵 WORKING | 🟠 HUMAN NEEDED | ⏸ EXTERNAL WAIT | ✅ DONE
+- **Left off:** exact verified checkpoint (SHA, PR/check/run id, artifact, phase,
+  failing gate, or decision; never vague status)
+- **Next:** one named actor/system — one concrete required action
+- **Human:** None | named person — exact approval/access/material/decision needed
+If WORKING, continue without waiting. If DONE, Next is "None — request complete."
+Optional next-best prompts do not make me the required owner. Never hide a human
+gate elsewhere in prose; name it in Human.
 ```

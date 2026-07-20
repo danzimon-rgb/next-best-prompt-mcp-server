@@ -23,6 +23,48 @@ Format rules:
 - Give each a **one-line rationale** after an em-dash.
 - 2–4 options. Never more than 4.
 
+## Execution handoff
+
+After every substantive response, append one scan-friendly handoff block that
+answers four operational questions: **what state is the work in, where exactly
+did it stop, who acts next, and is human intervention required?**
+
+**Execution handoff**
+- **State:** `<state>`
+- **Left off:** `<specific checkpoint>`
+- **Next:** `<actor> — <single next required action>`
+- **Human:** `None` or `<person> — <exact intervention required>`
+
+Choose exactly one state:
+
+- `🔵 WORKING` — the named agent will continue without waiting for the user.
+- `🟠 HUMAN NEEDED` — progress genuinely requires a named person's answer,
+  approval, access, choice, or missing material.
+- `⏸ EXTERNAL WAIT` — progress is waiting on CI, a deploy, another person, or an
+  outside system that the current agent cannot advance yet.
+- `✅ DONE` — the current request is satisfied and no required handoff remains.
+
+Handoff rules:
+
+- Describe the handoff **after this response**, not who spoke last.
+- `Left off` must name the exact last verified checkpoint: for example a commit
+  SHA, PR/check/run id, artifact path, completed phase, failing gate, or decision.
+  Do not write vague phrases such as "still working" or "where we discussed."
+- `Next` must name one real actor or system (`Codex`, `Claude Code`, `Dan`,
+  `GitHub Actions`, `David`) and one concrete required action. When state is
+  `✅ DONE`, write `None — request complete`.
+- `Human` must be explicit. Write `None` when no human intervention is required.
+  Otherwise name the person and the exact approval, credential, material, or
+  decision needed. Do not hide human gates in prose elsewhere.
+- If the state is `🔵 WORKING`, the agent must actually continue; do not yield and
+  wait for the user. If the agent cannot continue, select the real blocking state.
+- Put the block after any next-best-prompts menu or claude.ai handoff so it is the
+  final human-readable section.
+- Emit the block for every substantive response even when there is no worthwhile
+  next-best-prompts menu.
+- An optional menu does not make the user the required owner. If the request is
+  complete, use `✅ DONE` even when optional next moves exist.
+
 ## Multi-agent routing (when more than one agent is in play)
 
 When the user is orchestrating **multiple agents in one workspace** — e.g. a builder and an

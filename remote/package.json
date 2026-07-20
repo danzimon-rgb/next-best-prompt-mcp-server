@@ -1,6 +1,6 @@
 {
   "name": "next-best-prompt-mcp-remote",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Remote (always-on) MCP server for the next_best_prompt next-best-prompts rule. Serves the rule over Streamable HTTP via mcp-handler on Vercel. No secrets, no compute, stateless.",
   "scripts": {
@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "mcp-handler": "^1.1.0",
-    "next": "^16.2.6",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
+    "next": "^16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -20,5 +20,8 @@
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
   }
 }
