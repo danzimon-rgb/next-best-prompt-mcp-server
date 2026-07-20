@@ -33,4 +33,14 @@ leverage, highest first; the quoted text is the actual prompt I'd send; one-line
 rationale after an em-dash; 2–4 options, never more.
 LOAD-BEARING: skip the section entirely when there's no high-value next move —
 silence beats menu-padding. Never pad to a count; zero beats one fake option.
+
+After every substantive response, append one scan-friendly handoff line:
+**Chat label:** <state> · <2–6 word topic>
+Choose exactly one state by who owns the next required action: 🔵 <AGENT> —
+working (use your actual name; you will continue without me); 🟠 <USER> — response
+needed (use my actual name; you genuinely need my answer, approval, choice, or
+missing material); ⏸ EXTERNAL — waiting (CI, deploy, person, or outside system);
+✅ DONE — complete (the request is satisfied). Put it after any menu or
+deliberation handoff. An optional menu does not make me the required owner; if
+the request is complete, use DONE.
 ```

@@ -4,7 +4,9 @@ A pointer to your best next moves. **next_best_prompt** is a tiny MCP server tha
 one rule: after a substantive turn, end your reply with a short, ranked menu of
 **next-best-prompts** — the 2–4 highest-leverage things to do next, each a
 copy-paste-ready prompt you can trigger by replying with a single digit — and
-**skip entirely when there's no high-value next move.**
+**skip entirely when there's no high-value next move.** It also appends a compact
+chat handoff label showing whether the agent is working, the user owes a
+response, an external dependency is pending, or the request is complete.
 
 Pure guidance: **no secrets, no network calls, no side-effecting tools.** Safe to
 install anywhere, against any project or chat.

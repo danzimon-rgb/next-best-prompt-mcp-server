@@ -34,7 +34,11 @@ const checks = {
   "prompt 'next_best_prompt' present": prompts.includes("next_best_prompt"),
   "tool 'get_next_best_prompts_rule' present": tools.includes("get_next_best_prompts_rule"),
   "instructions carry the rule": instructions.includes("next-best-prompts"),
+  "instructions carry chat handoff labels":
+    instructions.includes("Chat label") && instructions.includes("<USER> — response needed"),
   "tool returns the rule text": toolText.includes("Next-best-prompts"),
+  "tool returns chat handoff labels":
+    toolText.includes("Chat label") && toolText.includes("DONE — complete"),
 };
 
 console.log("tools:", tools.join(", ") || "(none)");
