@@ -38,11 +38,19 @@ const checks = {
     instructions.includes("Execution handoff") &&
     instructions.includes("Left off") &&
     instructions.includes("HUMAN NEEDED"),
+  "instructions carry handoff self-consistency guards":
+    instructions.includes("underlying work") &&
+    instructions.includes("Human: None") &&
+    instructions.includes("Contradictory combinations are invalid output"),
   "tool returns the rule text": toolText.includes("Next-best-prompts"),
   "tool returns execution handoff":
     toolText.includes("Execution handoff") &&
     toolText.includes("Human") &&
     toolText.includes("None — request complete"),
+  "tool returns handoff self-consistency guards":
+    toolText.includes("underlying work") &&
+    toolText.includes("Human: None") &&
+    toolText.includes("Contradictory combinations are invalid output"),
 };
 
 console.log("tools:", tools.join(", ") || "(none)");
