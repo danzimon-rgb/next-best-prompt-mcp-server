@@ -42,7 +42,8 @@ Choose exactly one state:
   approval, access, choice, or missing material.
 - `⏸ EXTERNAL WAIT` — progress is waiting on CI, a deploy, another person, or an
   outside system that the current agent cannot advance yet.
-- `✅ DONE` — the current request is satisfied and no required handoff remains.
+- `✅ DONE` — the current request is satisfied and no required handoff remains in
+  either the immediate request or the underlying work being reported.
 
 Handoff rules:
 
@@ -56,14 +57,29 @@ Handoff rules:
 - `Human` must be explicit. Write `None` when no human intervention is required.
   Otherwise name the person and the exact approval, credential, material, or
   decision needed. Do not hide human gates in prose elsewhere.
+- A read-only status check can finish while the work it reports still has an open
+  gate. In that case the capsule must describe the **underlying work**, not declare
+  `✅ DONE` merely because the status check itself completed. If the response names
+  a required next actor, approval, confirmation, credential, material, decision, or
+  other human intervention anywhere in its body, carry that gate into `State`,
+  `Next`, and `Human`.
+- Before sending, perform a self-consistency check across the entire response:
+  `Human: None` is valid **if and only if** no human gate is named anywhere else.
+  A human named in `Next` (for example `Dan` or `David`) requires the same named
+  person and exact intervention in `Human`. A `Required human intervention` or
+  `Exact next actor` field in the body must agree with the final capsule.
+- `✅ DONE` requires all three conditions: no underlying required action remains,
+  `Next` is exactly `None — request complete`, and `Human` is exactly `None`.
+  Contradictory combinations are invalid output; correct them before responding.
 - If the state is `🔵 WORKING`, the agent must actually continue; do not yield and
   wait for the user. If the agent cannot continue, select the real blocking state.
 - Put the block after any next-best-prompts menu or claude.ai handoff so it is the
   final human-readable section.
 - Emit the block for every substantive response even when there is no worthwhile
   next-best-prompts menu.
-- An optional menu does not make the user the required owner. If the request is
-  complete, use `✅ DONE` even when optional next moves exist.
+- An optional menu does not make the user the required owner. If the request and
+  the underlying work are complete, use `✅ DONE` even when optional next moves
+  exist. Never use this rule to erase a real gate described elsewhere.
 
 ## Multi-agent routing (when more than one agent is in play)
 
