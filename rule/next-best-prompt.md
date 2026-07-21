@@ -67,25 +67,36 @@ Handoff rules:
 
 ## Multi-agent routing (when more than one agent is in play)
 
-When the user is orchestrating **multiple agents in one workspace** — e.g. a builder and an
-independent reviewer, or two models split by role — a next-best-prompt is not just *what* to do
-next but *who* should do it. Turn each option into a **routing directive**: prefix it with the
-target agent, the model, and the effort/reasoning level, so the user can dispatch it without
-deciding any of that themselves.
+When the user is orchestrating **multiple agents or sessions at once** — e.g. a builder and an
+independent reviewer, or two models split across windows/tabs — a next-best-prompt is not just
+*what* to do next but *who* should do it. Turn each option into a **routing directive**: prefix
+it with the target agent, its window or tab, the model, and the effort/reasoning level, so the
+user can dispatch it without deciding any of that themselves.
 
 **Next-best-prompts** (reply with the number):
 
-1. **[HIGH] → `<agent> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
-2. **[MED] → `<agent> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
+1. **[HIGH] → `<agent> · <window-or-tab> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
+2. **[MED] → `<agent> · <window-or-tab> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
 
 Routing rules:
-- **Name three things** in the prefix: the target **agent** (who runs it), the **model**, and the
-  **effort / reasoning level** (how hard to think). Pick the agent by role fit, the model by task,
-  the effort by stakes. Use each target's own vocabulary (e.g. an "ultra"/max tier where it exists).
+- **Name all FOUR fields** in the prefix: the target **agent** (who runs it), its
+  **window-or-tab** (where it lives — this comes first after the agent name; it is the
+  disambiguator), the **model**, and the **effort / reasoning level** (how hard to think). Pick
+  the agent by role fit, the model by task, the effort by stakes. Use each target's own
+  vocabulary (e.g. an "ultra"/max tier where it exists).
+- **Never trim a field you are unsure of — look it up.** The window from the workspace handoff
+  or ledger, the model from the session/worktree records. A partial prefix ("Codex · high") is a
+  rule violation, not a compromise; it hands the user the exact lookup the prefix exists to remove.
+- **Disambiguate two sessions of the same agent by window/tab, never by agent name alone.**
+  "Codex" is not a target; "Codex · Teranode window" is.
 - **Choose, don't hedge.** One concrete target per option — the point is to remove a decision, not
   add one. If two agents could do it, pick the better fit and say why in the rationale.
-- **Inert when solo.** If only one agent is active, omit the routing prefix and emit the plain menu
-  above — this section changes nothing in single-agent sessions.
+- **Bright-line test for "multi-agent":** another agent has an open session, an unexpired
+  handoff, or in-flight work anywhere in the workspace → the prefix is REQUIRED on every option,
+  even when every option happens to route to the current session. "All options are for me" is
+  not an exemption — that fact is itself information the user should see spelled out.
+- **Inert only when genuinely solo.** Only when no other agent or session is active anywhere in
+  the workspace, omit the routing prefix and emit the plain menu above.
 - The digit still selects the option; the prefix only tells the user where to send it.
 
 ## When to apply
