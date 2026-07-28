@@ -11,17 +11,77 @@ End the message with a section exactly like this:
 
 **Next-best-prompts** (reply with the number):
 
-1. **[HIGH]** "copy-paste-ready prompt text" — one-line rationale
-2. **[MED]** "copy-paste-ready prompt text" — one-line rationale
-3. **[LOW]** "copy-paste-ready prompt text" — one-line rationale
+1. **[HIGH · NOW]** "copy-paste-ready prompt text" — one-line rationale
+2. **[MED · AFTER 1]** "copy-paste-ready prompt text" — one-line rationale
+3. **[LOW · BLOCKED: named gate]** "copy-paste-ready prompt text" — one-line rationale
 
 Format rules:
 - **Number every option** (`1.`, `2.`, …) so the user can reply with just the digit.
 - Tag each **[HIGH] / [MED] / [LOW]** by leverage, highest first.
+- Add a **sequencing marker** after the leverage tag, separated by ` · `. See
+  **Sequencing** below. It is required on every option.
 - The quoted text is the actual prompt the user would send — written so they can
   copy-paste it or simply reply with the number.
 - Give each a **one-line rationale** after an em-dash.
 - 2–4 options. Never more than 4.
+
+## Sequencing (required on every option)
+
+A ranked list alone implies the options are interchangeable alternatives. They
+usually are not: one may consume another's output, two may contend for the same
+branch or the same agent session, and one may be unstartable until an outside
+gate clears. The user should never have to infer that. Every option carries one
+sequencing marker, appended to the leverage tag after ` · `.
+
+Use exactly one of three:
+
+- **`NOW`** — startable immediately, with nothing in this menu blocking it.
+- **`AFTER n`** — requires option `n` in this same menu to complete first. `n`
+  must be a real number in this menu, and the rationale must say what it
+  consumes from `n` (an artifact, a SHA, a decision, a merged branch).
+- **`BLOCKED: <gate>`** — cannot start until a named external gate clears. Name
+  the gate and who or what clears it — `BLOCKED: Camba ADV approval`,
+  `BLOCKED: CI green on #281`. Never write a bare `BLOCKED`.
+
+**Two or more `NOW` options is a claim, not a default.** It asserts they are
+conflict-free and may be dispatched simultaneously. Before marking a second
+option `NOW`, check every one of these against the options already marked `NOW`:
+
+- same branch, worktree, or PR;
+- same file or module;
+- same deploy lane or production surface;
+- same external resource (one inbox, one database, one paid quota); or
+- **same agent session** — two prompts routed to the same window cannot run at
+  once no matter how disjoint the files are.
+
+Any collision means the later option is `AFTER n`, not `NOW`. When it is genuinely
+ambiguous, prefer `AFTER n`: a needless wait costs minutes, a collision costs a
+debugging session.
+
+### Related markers
+
+- **`IN FLIGHT`** — an option already dispatched and still running. Do **not**
+  re-offer it as a digit-selectable choice; list it without a number so the user
+  sees it is accounted for and does not dispatch it twice. Drop it once it lands.
+- **Scale hint** — when options differ in size by an order of magnitude, append a
+  rough duration to the rationale (`~2 min`, `~1 day`, `multi-week`). A two-minute
+  fix and a multi-week build must not look alike behind two adjacent digits.
+- **`⚠`** — lead the rationale with `⚠` and the effect when the option is hard to
+  reverse or outward-facing: merges, production deploys, sends to third parties,
+  paid runs, destructive operations. A single digit must never hide an
+  irreversible act.
+
+### Example
+
+```text
+1. **[HIGH · NOW] → `Codex · Teranode window · gpt-5.6-sol · high`** "..." — starts PR A (~1 day)
+2. **[MED · AFTER 1] → `Claude Code · Teranode window · opus-5 · high`** "Review PR A" — needs 1's branch
+3. **[MED · NOW] → `Claude Code · Teranode window · opus-5 · high`** "Fix the spend TOCTOU" — different files, different session
+4. **[LOW · BLOCKED: paid-preview approval] → `Codex · Teranode window · gpt-5.6-sol · high`** "..." — ⚠ first paid run
+   IN FLIGHT — MCP consolidation Phase 0 (Codex, dispatched 17:46)
+```
+
+Options 1 and 3 are simultaneously dispatchable; 2 waits on 1; 4 waits on Dan.
 
 ## Execution handoff
 
@@ -91,8 +151,8 @@ user can dispatch it without deciding any of that themselves.
 
 **Next-best-prompts** (reply with the number):
 
-1. **[HIGH] → `<agent> · <window-or-tab> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
-2. **[MED] → `<agent> · <window-or-tab> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
+1. **[HIGH · NOW] → `<agent> · <window-or-tab> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
+2. **[MED · AFTER 1] → `<agent> · <window-or-tab> · <model> · <effort>`** "copy-paste-ready prompt text" — one-line rationale
 
 Routing rules:
 - **Name all FOUR fields** in the prefix: the target **agent** (who runs it), its
@@ -105,6 +165,10 @@ Routing rules:
   rule violation, not a compromise; it hands the user the exact lookup the prefix exists to remove.
 - **Disambiguate two sessions of the same agent by window/tab, never by agent name alone.**
   "Codex" is not a target; "Codex · Teranode window" is.
+- **Routing interacts with sequencing.** Two options routed to the same
+  window/tab are the same session and cannot both be `NOW`; the second is
+  `AFTER n`. Routing two options to *different* sessions is what makes more than
+  one `NOW` possible in the first place.
 - **Choose, don't hedge.** One concrete target per option — the point is to remove a decision, not
   add one. If two agents could do it, pick the better fit and say why in the rationale.
 - **Bright-line test for "multi-agent":** another agent has an open session, an unexpired
