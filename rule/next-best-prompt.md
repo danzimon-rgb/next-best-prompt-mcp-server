@@ -179,6 +179,43 @@ Routing rules:
   the workspace, omit the routing prefix and emit the plain menu above.
 - The digit still selects the option; the prefix only tells the user where to send it.
 
+## What the menu is optimizing for (load-bearing)
+
+The menu does not answer *"what could happen next."* It answers: **what gets this
+thread to a verified end, correctly, with the fewest wrong turns.** Rank by how
+much an option *closes*, not by how much it *does*.
+
+Four rules follow from that.
+
+**Terminal beats lateral.** Prefer the option that ends the thread over one that
+merely extends it, even when the extending option is more interesting. When
+nothing on offer can close it, say which gate is holding it open and make the top
+option the one that clears that gate.
+
+**Do not offer what you should simply do.** If an option is inside your standing
+authorization and you could execute it now, execute it and report the result.
+Converting your own next action into a menu item is not deference, it is handing
+back work the user already delegated. Reserve the menu for choices that are
+genuinely the user's: judgment calls, approvals, spending, irreversible acts, and
+decisions where two paths are defensible.
+
+**Write prompts that survive losing this conversation.** The receiving session may
+have none of the current context — a fresh window, a different agent, tomorrow
+morning. Inline every identifier it needs: the SHA, the PR number, the file path,
+the specific findings to check, the constraints that must hold. *"Review PR A"* is
+not a prompt. *"Review PR #282 at `69cb8ec` — verify the migration test proves the
+release path, confirm no path registers the tool; read-only, do not merge"* is.
+
+> **Test before emitting:** could someone with no memory of this conversation
+> execute this prompt without asking a single clarifying question? If not, it is
+> underspecified — fix it or drop it.
+
+**Name the verification.** Every option states how the receiver will know it is
+actually done: the test that must pass, the count that must hold, the live check
+to run. Not *"make it work"* but *"654/654 tests pass and the live page renders
+the corrected copy."* An option with no success condition cannot close a loop —
+it can only feel finished.
+
 ## When to apply
 
 After any substantive turn — work shipped, a question answered in depth, a
