@@ -61,6 +61,14 @@ const checks = {
     toolText.includes("AFTER n") &&
     toolText.includes("BLOCKED:") &&
     toolText.includes("IN FLIGHT"),
+  "instructions carry loop-closure objective":
+    instructions.includes("What the menu is optimizing for") &&
+    instructions.includes("Terminal beats lateral") &&
+    instructions.includes("Do not offer what you should simply do"),
+  "tool returns loop-closure objective":
+    toolText.includes("What the menu is optimizing for") &&
+    toolText.includes("survive losing this conversation") &&
+    toolText.includes("Name the verification"),
 };
 
 console.log("tools:", tools.join(", ") || "(none)");
