@@ -51,6 +51,16 @@ const checks = {
     toolText.includes("underlying work") &&
     toolText.includes("Human: None") &&
     toolText.includes("Contradictory combinations are invalid output"),
+  "instructions carry sequencing markers":
+    instructions.includes("Sequencing (required on every option)") &&
+    instructions.includes("AFTER n") &&
+    instructions.includes("BLOCKED:") &&
+    instructions.includes("same agent session"),
+  "tool returns sequencing markers":
+    toolText.includes("Sequencing (required on every option)") &&
+    toolText.includes("AFTER n") &&
+    toolText.includes("BLOCKED:") &&
+    toolText.includes("IN FLIGHT"),
 };
 
 console.log("tools:", tools.join(", ") || "(none)");
