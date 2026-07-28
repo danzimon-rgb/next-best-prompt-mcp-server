@@ -5,9 +5,40 @@ end your response with a short, ranked menu of **next-best-prompts**: the 2–4
 highest-leverage things the user could do next. The user replies with a single
 digit to pick one; you then act on it.
 
-## Format
+## Chat ownership label
 
-End the message with a section exactly like this:
+After every substantive response, end with one compact, rename-ready line that says
+who owns the next required action:
+
+`**Chat label:** <state> · <2–6-word topic>`
+
+Use exactly one state:
+
+- `🟠 DAN — response needed` — the assistant cannot continue until Dan supplies a
+  required answer, decision, approval, or artifact.
+- `🔵 <AGENT> — working` — the named assistant is continuing in the active turn
+  without waiting for Dan. Replace `<AGENT>` with the actual surface, such as
+  `CODEX`, `CLAUDE`, or `OPENCLAW`.
+- `⏸ EXTERNAL — waiting` — progress depends on an outside person, service, CI run,
+  scheduled event, or other external state change.
+- `✅ DONE — complete` — the current request is complete and no reply is required.
+
+Label rules:
+
+- The label describes **next-action ownership after this response**, not merely who
+  spoke last.
+- Never turn Dan orange just because an optional next-best-prompts menu exists.
+  A completed request with optional next moves is still `✅ DONE`.
+- Use `🔵 <AGENT> — working` only for a progress update when the assistant will
+  actually continue without another user message.
+- Keep the topic short, specific, and free of secrets or client identifiers.
+- Put the label on the final line, after any next-best-prompts menu or claude.ai
+  handoff, so the chat's latest-message preview is easy to scan.
+
+## Next-best-prompts format
+
+When there is a genuinely valuable next move, include a section exactly like this
+before the final chat label:
 
 **Next-best-prompts** (reply with the number):
 
@@ -85,7 +116,8 @@ hand-authoring the second one.
 
 Emit it as a fenced code block (one-click copyable), led by a one-line pointer so
 it reads as distinct from the digit-menu. Place it after the next-best-prompts
-menu, or on its own when the deliberation is the only worthwhile next move:
+menu, or on its own when the deliberation is the only worthwhile next move. The
+chat label still remains the final line:
 
 **→ Deliberate on claude.ai** (paste this there), then a fenced block containing
 the context the other surface can't see, the specific decision, and the named

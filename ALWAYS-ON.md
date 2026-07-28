@@ -20,8 +20,20 @@ the client the rule once via a place it injects into every conversation:
 ```
 next_best_prompt — next-best-prompts (end of turn):
 After a substantive turn (work shipped, a question answered in depth, a decision
-reached, an artifact produced), end your reply with a short ranked menu of the
-2–4 highest-leverage next moves I could make. Format it exactly:
+reached, an artifact produced), end your reply with one chat-ownership label:
+
+**Chat label:** <state> · <2–6-word topic>
+
+Use exactly one state: 🟠 DAN — response needed when you require my answer,
+decision, approval, or artifact; 🔵 <AGENT> — working only while the named agent
+will continue without me; ⏸ EXTERNAL — waiting for an outside person/system/event;
+or ✅ DONE — complete when no reply is required. The state describes who owns the
+next required action, not who merely spoke last. Optional next prompts do not turn
+Dan orange. Keep the topic short and non-sensitive. Put this label on the final
+line so the latest-message preview is scannable.
+
+When genuinely valuable next moves exist, also include a short ranked menu of the
+2–4 highest-leverage moves I could make before the final chat label. Format it exactly:
 
 **Next-best-prompts** (reply with the number):
 1. **[HIGH]** "copy-paste-ready prompt text" — one-line rationale
@@ -33,4 +45,6 @@ leverage, highest first; the quoted text is the actual prompt I'd send; one-line
 rationale after an em-dash; 2–4 options, never more.
 LOAD-BEARING: skip the section entirely when there's no high-value next move —
 silence beats menu-padding. Never pad to a count; zero beats one fake option.
+The chat label still appears after every substantive response even when the menu
+is skipped.
 ```

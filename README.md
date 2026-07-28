@@ -1,10 +1,11 @@
 # next_best_prompt — next-best-prompts
 
 A pointer to your best next moves. **next_best_prompt** is a tiny MCP server that carries
-one rule: after a substantive turn, end your reply with a short, ranked menu of
-**next-best-prompts** — the 2–4 highest-leverage things to do next, each a
-copy-paste-ready prompt you can trigger by replying with a single digit — and
-**skip entirely when there's no high-value next move.**
+one rule: after a substantive turn, mark who owns the next required action with a
+compact chat label, and include a short, ranked menu of **next-best-prompts** when
+there are genuinely valuable next moves. Each menu item is a copy-paste-ready
+prompt you can trigger by replying with a single digit; the menu **stays absent
+when there is no high-value next move.**
 
 Pure guidance: **no secrets, no network calls, no side-effecting tools.** Safe to
 install anywhere, against any project or chat.
