@@ -25,7 +25,7 @@ and is code-generated into a shared module that both transports import:
 Both expose identical surfaces: the `instructions` field, a `next_best_prompt` prompt, and
 a `get_next_best_prompts_rule` tool.
 
-## closure_scheduler v0.5.1 canary
+## closure_scheduler v0.5.2 canary
 
 The repository also carries a separate, stdio-only `closure_scheduler` candidate.
 It keeps the incumbent and hosted behavior unchanged while the execution-board
