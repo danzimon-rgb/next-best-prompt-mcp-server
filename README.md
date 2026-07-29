@@ -46,9 +46,12 @@ npm run test:closure-validator
 ```
 
 The optional context JSON supports `defensiblePriority`,
-`alreadyAuthorizedActionPatterns`, and `operatorCourierPatterns`. The committed
-fixtures cover the observed Camba regressions and valid counterexamples. The
-root test enforces the original 15,655-byte rule ceiling.
+`alreadyAuthorizedActionPatterns`, `operatorCourierPatterns`, and
+`requiredAgentDispatchOwners`. The last field names cross-surface agents whose
+required work must appear as either a self-contained `PASTE TO` action or a
+verified `IN FLIGHT` checkpoint. The committed fixtures cover the observed
+Camba regressions and valid counterexamples. The root test enforces the original
+15,655-byte rule ceiling.
 
 ## Install
 

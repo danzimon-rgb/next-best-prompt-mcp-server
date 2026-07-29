@@ -22,13 +22,15 @@ function parseNowActions(output) {
   return nowMatch[1]
     .split(/\r?\n/)
     .map((line) => {
-      const match = line.match(/^\s*(\d+)\.\s+\*\*\[([^\]]+)\]\*\*\s*(.*)$/);
+      const match = line.match(
+        /^\s*(\d+)\.\s+\*\*\[([^\]]+)\]([^*]*)\*\*\s*(.*)$/,
+      );
       if (!match) return null;
-      const [, number, tag, body] = match;
+      const [, number, tag, target, body] = match;
       return {
         number: Number(number),
         tag,
-        body,
+        body: `${target} ${body}`.trim(),
         dispatch: ["RUN HERE", "PASTE TO", "EXTERNAL"].find((candidate) =>
           tag.includes(candidate),
         ),
@@ -37,6 +39,16 @@ function parseNowActions(output) {
       };
     })
     .filter(Boolean);
+}
+
+function section(output, name) {
+  const match = output.match(
+    new RegExp(
+      `(?:^|\\n)${name}\\s*\\n([\\s\\S]*?)(?=\\n(?:NOW|QUEUE|IN FLIGHT|\\*\\*Execution handoff\\*\\*)|\\s*$)`,
+      "i",
+    ),
+  );
+  return match?.[1]?.trim() ?? "";
 }
 
 export function validateClosureOutput(output, context = {}) {
@@ -119,6 +131,25 @@ export function validateClosureOutput(output, context = {}) {
       "OPERATOR_COURIER",
       "The operator was asked to relay state that the agent can read from shared or live sources.",
     );
+  }
+
+  const requiredAgentDispatchOwners =
+    context.requiredAgentDispatchOwners ?? [];
+  const inFlight = section(output, "IN FLIGHT").toLowerCase();
+  for (const owner of requiredAgentDispatchOwners) {
+    const ownerText = String(owner).toLowerCase();
+    const hasPasteTo = actions.some(
+      (action) =>
+        action.dispatch === "PASTE TO" &&
+        action.body.toLowerCase().includes(ownerText),
+    );
+    const isInFlight = inFlight.includes(ownerText);
+    if (!hasPasteTo && !isInFlight) {
+      add(
+        "E08_MISSING_AGENT_DISPATCH",
+        `Action assigned to ${owner} needs a self-contained PASTE TO prompt or a verified IN FLIGHT checkpoint.`,
+      );
+    }
   }
 
   return [...findings.values()];
