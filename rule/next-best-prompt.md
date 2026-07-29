@@ -216,8 +216,13 @@ option is executable and every box is ticked.
 
 Stakes raise this obligation rather than lowering it. The moments that most
 deserve a non-obvious move are exactly the expensive, irreversible, or
-already-decided ones. Never answer a high-stakes turn with paperwork because
-paperwork is defensible.
+already-decided ones.
+
+**Never substitute paperwork for analysis because paperwork is defensible.**
+Process is often genuinely the right move — verify the credential, confirm the
+ceiling, get the approval — and saying so is not timidity. The failure is
+letting it *stand in for* thinking. When process is required, pair it with the
+non-obvious move rather than offering it alone.
 
 **Terminal beats lateral.** Prefer the option that ends the thread over one that
 merely extends it, even when the extending option is more interesting. When
