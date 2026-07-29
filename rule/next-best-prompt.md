@@ -25,6 +25,23 @@ Format rules:
 - Give each a **one-line rationale** after an em-dash.
 - 2–4 options. Never more than 4.
 
+## Digit selection is guaranteed (do not regress)
+
+**One digit in, one useful outcome out.** This is the interface, not a
+presentation detail. Any future change that weakens it is a regression no matter
+what else it improves.
+
+- **Every numbered option must be selectable by its digit alone.** Never number
+  something the user cannot pick — a blocked or queued item is listed without a
+  number.
+- **A digit always produces a result, even when the current agent cannot act.**
+  If the option belongs to another agent or window, replying with the number
+  means *"hand me that prompt, ready to send"* — emit the exact block to paste.
+  It never means "nothing happens."
+- **When the menu is omitted, say so in one line** — for example, *"No menu:
+  everything authorized was already executed."* Silence is indistinguishable from
+  the rule failing, and the user should never have to wonder which it was.
+
 ## Sequencing (required on every option)
 
 A ranked list alone implies the options are interchangeable alternatives. They
@@ -165,10 +182,13 @@ Routing rules:
   rule violation, not a compromise; it hands the user the exact lookup the prefix exists to remove.
 - **Disambiguate two sessions of the same agent by window/tab, never by agent name alone.**
   "Codex" is not a target; "Codex · Teranode window" is.
-- **Routing interacts with sequencing.** Two options routed to the same
-  window/tab are the same session and cannot both be `NOW`; the second is
-  `AFTER n`. Routing two options to *different* sessions is what makes more than
-  one `NOW` possible in the first place.
+- **Routing interacts with sequencing.** The collision test is *concurrent
+  dispatch*, not a shared target. Two options that would run **at the same time**
+  against one window/tab are the same session and cannot both be `NOW`; the
+  second is `AFTER n`. **Mutually exclusive alternatives do not collide** — when
+  the user picks one and the other is thereby dropped, both may be `NOW` even
+  though they name the same target. Routing to *different* sessions is what makes
+  more than one *simultaneously dispatchable* `NOW` possible.
 - **Choose, don't hedge.** One concrete target per option — the point is to remove a decision, not
   add one. If two agents could do it, pick the better fit and say why in the rationale.
 - **Bright-line test for "multi-agent":** another agent has an open session, an unexpired
@@ -185,7 +205,19 @@ The menu does not answer *"what could happen next."* It answers: **what gets thi
 thread to a verified end, correctly, with the fewest wrong turns.** Rank by how
 much an option *closes*, not by how much it *does*.
 
-Four rules follow from that.
+Five rules follow from that.
+
+**Surface the non-obvious move.** Closure is the goal; timidity is not the
+method. If the highest-leverage next step is a reframe, a disproven assumption, a
+second-order consequence, an unpriced risk, or an option the user has not
+considered, it belongs on the menu — **including when it reopens a question that
+looked settled.** A menu of only safe procedural steps has failed even when every
+option is executable and every box is ticked.
+
+Stakes raise this obligation rather than lowering it. The moments that most
+deserve a non-obvious move are exactly the expensive, irreversible, or
+already-decided ones. Never answer a high-stakes turn with paperwork because
+paperwork is defensible.
 
 **Terminal beats lateral.** Prefer the option that ends the thread over one that
 merely extends it, even when the extending option is more interesting. When
@@ -215,6 +247,26 @@ actually done: the test that must pass, the count that must hold, the live check
 to run. Not *"make it work"* but *"654/654 tests pass and the live page renders
 the corrected copy."* An option with no success condition cannot close a loop —
 it can only feel finished.
+
+### This rule governs the menu, not the product (load-bearing)
+
+This document decides what to put in front of **the operator** — the person who
+already owns the work and delegated it. It is a thinking instrument.
+
+**Domain compliance controls do not belong here.** If a product built by this
+operator emits regulated content to an end user — investment, legal, medical, or
+similar — that surface needs its own recommendation, review, disclosure, and
+recordkeeping controls, enforced in *that product's* rules. Importing those
+controls into this document is a category error with a predictable cost: the
+menu turns procedural precisely when the stakes make insight most valuable.
+
+Two things that look like compliance but are not, and stay:
+
+- **`⚠` on irreversible acts.** That is information, so one digit cannot hide a
+  production deploy, a send, or a charge. It restrains *surprise*, not thought.
+- **Never let a label sanitize substance.** Do not call something "just a
+  suggestion" to soften what it actually is. That constrains *naming*, not
+  *thinking*.
 
 ## When to apply
 

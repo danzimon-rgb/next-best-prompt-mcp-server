@@ -69,6 +69,18 @@ const checks = {
     toolText.includes("What the menu is optimizing for") &&
     toolText.includes("survive losing this conversation") &&
     toolText.includes("Name the verification"),
+  "instructions guarantee digit selection":
+    instructions.includes("Digit selection is guaranteed") &&
+    instructions.includes("One digit in, one useful outcome out") &&
+    instructions.includes("ready to send"),
+  "tool preserves the non-obvious-move obligation":
+    toolText.includes("Surface the non-obvious move") &&
+    toolText.includes("timidity is not the") &&
+    toolText.includes("Stakes raise this obligation"),
+  "tool keeps domain compliance out of the menu rule":
+    toolText.includes("governs the menu, not the product") &&
+    toolText.includes("category error") &&
+    toolText.includes("Never let a label sanitize substance"),
 };
 
 console.log("tools:", tools.join(", ") || "(none)");
