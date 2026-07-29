@@ -1,34 +1,40 @@
-// Drift-check: regenerate the shared module in memory and assert the committed
-// copies match. Fails (exit 1) if rule/next-best-prompt.md or the template changed
-// without re-running `npm run embed`. Wired into `prepublishOnly`.
+// Drift-check: regenerate every bundle in memory and assert the committed copies
+// match. Fails (exit 1) if any rule or template changed without re-running
+// `npm run embed`. Wired into `prepublishOnly`.
+//
+// Imports the bundle list from embed.mjs so a new server can never be added to
+// the build and silently skipped here.
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-
-const rule = readFileSync(join(root, "rule", "next-best-prompt.md"), "utf8");
-const template = readFileSync(join(root, "shared", "next-best-prompt.template.ts"), "utf8");
-const expected = template.replaceAll("__NEXT_BEST_PROMPT_RULE_JSON__", JSON.stringify(rule));
-
-const targets = [
-  join(root, "src", "next-best-prompt.generated.ts"),
-  join(root, "remote", "lib", "next-best-prompt.generated.ts"),
-];
+import { BUNDLES, render } from "./embed.mjs";
 
 let ok = true;
-for (const target of targets) {
-  let actual = null;
+
+for (const bundle of BUNDLES) {
+  let expected;
   try {
-    actual = readFileSync(target, "utf8");
-  } catch {
-    actual = null;
-  }
-  if (actual !== expected) {
-    console.error(`check-sync: DRIFT — ${target} is missing or stale. Run \`npm run embed\`.`);
+    expected = render(bundle);
+  } catch (err) {
+    console.error(
+      `check-sync: ${err instanceof Error ? err.message : String(err)}`,
+    );
     ok = false;
-  } else {
-    console.log("check-sync: in sync —", target);
+    continue;
+  }
+  for (const target of bundle.targets) {
+    let actual = null;
+    try {
+      actual = readFileSync(target, "utf8");
+    } catch {
+      actual = null;
+    }
+    if (actual !== expected) {
+      console.error(
+        `check-sync: DRIFT — ${target} is missing or stale. Run \`npm run embed\`.`,
+      );
+      ok = false;
+    } else {
+      console.log(`check-sync: in sync (${bundle.name}) —`, target);
+    }
   }
 }
 
