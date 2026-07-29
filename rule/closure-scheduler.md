@@ -53,9 +53,8 @@ else it improves.
   `EXTERNAL` never means "nothing happens." The agent cannot press the button;
   it can remove every other obstacle to pressing it.
 
-- When the board is omitted, say so in one line — *"No board: everything
-  authorized was already executed."* Silence is indistinguishable from the rule
-  failing.
+- When omitting the board, say why in one truthful line: complete, in flight,
+  gated, or no valuable move. Silence is indistinguishable from rule failure.
 
 ## 2. Classify the turn
 
@@ -76,9 +75,10 @@ Do not force one label to describe both.
 ## 3. Refresh unstable state
 
 Before naming a live PR, branch, SHA, check, deployment, inbox, calendar,
-database, agent session, or external gate, verify it when verification is cheap.
-Include the exact checkpoint and verification time when staleness could change
-the recommendation. Never re-offer work already completed or in flight.
+database, agent session, or external gate, verify it when cheap. Read available
+shared/live sources directly; never make the operator relay agent state. Include
+the exact checkpoint and verification time when staleness could change the
+recommendation. Never re-offer work already completed or in flight.
 
 **An empty field is not a value.** A blank status, a null conclusion, or a
 missing timestamp means *unknown*, never *done*. Query the field that actually
@@ -196,6 +196,7 @@ Consistency rules:
 - `Human: None` is valid only when no required human gate appears anywhere in the
   response. Optional actions must be labeled optional.
 - A named human in `Next owner` must appear identically in `Human`.
+- A required human action cannot coexist with `Next owner: None`.
 - `WAITING` names the external system or agent and the exact completion signal.
 - The checkpoint must be a SHA, PR/check/run ID, artifact path, completed phase,
   verified decision, or similarly precise state — never "still working."
@@ -276,7 +277,4 @@ If any answer fails, repair the board or omit it.
 | E27 | Board offered after the request is complete *(F5)* | Head it `NOW (optional)` with `Next owner: None`; otherwise the page contradicts itself |
 | E28 | `EXTERNAL` action is selected *(F3)* | Emit surface, click path/command, exact values, and the confirming check; offer verification where machine-checkable |
 
-**Moved out of this document:** v0.4's E22 (retail-investor recommendation) and
-E23 (regulated substantive move) belong in the product's compliance rules, per
-§9. They are not deleted — they are relocated, and the product surface that emits
-regulated content must test them there.
+**Out of scope:** product compliance tests belong in product rules (§9).

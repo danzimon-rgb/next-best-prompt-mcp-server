@@ -8,23 +8,22 @@
  * keeps serving rule/next-best-prompt.md byte-for-byte unchanged.
  *
  * ⚠ Enable exactly ONE of these two servers in any MCP client at a time. Both
- * inject a complete behavioural rule set as server `instructions`; loading both
- * puts contradictory guidance in one context and teaches you nothing about
- * either.
+ * activate a complete behavioral rule; loading both puts contradictory guidance
+ * in one context and teaches you nothing about either.
  *
  * Pure guidance: no secrets, no network, no side-effecting tools.
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
-  CLOSURE_SCHEDULER_RULE,
+  CLOSURE_SCHEDULER_BOOTSTRAP,
   registerClosureScheduler,
 } from "./closure-scheduler.generated.js";
 
 async function main(): Promise<void> {
   const server = new McpServer(
-    { name: "closure_scheduler", version: "0.5.0" },
-    { instructions: CLOSURE_SCHEDULER_RULE },
+    { name: "closure_scheduler", version: "0.5.1" },
+    { instructions: CLOSURE_SCHEDULER_BOOTSTRAP },
   );
 
   registerClosureScheduler(server);

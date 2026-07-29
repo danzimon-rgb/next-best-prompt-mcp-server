@@ -1,0 +1,81 @@
+[
+  {
+    "name": "rejects the observed Camba wave board regressions",
+    "context": {
+      "alreadyAuthorizedActionPatterns": [
+        "fill the counts",
+        "hunt the addresses"
+      ],
+      "defensiblePriority": true
+    },
+    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Fill the counts. Done when: counts are written.\n2. **[OPTION · RUN HERE]** Hunt the addresses. Done when: addresses are staged.\n3. **[EXTERNAL]** Dan approves the bodies. Done when: approval is recorded.\n\n1, 2, and 3 are independent and may all be dispatched.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** wave staged\n- **Next owner:** Dan — choose\n- **Human:** Dan — approve",
+    "expectedCodes": [
+      "E01_AUTHORIZED_REOFFER",
+      "E04_CONCURRENT_RUN_HERE",
+      "G3_LABELING"
+    ]
+  },
+  {
+    "name": "rejects operator couriering and a required human beside no next owner",
+    "context": {
+      "operatorCourierPatterns": [
+        "relay cx's confirmation"
+      ]
+    },
+    "output": "No board: everything actionable is gated.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** wave staged\n- **Next owner:** None (waiting)\n- **Human:** Dan — relay cx's confirmation when it arrives",
+    "expectedCodes": [
+      "HANDOFF_HUMAN_WITHOUT_OWNER",
+      "OPERATOR_COURIER"
+    ]
+  },
+  {
+    "name": "accepts the corrected Camba board with a defensible priority",
+    "context": {
+      "defensiblePriority": true
+    },
+    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Hunt the three missing addresses. Done when: all are staged.\n2. **[OPTION · EXTERNAL]** Dan reads the seven bodies in the staging file and confirms approval. Done when: approval is logged.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** count-complete draft\n- **Next owner:** Dan — approve the bodies\n- **Human:** Dan — body approval",
+    "expectedCodes": []
+  },
+  {
+    "name": "accepts mutually exclusive RUN HERE alternatives",
+    "context": {
+      "defensiblePriority": true
+    },
+    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Apply the minimal patch. Done when: tests pass.\n2. **[OPTION · RUN HERE]** Revert the experiment. Done when: baseline is restored.\n\n1 and 2 are alternatives; picking one drops the other.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** two paths verified\n- **Next owner:** Dan — choose one path\n- **Human:** Dan — choose one path",
+    "expectedCodes": []
+  },
+  {
+    "name": "accepts a truthful gated no-board reason",
+    "context": {},
+    "output": "No board: the only remaining work is gated on the running CI check.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** CI run 123 is in progress\n- **Next owner:** GitHub Actions — finish run 123\n- **Human:** None",
+    "expectedCodes": []
+  },
+  {
+    "name": "rejects a missing relationship statement",
+    "context": {
+      "defensiblePriority": true
+    },
+    "output": "**Next actions**\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Draft the patch. Done when: diff exists.\n2. **[OPTION · EXTERNAL]** Dan changes the setting. Done when: setting reads on.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** choices prepared\n- **Next owner:** Dan — change the setting\n- **Human:** Dan — change the setting",
+    "expectedCodes": [
+      "E25_RELATIONSHIP"
+    ]
+  },
+  {
+    "name": "rejects a labeled single action",
+    "context": {},
+    "output": "**Next actions**\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Run the focused test. Done when: it passes.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** test ready\n- **Next owner:** Dan — select action 1\n- **Human:** Dan — authorize action 1",
+    "expectedCodes": [
+      "E24_SINGLE_LABEL"
+    ]
+  },
+  {
+    "name": "rejects multiple options without a defensible suggested move",
+    "context": {
+      "defensiblePriority": true
+    },
+    "output": "**Next actions**\n\nNOW\n1. **[OPTION · RUN HERE]** Draft the patch. Done when: diff exists.\n2. **[OPTION · EXTERNAL]** Dan changes the setting. Done when: setting reads on.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** choices prepared\n- **Next owner:** Dan — change the setting\n- **Human:** Dan — change the setting",
+    "expectedCodes": [
+      "G3_LABELING"
+    ]
+  }
+]

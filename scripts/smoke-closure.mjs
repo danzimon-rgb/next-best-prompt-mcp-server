@@ -1,5 +1,6 @@
 // Smoke test: connect to the built closure_scheduler stdio server and assert it
-// exposes its prompt, the shared tool name, and the v0.5 rule via instructions.
+// exposes its prompt, the shared tool name, a compact startup bootstrap, and the
+// full v0.5 rule only through the prompt/tool surfaces.
 //
 // Deliberately a SEPARATE harness from smoke.mjs. The two servers must be
 // provably independent — one failing must not be able to mask or be masked by
@@ -40,39 +41,49 @@ const call = await client.callTool({
   arguments: {},
 });
 const toolText = call.content?.[0]?.text ?? "";
+const ruleBytes = Buffer.byteLength(toolText, "utf8");
 
 await client.close();
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
+  "server identifies as version 0.5.1": serverInfo?.version === "0.5.1",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
   "tool name matches the incumbent": tools.includes("get_next_best_prompts_rule"),
-  "instructions carry the v0.5 rule": instructions.includes("closure scheduler"),
-  "instructions define the EXTERNAL digit outcome":
-    instructions.includes("The exact procedure to do it yourself") &&
-    instructions.includes("never means \"nothing happens"),
-  "instructions guarantee digit selection":
-    instructions.includes("One digit in, one useful outcome out"),
-  "instructions carry the execution board":
-    instructions.includes("IN FLIGHT") &&
-    instructions.includes("RUN HERE") &&
-    instructions.includes("PASTE TO"),
-  "instructions preserve the non-obvious-move obligation":
-    instructions.includes("timidity is not the method") &&
-    instructions.includes("Never substitute paperwork for analysis"),
-  "instructions keep domain compliance OUT":
-    instructions.includes("governs the menu, not the product") &&
-    !instructions.includes("suggested_move_scope"),
-  "tool returns the same rule as instructions": toolText === instructions,
+  "instructions are a compact tool-call bootstrap":
+    instructions.length < 500 &&
+    instructions.includes("get_next_best_prompts_rule") &&
+    !instructions.includes("Adversarial evaluation matrix"),
+  "tool defines the EXTERNAL digit outcome":
+    toolText.includes("The exact procedure to do it yourself") &&
+    toolText.includes("never means \"nothing happens"),
+  "tool guarantees digit selection":
+    toolText.includes("One digit in, one useful outcome out"),
+  "tool carries the execution board":
+    toolText.includes("IN FLIGHT") &&
+    toolText.includes("RUN HERE") &&
+    toolText.includes("PASTE TO"),
+  "tool preserves the non-obvious-move obligation":
+    toolText.includes("timidity is not the method") &&
+    toolText.includes("Never substitute paperwork for analysis"),
+  "tool keeps domain compliance OUT":
+    toolText.includes("governs the menu, not the product") &&
+    !toolText.includes("suggested_move_scope"),
+  "tool carries no-courier and handoff consistency fixes":
+    toolText.includes("never make the operator relay agent state") &&
+    toolText.includes("cannot coexist with `Next owner: None`"),
+  "tool stays within the v0.5 no-growth ceiling": ruleBytes <= 15_655,
   "matrix carries all 28 scenarios":
-    instructions.includes("| E28 |") && instructions.includes("| E01 |"),
+    toolText.includes("| E28 |") && toolText.includes("| E01 |"),
 };
 
 console.log("server:", serverInfo?.name, serverInfo?.version);
 console.log("tools:", tools.join(", ") || "(none)");
 console.log("prompts:", prompts.join(", ") || "(none)");
+console.log("instructions bytes:", Buffer.byteLength(instructions, "utf8"));
+console.log("tool rule bytes:", ruleBytes);
 let ok = true;
 for (const [name, pass] of Object.entries(checks)) {
   console.log(`${pass ? "PASS" : "FAIL"} — ${name}`);
