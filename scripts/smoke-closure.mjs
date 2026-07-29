@@ -65,6 +65,10 @@ const checks = {
     toolText.includes("IN FLIGHT") &&
     toolText.includes("RUN HERE") &&
     toolText.includes("PASTE TO"),
+  "tool carries the completion-delivery contract":
+    toolText.includes("Completion notice:") &&
+    toolText.includes("Never promise proactive notice unless a live monitor remains active") &&
+    toolText.includes("`AFTER` next action"),
   "tool preserves the non-obvious-move obligation":
     toolText.includes("timidity is not the method") &&
     toolText.includes("Never substitute paperwork for analysis"),

@@ -135,7 +135,8 @@ export function validateClosureOutput(output, context = {}) {
 
   const requiredAgentDispatchOwners =
     context.requiredAgentDispatchOwners ?? [];
-  const inFlight = section(output, "IN FLIGHT").toLowerCase();
+  const inFlightSection = section(output, "IN FLIGHT");
+  const inFlight = inFlightSection.toLowerCase();
   for (const owner of requiredAgentDispatchOwners) {
     const ownerText = String(owner).toLowerCase();
     const hasPasteTo = actions.some(
@@ -148,6 +149,61 @@ export function validateClosureOutput(output, context = {}) {
       add(
         "E08_MISSING_AGENT_DISPATCH",
         `Action assigned to ${owner} needs a self-contained PASTE TO prompt or a verified IN FLIGHT checkpoint.`,
+      );
+    }
+  }
+
+  if (
+    context.completionDeliveryRequired === true &&
+    inFlightSection
+  ) {
+    const completionNotice = inFlightSection.match(
+      /^\s*-\s+\*\*Completion notice:\*\*\s+(.+)$/im,
+    )?.[1] ?? "";
+    const completionNoticeWords = completionNotice.trim().split(/\s+/).filter(Boolean);
+    const namesDelivery =
+      /(monitor|watch|report|notify|post|publish|show|display|surface|send|return|proactiv|next user message|next turn)/i.test(
+        completionNotice,
+      );
+    const namesTerminalSignal =
+      /(complete|terminal|pass|fail|green|done|finish|result|status)/i.test(
+        completionNotice,
+      );
+    if (
+      completionNoticeWords.length < 7 ||
+      !namesDelivery ||
+      !namesTerminalSignal
+    ) {
+      add(
+        "E29_MISSING_COMPLETION_NOTICE",
+        "An IN FLIGHT gate needs an honest Completion notice naming who or what reports the terminal signal and how the user learns it.",
+      );
+    }
+
+    const queue = section(output, "QUEUE");
+    const after = queue.match(
+      /^\s*-\s+\*\*AFTER:\*\*\s+(.+)$/im,
+    )?.[1] ?? "";
+    const [terminalCheckpoint, nextAction] = after.split(/\s+(?:→|->)\s+/, 2);
+    const terminalWords = terminalCheckpoint?.trim().split(/\s+/).filter(Boolean) ?? [];
+    const actionWords = nextAction?.trim().split(/\s+/).filter(Boolean) ?? [];
+    const hasTerminalOutcome =
+      /(complete|terminal|pass|fail|green|done|finish|result|status)/i.test(
+        terminalCheckpoint ?? "",
+      );
+    const hasConcreteAction =
+      /(offer|report|review|merge|deploy|send|open|run|verify|inspect|ask|notify|update|close|start|continue)/i.test(
+        nextAction ?? "",
+      );
+    if (
+      terminalWords.length < 2 ||
+      actionWords.length < 3 ||
+      !hasTerminalOutcome ||
+      !hasConcreteAction
+    ) {
+      add(
+        "E30_MISSING_POST_COMPLETION_ACTION",
+        "An IN FLIGHT gate needs an AFTER entry that maps a terminal checkpoint to a concrete next action.",
       );
     }
   }

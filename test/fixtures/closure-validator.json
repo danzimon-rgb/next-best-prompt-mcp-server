@@ -109,5 +109,35 @@
     },
     "output": "No board: the required correction is already running in Claude Code.\n\nIN FLIGHT\n- Claude Code · VS Code · correcting one-pager taxonomy at commit abc123 · verified 23:55 EDT\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** ACTIVE\n- **Checkpoint:** Claude Code editing from commit abc123\n- **Next owner:** Claude Code — return the bounded diff and scanner result\n- **Human:** None",
     "expectedCodes": []
+  },
+  {
+    "name": "rejects an in-flight gate with no completion notice or post-completion action",
+    "context": {
+      "completionDeliveryRequired": true
+    },
+    "output": "No board: PR #284 checks are still in flight.\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish the checks\n- **Human:** None",
+    "expectedCodes": [
+      "E29_MISSING_COMPLETION_NOTICE",
+      "E30_MISSING_POST_COMPLETION_ACTION"
+    ]
+  },
+  {
+    "name": "accepts an honest in-flight completion notice and exact next action",
+    "context": {
+      "completionDeliveryRequired": true
+    },
+    "output": "No board: PR #284 checks are still in flight.\n\nQUEUE\n- **AFTER:** all nine PR #284 checks pass → offer the merge decision to Dan\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** GitHub will post terminal status on PR #284; this chat cannot proactively send after the turn, so the next user message triggers Codex to refresh and report the result.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
+    "expectedCodes": []
+  },
+  {
+    "name": "rejects vacuous completion-delivery placeholders",
+    "context": {
+      "completionDeliveryRequired": true
+    },
+    "output": "No board: PR #284 checks are still in flight.\n\nQUEUE\n- **AFTER:** pass → review\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** status report\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
+    "expectedCodes": [
+      "E29_MISSING_COMPLETION_NOTICE",
+      "E30_MISSING_POST_COMPLETION_ACTION"
+    ]
   }
 ]

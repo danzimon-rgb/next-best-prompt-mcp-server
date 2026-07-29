@@ -119,6 +119,7 @@ QUEUE
 
 IN FLIGHT
 - <owner · window/system · exact checkpoint · last verified time>
+- **Completion notice:** <who reports the terminal signal · how the user learns>
 ```
 
 Rules:
@@ -132,24 +133,21 @@ Rules:
   `SUGGESTED MOVE` conveys nothing and "Why suggested" is vacuous. Render one
   option as `**[RUN HERE]**` / `**[PASTE TO]**` / `**[EXTERNAL]**` alone, with a
   plain rationale.
-- **State the relationship whenever more than one action is `NOW`.** *(F2)* Two
-  `NOW` options are ambiguous on their face: the reader cannot tell whether
-  picking one drops the other or whether both may be fired. End the board with
-  one line — *"1 and 2 are alternatives; picking one drops the other"* or
-  *"1 and 2 are independent and may both be dispatched."* Without it the board
-  is not actionable, only decorative.
-- `SUGGESTED MOVE` is workflow prioritization: the action most likely to close
-  the current loop correctly with the fewest wrong turns.
+- **State the relationship whenever more than one action is `NOW`.** *(F2)* End
+  with *"1 and 2 are alternatives; picking one drops the other"* or *"1 and 2
+  are independent and may both be dispatched."* Otherwise the board is ambiguous.
+- `SUGGESTED MOVE` is the action most likely to close the loop with fewest wrong turns.
 - **Collision means concurrent dispatch, not a shared target.** *(C1)* Two
   actions that would run **at the same time** against one agent window,
   branch/worktree, PR, deploy lane, inbox, database, paid quota, or other
   exclusive resource cannot both be `NOW`. **Mutually exclusive alternatives do
   not collide** — when picking one drops the other, both may be `NOW` even
   against the same target.
-- Each target window has a serial queue. A queued task targeting that window
-  waits for the window's current task as well as its artifact dependencies.
-- Dependencies use stable named checkpoints, not board numbers, because numbers
-  change between turns.
+- Queued work waits for its target window and named artifact checkpoints; never
+  use board numbers as dependencies.
+- Every blocking `IN FLIGHT` item needs a `Completion notice:` naming who reports
+  its terminal signal and how the user learns, plus an `AFTER:` next action.
+  Never promise proactive notice unless a live monitor remains active.
 - Prompts must survive loss of this conversation. Inline every SHA, PR number,
   file path, finding, constraint, and prohibition needed to execute without a
   clarifying question.
@@ -253,7 +251,7 @@ If any answer fails, repair the board or omit it.
 | E03 | Two genuine paths exist, both `RUN HERE` | Both may be `NOW` — mutually exclusive alternatives do not collide *(C1)* |
 | E04 | Two tasks would run concurrently on one window | Only the head is `NOW`; queue the other |
 | E05 | Task needs two artifacts | One unnumbered `AFTER:` entry naming both checkpoints |
-| E06 | CI is running | List under `IN FLIGHT`; do not re-offer |
+| E06 | CI is running | `IN FLIGHT` + completion notice + `AFTER` next action; do not re-offer |
 | E07 | Review blocked on CI | Unnumbered `BLOCKED`, not `NOW` |
 | E08 | Action belongs to another window | `PASTE TO`; do not promise to act |
 | E09 | Human must change a setting | `EXTERNAL`; do not invent model/effort |
