@@ -22,7 +22,7 @@ import {
 
 async function main(): Promise<void> {
   const server = new McpServer(
-    { name: "closure_scheduler", version: "0.5.1" },
+    { name: "closure_scheduler", version: "0.5.2" },
     { instructions: CLOSURE_SCHEDULER_BOOTSTRAP },
   );
 

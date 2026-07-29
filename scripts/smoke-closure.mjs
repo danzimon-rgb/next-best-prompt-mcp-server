@@ -47,7 +47,7 @@ await client.close();
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.1": serverInfo?.version === "0.5.1",
+  "server identifies as version 0.5.2": serverInfo?.version === "0.5.2",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
