@@ -122,6 +122,16 @@
     ]
   },
   {
+    "name": "rejects hiding a required in-flight gate by omitting the section",
+    "context": {
+      "completionDeliveryRequired": true
+    },
+    "output": "No board: PR checks are still running somewhere.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5\n- **Next owner:** GitHub Actions — finish checks\n- **Human:** None",
+    "expectedCodes": [
+      "E29_MISSING_COMPLETION_NOTICE"
+    ]
+  },
+  {
     "name": "accepts an honest in-flight completion notice and exact next action",
     "context": {
       "completionDeliveryRequired": true

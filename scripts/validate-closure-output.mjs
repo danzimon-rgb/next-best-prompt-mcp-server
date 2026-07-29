@@ -155,8 +155,13 @@ export function validateClosureOutput(output, context = {}) {
 
   if (
     context.completionDeliveryRequired === true &&
-    inFlightSection
+    !inFlightSection
   ) {
+    add(
+      "E29_MISSING_COMPLETION_NOTICE",
+      "A completion-delivery scenario needs an IN FLIGHT section with an honest Completion notice.",
+    );
+  } else if (context.completionDeliveryRequired === true) {
     const completionNotice = inFlightSection.match(
       /^\s*-\s+\*\*Completion notice:\*\*\s+(.+)$/im,
     )?.[1] ?? "";
