@@ -1,7 +1,7 @@
 {
   "name": "@danzimon/next-best-prompt-mcp",
   "version": "0.3.0",
-  "description": "MCP server for the next_best_prompt 'next-best-prompts' end-of-turn rule — end a substantive turn with 2-4 ranked, copy-paste-ready next moves, and skip when there's none. Pure guidance: no secrets, no network, no side-effecting tools. Install locally (stdio) for Claude Code / Claude Desktop, or use the hosted endpoint (this repo's remote/) for Claude.ai web + mobile connectors.",
+  "description": "MCP server for the next_best_prompt 'next-best-prompts' end-of-turn rule \u2014 end a substantive turn with 2-4 ranked, copy-paste-ready next moves, and skip when there's none. Pure guidance: no secrets, no network, no side-effecting tools. Install locally (stdio) for Claude Code / Claude Desktop, or use the hosted endpoint (this repo's remote/) for Claude.ai web + mobile connectors.",
   "type": "module",
   "bin": {
     "next-best-prompt-mcp": "dist/index.js",
@@ -19,8 +19,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "node scripts/check-sync.mjs && npm run build",
     "smoke": "node scripts/smoke.mjs",
-    "test": "npm run check-sync && npm run build && npm run smoke",
-    "start": "node dist/index.js"
+    "test": "npm run check-sync && npm run build && npm run smoke && npm run smoke:closure",
+    "start": "node dist/index.js",
+    "smoke:closure": "node scripts/smoke-closure.mjs"
   },
   "keywords": [
     "mcp",
