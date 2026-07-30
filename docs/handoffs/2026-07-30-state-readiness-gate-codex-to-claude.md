@@ -14,13 +14,12 @@ Human gate: Dan decides whether anything merges or is loaded
 - Implementation commits:
   - `3683dd3124807059a70a419cfff853c0f7f74afd` — state-readiness engine, MCP/CLI surfaces, rule and validator enforcement
   - `906a1381606fc315e7e89e7bbe86ecd2899cb214` — canonical project-name override for named worktrees
-  - branch head also makes the MCP smoke self-contained with a temporary
-    synthetic continuity tree
+  - `0db6b0ef3de475d109a6672b8dcfd96d905f8de6` — make the MCP smoke
+    self-contained with a temporary synthetic continuity tree
 - The branch is based on the pushed but unmerged
   `fix/closure-validator-no-growth` lineage at `b73f1f7`; PR #7 intentionally
   carries that full not-yet-merged canary lineage into `main`.
-- PR is draft and mergeable. CI restarted after the second commit and was still
-  pending when this handoff was written.
+- PR is draft and mergeable. GitHub CI and both preview checks are green.
 - GitHub's normal integration automatically created a Vercel preview. Codex did
   not initiate or authorize a production deployment.
 
