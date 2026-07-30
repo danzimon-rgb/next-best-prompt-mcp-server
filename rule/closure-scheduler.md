@@ -1,4 +1,4 @@
-# next_best_prompt v0.5.3 — closure scheduler
+# next_best_prompt v0.5.5 — closure scheduler
 
 Supersedes the v0.4 draft. Carries v0.4's execution board and dispatch semantics,
 applies the red-team corrections C1–C5 / R1 / L1, and removes the product
@@ -73,11 +73,12 @@ Do not force one label to describe both.
 
 ## 3. Refresh unstable state
 
-Before naming a live PR, branch, SHA, check, deployment, inbox, calendar,
-database, agent session, or external gate, verify it when cheap. Read available
-shared/live sources directly; never make the operator relay agent state. Include
-the exact checkpoint and verification time when staleness could change the
-recommendation. Never re-offer work already completed or in flight.
+Before naming live state, verify when cheap. If the user names a window, session,
+repo or artifact, read that exact source; never substitute another session or
+newest transcript. If unreadable, state the gap; request a checkpoint; never
+infer. Read shared/live sources; never make the operator relay agent state.
+Include checkpoint and verification time when staleness could change the
+recommendation. Never re-offer completed/in-flight work.
 
 **An empty field is not a value.** A blank status, a null conclusion, or a
 missing timestamp means *unknown*, never *done*. Query the field that actually
@@ -135,7 +136,10 @@ Rules:
 - **State the relationship whenever more than one action is `NOW`.** *(F2)* End
   with *"1 and 2 are alternatives; picking one drops the other"* or *"1 and 2
   are independent and may both be dispatched."* Otherwise the board is ambiguous.
-- `SUGGESTED MOVE` is the action most likely to close the loop with fewest wrong turns.
+- `SUGGESTED MOVE` closes the loop with fewest wrong turns.
+- **Break repeated review loops.** After two independent `BLOCK` verdicts
+  cite one subsystem, prefer an action to park or redesign it. Patch again only
+  if the action states a new discriminating invariant.
 - **Collision means concurrent dispatch, not a shared target.** *(C1)* Two
   actions that would run **at the same time** against one agent window,
   branch/worktree, PR, deploy lane, inbox, database, paid quota, or other
@@ -246,7 +250,7 @@ If any answer fails, repair the board; never omit it.
 | ID | Scenario | Required behavior |
 |---|---|---|
 | E01 | Safe authorized action remains | Run it; do not offer it |
-| E02 | One valuable next action **that requires user selection** *(C2)* | Emit exactly one action; never pad to reach two. Labeling is governed by E24 *(G1)* |
+| E02 | One selectable action exists | Emit one; never pad. E24 governs labeling |
 | E03 | Two genuine paths exist, both `RUN HERE` | Both may be `NOW` — mutually exclusive alternatives do not collide *(C1)* |
 | E04 | Two tasks would run concurrently on one window | Only the head is `NOW`; queue the other |
 | E05 | Task needs two artifacts | One unnumbered `AFTER:` entry naming both checkpoints |
@@ -264,14 +268,16 @@ If any answer fails, repair the board; never omit it.
 | E17 | Four open **queued** loops *(C5)* | Show at most three queued; archive the rest |
 | E18 | `Request: WORKING` at turn end | Fail unless the agent actually continues |
 | E19 | Optional board after completed request | Allow `Request: DONE`, `Program: DONE/N/A`, `Human: None` |
-| E20 | Generated copies contain the text | Insufficient alone; rendered outputs must satisfy **every other scenario in this matrix** — a self-maintaining reference, because an explicit range goes stale the moment a row is added *(C3, G2)* |
+| E20 | Generated copies contain the text | Insufficient: rendered outputs must satisfy every other matrix row |
 | E21 | No obvious high-value action exists | Emit one honest optional next prompt; never omit the board |
 | E22 | A blank status or null conclusion is read | Treat as unknown, never done; re-query |
-| E23 | Only procedural options are available | Pair the required process with the non-obvious move; if none was found, say so explicitly rather than leaving the obligation silently unmet *(F6)* |
+| E23 | Only procedural options exist | Pair process with the non-obvious move; if none was found, say so explicitly |
 | E24 | One option only *(F1)* | Render without `SUGGESTED MOVE` / `OPTION`; a label with nothing to contrast is noise |
 | E25 | Two `NOW` options shown *(F2)* | State whether they are alternatives or independent; a board that does not say is not actionable |
-| E26 | More queued loops exist than are shown *(F4)* | Name the withheld count and where it went; never truncate silently |
-| E27 | Board offered after the request is complete *(F5)* | Head it `NOW (optional)` with `Next owner: None`; otherwise the page contradicts itself |
-| E28 | `EXTERNAL` action is selected *(F3)* | Emit surface, click path/command, exact values, and the confirming check; offer verification where machine-checkable |
+| E26 | Queued loops are withheld | Name the count and location; never truncate silently |
+| E27 | Board follows a completed request | Mark it optional with `Next owner: None` |
+| E28 | `EXTERNAL` is selected | Emit procedure, exact values, confirming check, and verification offer when possible |
+| E29 | Two independent `BLOCK` verdicts cite one subsystem | Park or redesign it; patch only if the action states a new discriminating invariant |
+| E30 | User names one agent window/session but another transcript is newer | Read the named source; never substitute the globally newest or another active session |
 
 **Out of scope:** product compliance tests belong in product rules (§9).

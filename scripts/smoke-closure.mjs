@@ -42,12 +42,32 @@ const call = await client.callTool({
 });
 const toolText = call.content?.[0]?.text ?? "";
 const ruleBytes = Buffer.byteLength(toolText, "utf8");
+const reviewBreaker =
+  "- **Break repeated review loops.** After two independent `BLOCK` verdicts\n" +
+  "  cite one subsystem, prefer an action to park or redesign it. Patch again only\n" +
+  "  if the action states a new discriminating invariant.";
+const sourceLock =
+  "If the user names a window, session,\n" +
+  "repo or artifact, read that exact source; never substitute another session or\n" +
+  "newest transcript. If unreadable, state the gap; request a checkpoint; never\n" +
+  "infer.";
+const invertedReviewBreaker = reviewBreaker.replace(
+  "Patch again only\n  if the action states a new discriminating invariant.",
+  "Keep patching; the discriminating-invariant requirement does NOT apply.",
+);
+const carriesReviewBreaker = (text) => text.includes(reviewBreaker);
+const invertedToolText = toolText.replace(reviewBreaker, invertedReviewBreaker);
+const matrixIds = [...toolText.matchAll(/^\| (E\d{2}) \|/gm)].map((match) => match[1]);
+const expectedMatrixIds = Array.from(
+  { length: 30 },
+  (_, index) => `E${String(index + 1).padStart(2, "0")}`,
+);
 
 await client.close();
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.3": serverInfo?.version === "0.5.3",
+  "server identifies as version 0.5.5": serverInfo?.version === "0.5.5",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
@@ -81,9 +101,15 @@ const checks = {
   "tool carries no-courier and handoff consistency fixes":
     toolText.includes("never make the operator relay agent state") &&
     toolText.includes("cannot coexist with `Next owner: None`"),
+  "tool carries the repeated-review circuit breaker":
+    carriesReviewBreaker(toolText),
+  "circuit-breaker check rejects inverted meaning":
+    !carriesReviewBreaker(invertedToolText),
+  "tool locks cross-agent evidence to the named source":
+    toolText.includes(sourceLock),
   "tool stays within the v0.5 no-growth ceiling": ruleBytes <= 15_655,
-  "matrix carries all 28 scenarios":
-    toolText.includes("| E28 |") && toolText.includes("| E01 |"),
+  "matrix carries all 30 scenarios":
+    JSON.stringify(matrixIds) === JSON.stringify(expectedMatrixIds),
 };
 
 console.log("server:", serverInfo?.name, serverInfo?.version);
