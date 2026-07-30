@@ -19,15 +19,14 @@ function parseNowActions(output) {
   );
   if (!nowMatch) return [];
 
-  return nowMatch[1]
-    .split(/\r?\n/)
-    .map((line) => {
-      const match = line.match(
-        /^\s*(\d+)\.\s+\*\*\[([^\]]+)\]([^*]*)\*\*\s*(.*)$/,
-      );
-      if (!match) return null;
+  const actions = [];
+  for (const line of nowMatch[1].split(/\r?\n/)) {
+    const match = line.match(
+      /^\s*(\d+)\.\s+\*\*\[([^\]]+)\]([^*]*)\*\*\s*(.*)$/,
+    );
+    if (match) {
       const [, number, tag, target, body] = match;
-      return {
+      actions.push({
         number: Number(number),
         tag,
         body: `${target} ${body}`.trim(),
@@ -36,9 +35,12 @@ function parseNowActions(output) {
         ),
         suggested: tag.includes("SUGGESTED MOVE"),
         option: tag.includes("OPTION"),
-      };
-    })
-    .filter(Boolean);
+      });
+    } else if (actions.length > 0 && line.trim()) {
+      actions.at(-1).body += ` ${line.trim()}`;
+    }
+  }
+  return actions;
 }
 
 function section(output, name) {
@@ -82,14 +84,15 @@ export function validateClosureOutput(output, context = {}) {
       );
     }
     const program = field(output, "Program");
-    const checkpoint = field(output, "Checkpoint");
+    const nextOwner = field(output, "Next owner");
     if (
       !/^GATED\b/i.test(program) ||
-      !/(state readiness.*block|block.*state readiness)/i.test(checkpoint)
+      !nextOwner ||
+      isNone(nextOwner)
     ) {
       add(
         "S01_STATE_BLOCKED_HANDOFF",
-        "State readiness BLOCK requires Program: GATED and a BLOCK checkpoint.",
+        "State readiness BLOCK requires Program: GATED and an exact clearing owner.",
       );
     }
   }
@@ -137,7 +140,7 @@ export function validateClosureOutput(output, context = {}) {
     }
 
     const relationship = output.match(
-      /^\s*\d+(?:\s*,\s*\d+)*(?:,?\s+and\s+\d+)?\s+are\s+(alternatives|independent)\b.*$/im,
+      /^\s*[*_"]*\d+(?:\s*,\s*\d+)*(?:,?\s+and\s+\d+)?\s+are\s+(alternatives|independent)\b.*$/im,
     );
     if (!relationship) {
       add("E25_RELATIONSHIP", "Multiple NOW actions need an alternatives-or-independent statement.");

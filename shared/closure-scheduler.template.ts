@@ -43,9 +43,8 @@ const PROMPT_DESCRIPTION =
   "no valuable next move, and say so.";
 
 const TOOL_DESCRIPTION =
-  "Return the closure_scheduler rule as text — the same guidance this server " +
-  "carries in its `instructions`, for clients that don't auto-load server " +
-  "instructions.";
+  "Return the full closure_scheduler rule as text for clients that receive only " +
+  "the compact startup bootstrap.";
 
 const STATE_READINESS_DESCRIPTION =
   "Read-only local continuity check. Returns a bounded PASS, DEGRADED, or BLOCK " +
@@ -82,7 +81,7 @@ export function registerClosureScheduler(server) {
         project_name: z
           .string()
           .optional()
-          .describe("Canonical project basename when the checkout is a named worktree"),
+          .describe("Canonical project basename when cwd identity is ambiguous"),
         workspace_root: z
           .string()
           .optional()

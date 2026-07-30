@@ -212,5 +212,43 @@
     },
     "output": "No board: the requested status answer is complete.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** ACTIVE\n- **Checkpoint:** live repository state verified; _handoff.md and _active_actions.md excluded\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": []
+  },
+  {
+    "name": "rejects a blocked handoff with no exact clearing owner",
+    "context": {
+      "stateReadiness": "BLOCK"
+    },
+    "output": "No board: state readiness is BLOCK until hot.md is reconciled.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** HOT_NON_MONOTONIC at hot.md\n- **Next owner:** None\n- **Human:** None",
+    "expectedCodes": [
+      "S01_STATE_BLOCKED_HANDOFF"
+    ]
+  },
+  {
+    "name": "accepts a wrapped reconciliation action while blocked",
+    "context": {
+      "stateReadiness": "BLOCK"
+    },
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** Repair\n   shared state in hot.md. Done when: readiness passes.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** GATED\n- **Checkpoint:** HOT_NON_MONOTONIC at hot.md\n- **Next owner:** Dan — select action 1\n- **Human:** Dan — select action 1",
+    "expectedCodes": []
+  },
+  {
+    "name": "catches an authorized reoffer in a wrapped action",
+    "context": {
+      "alreadyAuthorizedActionPatterns": [
+        "run the focused test"
+      ]
+    },
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** Run the\n   focused test. Done when: it passes.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** test ready\n- **Next owner:** Dan — select action 1\n- **Human:** Dan — select action 1",
+    "expectedCodes": [
+      "E01_AUTHORIZED_REOFFER"
+    ]
+  },
+  {
+    "name": "accepts the rule's italic alternatives relationship example",
+    "context": {
+      "defensiblePriority": true
+    },
+    "output": "**Next actions**\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Apply the patch. Done when: tests pass.\n2. **[OPTION · RUN HERE]** Revert the experiment. Done when: baseline returns.\n\n*1 and 2 are alternatives; picking one drops the other.*\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** two paths ready\n- **Next owner:** Dan — choose one path\n- **Human:** Dan — choose one path",
+    "expectedCodes": []
   }
 ]

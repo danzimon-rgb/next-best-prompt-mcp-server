@@ -3,7 +3,15 @@ import {
   readFileSync,
   statSync,
 } from "node:fs";
-import { basename, dirname, isAbsolute, join, resolve } from "node:path";
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  join,
+  relative,
+  resolve,
+  sep,
+} from "node:path";
 
 export type StateReadiness = "PASS" | "DEGRADED" | "BLOCK";
 export type FindingLevel = Exclude<StateReadiness, "PASS">;
@@ -37,11 +45,24 @@ interface ParsedTimestamp {
   precision: "date" | "time";
 }
 
+interface LogTimestamps {
+  latest?: ParsedTimestamp;
+  future: ParsedTimestamp[];
+  parsedCount: number;
+}
+
 const MAX_SHARED_BYTES = 24 * 1024;
 const MAX_HANDOFF_BYTES = 4 * 1024;
-const HOT_LOG_LAG_MS = 5 * 60 * 1000;
+const FUTURE_TOLERANCE_MS = 5 * 60 * 1000;
+const HOT_DEGRADED_LAG_MS = 5 * 60 * 1000;
+const HOT_BLOCK_LAG_MS = 14 * 24 * 60 * 60 * 1000;
 const ACTIVE_ACTION_LAG_MS = 24 * 60 * 60 * 1000;
 const WORKSPACE_STATE_LAG_MS = 7 * 24 * 60 * 60 * 1000;
+const PROJECT_SUFFIXES = ["-ai", "-app", "-web", "-site", "-cli"] as const;
+const NEW_YORK_OFFSET_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York",
+  timeZoneName: "shortOffset",
+});
 
 function read(path: string): string | undefined {
   try {
@@ -59,68 +80,167 @@ function fileSize(path: string): number | undefined {
   }
 }
 
-function offsetForZone(zone: string): string {
-  return zone.toUpperCase() === "EST" ? "-05:00" : "-04:00";
+function isDirectory(path: string): boolean {
+  try {
+    return statSync(path).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+function newYorkOffsetMinutes(instant: Date): number {
+  const name = NEW_YORK_OFFSET_FORMATTER
+    .formatToParts(instant)
+    .find((part) => part.type === "timeZoneName")?.value;
+  const match = name?.match(/^GMT([+-])(\d{1,2})(?::(\d{2}))?$/);
+  if (!match?.[1] || !match[2]) return -240;
+  const minutes = Number(match[2]) * 60 + Number(match[3] ?? "0");
+  return match[1] === "+" ? minutes : -minutes;
+}
+
+function newYorkWallTime(
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number,
+  second: number,
+  millisecond = 0,
+): Date {
+  const wallUtc = Date.UTC(
+    year,
+    month - 1,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond,
+  );
+  let candidate = new Date(wallUtc);
+  for (let index = 0; index < 2; index += 1) {
+    candidate = new Date(wallUtc - newYorkOffsetMinutes(candidate) * 60_000);
+  }
+  return candidate;
+}
+
+function dateParts(dateKey: string): [number, number, number] | undefined {
+  const match = dateKey.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match?.[1] || !match[2] || !match[3]) return undefined;
+  return [Number(match[1]), Number(match[2]), Number(match[3])];
 }
 
 export function parseStateTimestamp(value: string): ParsedTimestamp | undefined {
   const trimmed = value.trim();
   const dateOnly = trimmed.match(/^(\d{4}-\d{2}-\d{2})$/);
   if (dateOnly?.[1]) {
-    const date = new Date(`${dateOnly[1]}T00:00:00Z`);
+    const parts = dateParts(dateOnly[1]);
+    if (!parts) return undefined;
+    const date = newYorkWallTime(parts[0], parts[1], parts[2], 0, 0, 0);
     return Number.isNaN(date.getTime())
       ? undefined
       : { date, dateKey: dateOnly[1], precision: "date" };
   }
 
-  const zoned = trimmed.match(
-    /^(\d{4}-\d{2}-\d{2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?\s*(?:(AM|PM)\s*)?(EDT|EST)$/i,
+  const newYorkZoned = trimmed.match(
+    /^(\d{4}-\d{2}-\d{2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?\s*(?:(AM|PM)\s*)?(?:EDT|EST|ET)$/i,
   );
-  if (zoned?.[1] && zoned[2] && zoned[3] && zoned[6]) {
-    const seconds = zoned[4] ?? "00";
-    let hour = Number(zoned[2]);
-    if (zoned[5]) {
+  if (
+    newYorkZoned?.[1] &&
+    newYorkZoned[2] &&
+    newYorkZoned[3]
+  ) {
+    const parts = dateParts(newYorkZoned[1]);
+    if (!parts) return undefined;
+    let hour = Number(newYorkZoned[2]);
+    if (newYorkZoned[5]) {
       hour %= 12;
-      if (zoned[5].toUpperCase() === "PM") hour += 12;
+      if (newYorkZoned[5].toUpperCase() === "PM") hour += 12;
     }
-    const date = new Date(
-      `${zoned[1]}T${String(hour).padStart(2, "0")}:${zoned[3]}:${seconds}${offsetForZone(zoned[6])}`,
+    const date = newYorkWallTime(
+      parts[0],
+      parts[1],
+      parts[2],
+      hour,
+      Number(newYorkZoned[3]),
+      Number(newYorkZoned[4] ?? "0"),
     );
     return Number.isNaN(date.getTime())
       ? undefined
-      : { date, dateKey: zoned[1], precision: "time" };
+      : { date, dateKey: newYorkZoned[1], precision: "time" };
   }
 
-  const parsed = new Date(trimmed);
+  const explicitOffset = trimmed.match(
+    /^(\d{4}-\d{2}-\d{2})[ T]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/,
+  );
+  if (!explicitOffset?.[1]) return undefined;
+  const parsed = new Date(trimmed.replace(" ", "T"));
   return Number.isNaN(parsed.getTime())
     ? undefined
-    : { date: parsed, dateKey: trimmed.slice(0, 10), precision: "time" };
+    : { date: parsed, dateKey: explicitOffset[1], precision: "time" };
 }
 
-function latestHeadingTimestamp(markdown: string): ParsedTimestamp | undefined {
-  const values: ParsedTimestamp[] = [];
-  for (const line of markdown.split(/\r?\n/)) {
-    const match = line.match(
-      /^#{2,3}\s+\[?(\d{4}-\d{2}-\d{2}(?:[ T]\d{1,2}:\d{2}(?::\d{2})?(?:-0[45]:00|\s+(?:EDT|EST)))?)/,
-    );
-    if (!match?.[1]) continue;
-    const parsed = parseStateTimestamp(match[1]);
-    if (parsed) values.push(parsed);
-  }
-  return values.sort((a, b) => b.date.getTime() - a.date.getTime())[0];
+function timestampFromHeading(line: string): ParsedTimestamp | undefined {
+  const match = line.match(
+    /^#{2,3}\s+\[?(\d{4}-\d{2}-\d{2}(?:[ T]\d{1,2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2}|\s+(?:(?:AM|PM)\s+)?(?:EDT|EST|ET)))?)/i,
+  );
+  return match?.[1] ? parseStateTimestamp(match[1]) : undefined;
 }
 
-function headingSequence(markdown: string): ParsedTimestamp[] {
-  const values: ParsedTimestamp[] = [];
+function logTimestamps(markdown: string, now: Date): LogTimestamps {
+  const parsed: ParsedTimestamp[] = [];
   for (const line of markdown.split(/\r?\n/)) {
-    const match = line.match(
-      /^###\s+(\d{4}-\d{2}-\d{2}[ T]\d{1,2}:\d{2}(?::\d{2})?(?:-0[45]:00|\s+(?:EDT|EST)))/,
-    );
-    if (!match?.[1]) continue;
-    const parsed = parseStateTimestamp(match[1]);
-    if (parsed) values.push(parsed);
+    const timestamp = timestampFromHeading(line);
+    if (timestamp) parsed.push(timestamp);
   }
-  return values;
+  const future = parsed
+    .filter(
+      (timestamp) =>
+        timestamp.date.getTime() > now.getTime() + FUTURE_TOLERANCE_MS,
+    )
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
+  const usable = parsed
+    .filter(
+      (timestamp) =>
+        timestamp.date.getTime() <= now.getTime() + FUTURE_TOLERANCE_MS,
+    )
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
+  return { latest: usable[0], future, parsedCount: parsed.length };
+}
+
+function hotHeadingRuns(markdown: string): ParsedTimestamp[][] {
+  const runs: ParsedTimestamp[][] = [[]];
+  for (const line of markdown.split(/\r?\n/)) {
+    if (/^##\s+/.test(line) && !/^###\s+/.test(line)) {
+      runs.push([]);
+      continue;
+    }
+    if (!/^###\s+/.test(line)) continue;
+    const timestamp = timestampFromHeading(line);
+    if (timestamp) runs.at(-1)?.push(timestamp);
+  }
+  return runs.filter((run) => run.length > 0);
+}
+
+function targetReferenceTime(target: ParsedTimestamp): number {
+  if (target.precision === "time") return target.date.getTime();
+  const parts = dateParts(target.dateKey);
+  if (!parts) return target.date.getTime();
+  return newYorkWallTime(
+    parts[0],
+    parts[1],
+    parts[2],
+    23,
+    59,
+    59,
+    999,
+  ).getTime();
+}
+
+function sourceLagMs(
+  source: ParsedTimestamp,
+  target: ParsedTimestamp,
+): number {
+  return source.date.getTime() - targetReferenceTime(target);
 }
 
 function sourceIsNewer(
@@ -128,34 +248,96 @@ function sourceIsNewer(
   target: ParsedTimestamp,
   toleranceMs: number,
 ): boolean {
-  if (target.precision === "date") {
-    return source.dateKey !== target.dateKey &&
-      source.date.getTime() > target.date.getTime();
-  }
-  return source.date.getTime() - target.date.getTime() > toleranceMs;
+  return sourceLagMs(source, target) > toleranceMs;
 }
 
-function findWorkspaceRoot(projectCwd: string): string {
+function findWorkspaceRoot(projectCwd: string): string | undefined {
   let cursor = resolve(projectCwd);
   while (true) {
     if (
-      existsSync(join(cursor, "_handoff.md")) &&
-      existsSync(join(cursor, "_active_actions.md")) &&
-      existsSync(join(cursor, "_workspace_state.md")) &&
-      existsSync(join(cursor, "_wikis"))
+      isDirectory(join(cursor, "_wikis")) &&
+      existsSync(join(cursor, "_workspace_state.md"))
     ) {
       return cursor;
     }
     const parent = dirname(cursor);
-    if (parent === cursor) break;
+    if (parent === cursor) return undefined;
     cursor = parent;
   }
-  throw new Error(`No continuity workspace found above ${projectCwd}`);
+}
+
+function gitProjectName(
+  projectCwd: string,
+  workspaceRoot: string,
+): string | undefined {
+  let cursor = projectCwd;
+  while (cursor !== workspaceRoot && cursor.startsWith(`${workspaceRoot}${sep}`)) {
+    const dotGit = join(cursor, ".git");
+    if (isDirectory(dotGit)) return basename(cursor);
+    const gitFile = read(dotGit);
+    const gitDir = gitFile?.match(/^gitdir:\s*(.+)$/m)?.[1]?.trim();
+    if (gitDir) {
+      const marker = `${sep}.git${sep}worktrees${sep}`;
+      const markerIndex = gitDir.indexOf(marker);
+      if (markerIndex !== -1) {
+        return basename(gitDir.slice(0, markerIndex));
+      }
+      return basename(cursor);
+    }
+    cursor = dirname(cursor);
+  }
+  return undefined;
+}
+
+function deriveProjectName(
+  projectCwd: string,
+  workspaceRoot: string,
+  explicit?: string,
+): string {
+  const override = explicit?.trim();
+  if (override) return override;
+  const gitName = gitProjectName(projectCwd, workspaceRoot);
+  if (gitName) return gitName;
+  const firstSegment = relative(workspaceRoot, projectCwd).split(sep)[0];
+  if (
+    firstSegment &&
+    firstSegment !== "." &&
+    firstSegment !== ".." &&
+    !firstSegment.startsWith("_")
+  ) {
+    return firstSegment;
+  }
+  return basename(projectCwd);
+}
+
+function wikiCandidates(workspaceRoot: string, project: string): string[] {
+  const names = [project];
+  for (const suffix of PROJECT_SUFFIXES) {
+    if (project.endsWith(suffix)) {
+      const stripped = project.slice(0, -suffix.length);
+      if (stripped) names.push(stripped);
+    }
+  }
+  return names.flatMap((name) => [
+    join(workspaceRoot, "_wikis", name, "wiki"),
+    join(workspaceRoot, `${name}-wiki`, "wiki"),
+  ]);
+}
+
+function resolveWikiDir(
+  workspaceRoot: string,
+  project: string,
+): { path: string; exists: boolean } {
+  const candidates = wikiCandidates(workspaceRoot, project);
+  const found = candidates.find((candidate) => isDirectory(candidate));
+  return {
+    path: found ?? candidates[0] ?? join(workspaceRoot, "_wikis", project, "wiki"),
+    exists: found !== undefined,
+  };
 }
 
 function frontmatterValue(markdown: string, key: string): string | undefined {
-  const match = markdown.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
-  return match?.[1]?.trim();
+  return markdown.match(new RegExp(`^${key}:\\s*(.+)$`, "m"))?.[1]?.trim();
 }
 
 function projectSection(markdown: string, project: string): string | undefined {
@@ -167,6 +349,24 @@ function projectSection(markdown: string, project: string): string | undefined {
   )?.[1];
 }
 
+function result(
+  readiness: StateReadiness,
+  project: string,
+  projectCwd: string,
+  workspaceRoot: string,
+  now: Date,
+  findings: StateReadinessFinding[],
+): StateReadinessResult {
+  return {
+    readiness,
+    project,
+    projectCwd,
+    workspaceRoot,
+    checkedAt: now.toISOString(),
+    findings,
+  };
+}
+
 export function assessStateReadiness(
   options: StateReadinessOptions,
 ): StateReadinessResult {
@@ -174,14 +374,42 @@ export function assessStateReadiness(
     throw new Error("projectCwd must be an absolute path");
   }
   const projectCwd = resolve(options.projectCwd);
-  const workspaceRoot = options.workspaceRoot
+  const now = options.now ?? new Date();
+  const discoveredRoot = options.workspaceRoot
     ? resolve(options.workspaceRoot)
     : findWorkspaceRoot(projectCwd);
-  const project = options.projectName?.trim() || basename(projectCwd);
-  if (project.includes("/") || project.includes("\\")) {
+  const fallbackProject = options.projectName?.trim() || basename(projectCwd);
+  if (!discoveredRoot) {
+    return result(
+      "DEGRADED",
+      fallbackProject,
+      projectCwd,
+      "",
+      now,
+      [{
+        code: "WORKSPACE_ROOT_MISSING",
+        level: "DEGRADED",
+        message: "Exclude shared continuity state: no workspace root was found.",
+        path: projectCwd,
+      }],
+    );
+  }
+  const workspaceRoot = discoveredRoot;
+  const project = deriveProjectName(
+    projectCwd,
+    workspaceRoot,
+    options.projectName,
+  );
+  if (
+    !project ||
+    project.includes("/") ||
+    project.includes("\\") ||
+    project === "." ||
+    project === ".."
+  ) {
     throw new Error("projectName must be a basename, not a path");
   }
-  const now = options.now ?? new Date();
+
   const findings: StateReadinessFinding[] = [];
   const add = (
     code: string,
@@ -195,13 +423,15 @@ export function assessStateReadiness(
   const handoffPath = join(workspaceRoot, "_handoff.md");
   const handoff = read(handoffPath);
   const handoffBytes = fileSize(handoffPath);
-  if (!handoff) {
+  if (handoff === undefined) {
     add(
       "HANDOFF_MISSING",
       "DEGRADED",
       "Exclude handoff: file is missing or unreadable.",
       handoffPath,
     );
+  } else if (handoff.length === 0) {
+    add("HANDOFF_EMPTY", "DEGRADED", "Exclude handoff: file is empty.", handoffPath);
   } else {
     if (handoffBytes !== undefined && handoffBytes > MAX_HANDOFF_BYTES) {
       add(
@@ -243,68 +473,106 @@ export function assessStateReadiness(
     }
   }
 
-  const wikiDir = join(workspaceRoot, "_wikis", project, "wiki");
-  const hotPath = join(wikiDir, "hot.md");
-  const logPath = join(wikiDir, "log.md");
+  const wiki = resolveWikiDir(workspaceRoot, project);
+  const hotPath = join(wiki.path, "hot.md");
+  const logPath = join(wiki.path, "log.md");
   const hot = read(hotPath);
   const log = read(logPath);
   const hotBytes = fileSize(hotPath);
-  const latestLog = log ? latestHeadingTimestamp(log) : undefined;
-  let hotCurated: ParsedTimestamp | undefined;
+  const logState = log ? logTimestamps(log, now) : {
+    latest: undefined,
+    future: [],
+    parsedCount: 0,
+  };
+  const latestLog = logState.latest;
 
-  if (!hot) {
-    add("HOT_MISSING", "BLOCK", "Project hot.md is missing or unreadable.", hotPath);
+  if (!wiki.exists || hot === undefined) {
+    add(
+      "HOT_MISSING",
+      "DEGRADED",
+      "Exclude hot state: project hot.md is missing or unreadable.",
+      hotPath,
+    );
+  } else if (hot.length === 0) {
+    add("HOT_EMPTY", "DEGRADED", "Exclude hot state: hot.md is empty.", hotPath);
   } else {
     if (hotBytes !== undefined && hotBytes > MAX_SHARED_BYTES) {
       add(
         "HOT_OVERSIZE",
-        "BLOCK",
-        `hot.md is ${hotBytes} bytes; it exceeds the 24576-byte live-state budget.`,
+        "DEGRADED",
+        `Exclude hot state: ${hotBytes} bytes exceeds the 24576-byte live-state budget.`,
         hotPath,
       );
     }
     const curated = hot.match(/<!--\s*curated:\s*([^>]+?)\s*-->/i)?.[1];
-    hotCurated = curated ? parseStateTimestamp(curated) : undefined;
+    const hotCurated = curated ? parseStateTimestamp(curated) : undefined;
     if (!hotCurated) {
       add(
         "HOT_CURATED_MISSING",
         "DEGRADED",
-        "hot.md has no valid curated timestamp.",
+        "Exclude hot state: no valid curated timestamp exists.",
         hotPath,
       );
-    } else if (latestLog && sourceIsNewer(latestLog, hotCurated, HOT_LOG_LAG_MS)) {
-      add(
-        "HOT_BEHIND_LOG",
-        "BLOCK",
-        "hot.md predates the newest durable log entry; reconcile current state before prioritizing.",
-        hotPath,
-      );
-    }
-
-    const sequence = headingSequence(hot);
-    for (let index = 1; index < sequence.length; index += 1) {
-      const previous = sequence[index - 1];
-      const current = sequence[index];
-      if (previous && current && current.date.getTime() > previous.date.getTime()) {
+    } else if (latestLog) {
+      const lag = sourceLagMs(latestLog, hotCurated);
+      if (lag > HOT_BLOCK_LAG_MS) {
         add(
-          "HOT_NON_MONOTONIC",
+          "HOT_SEVERELY_BEHIND_LOG",
           "BLOCK",
-          `Dated hot.md headings are not newest-first near ${current.date.toISOString()}.`,
+          "hot.md is more than 14 days behind the newest usable log entry.",
           hotPath,
         );
-        break;
+      } else if (lag > HOT_DEGRADED_LAG_MS) {
+        add(
+          "HOT_BEHIND_LOG",
+          "DEGRADED",
+          "Exclude hot state: its curated timestamp trails the newest usable log entry.",
+          hotPath,
+        );
       }
+    }
+
+    for (const run of hotHeadingRuns(hot)) {
+      for (let index = 1; index < run.length; index += 1) {
+        const previous = run[index - 1];
+        const current = run[index];
+        if (previous && current && current.date.getTime() > previous.date.getTime()) {
+          add(
+            "HOT_NON_MONOTONIC",
+            "BLOCK",
+            `Dated hot.md headings are not newest-first within one section near ${current.date.toISOString()}.`,
+            hotPath,
+          );
+          break;
+        }
+      }
+      if (findings.some((finding) => finding.code === "HOT_NON_MONOTONIC")) break;
     }
   }
 
-  if (!log) {
-    add("LOG_MISSING", "DEGRADED", "Project log.md is missing or unreadable.", logPath);
+  if (!wiki.exists || log === undefined) {
+    add(
+      "LOG_MISSING",
+      "DEGRADED",
+      "Exclude durable log: project log.md is missing or unreadable.",
+      logPath,
+    );
+  } else if (log.length === 0) {
+    add("LOG_EMPTY", "DEGRADED", "Exclude durable log: log.md is empty.", logPath);
   } else {
-    if (latestLog && latestLog.date.getTime() > now.getTime() + HOT_LOG_LAG_MS) {
+    if (logState.parsedCount === 0) {
+      add(
+        "LOG_TIMESTAMP_UNPARSEABLE",
+        "DEGRADED",
+        "Exclude log freshness: no supported dated heading was found.",
+        logPath,
+      );
+    }
+    if (logState.future.length > 0) {
       add(
         "LOG_FUTURE_TIMESTAMP",
-        "BLOCK",
-        `log.md contains a future timestamp: ${latestLog.date.toISOString()}.`,
+        "DEGRADED",
+        `Ignore future log heading ${logState.future[0]?.date.toISOString()}.`,
         logPath,
       );
     }
@@ -313,19 +581,26 @@ export function assessStateReadiness(
   const activePath = join(workspaceRoot, "_active_actions.md");
   const active = read(activePath);
   const activeBytes = fileSize(activePath);
-  if (!active) {
+  if (active === undefined) {
     add(
       "ACTIVE_ACTIONS_MISSING",
       "DEGRADED",
       "Exclude active actions: file is missing or unreadable.",
       activePath,
     );
+  } else if (active.length === 0) {
+    add(
+      "ACTIVE_ACTIONS_EMPTY",
+      "DEGRADED",
+      "Exclude active actions: file is empty.",
+      activePath,
+    );
   } else {
     if (activeBytes !== undefined && activeBytes > MAX_SHARED_BYTES) {
       add(
         "ACTIVE_ACTIONS_OVERSIZE",
-        "BLOCK",
-        `_active_actions.md is ${activeBytes} bytes; it exceeds the 24576-byte budget.`,
+        "DEGRADED",
+        `Exclude active actions: ${activeBytes} bytes exceeds the 24576-byte budget.`,
         activePath,
       );
     }
@@ -338,7 +613,10 @@ export function assessStateReadiness(
         "Exclude active actions: Last curated timestamp is missing or invalid.",
         activePath,
       );
-    } else if (latestLog && sourceIsNewer(latestLog, activeCurated, ACTIVE_ACTION_LAG_MS)) {
+    } else if (
+      latestLog &&
+      sourceIsNewer(latestLog, activeCurated, ACTIVE_ACTION_LAG_MS)
+    ) {
       add(
         "ACTIVE_ACTIONS_STALE",
         "DEGRADED",
@@ -350,11 +628,18 @@ export function assessStateReadiness(
 
   const workspaceStatePath = join(workspaceRoot, "_workspace_state.md");
   const workspaceState = read(workspaceStatePath);
-  if (!workspaceState) {
+  if (workspaceState === undefined) {
     add(
       "WORKSPACE_STATE_MISSING",
       "DEGRADED",
       "Exclude workspace state: file is missing or unreadable.",
+      workspaceStatePath,
+    );
+  } else if (workspaceState.length === 0) {
+    add(
+      "WORKSPACE_STATE_EMPTY",
+      "DEGRADED",
+      "Exclude workspace state: file is empty.",
       workspaceStatePath,
     );
   } else {
@@ -367,7 +652,9 @@ export function assessStateReadiness(
         workspaceStatePath,
       );
     } else {
-      const updated = section.match(/_Last self-update:\s*([^_(]+?)(?:\s*\(|_)/i)?.[1];
+      const updated = section.match(
+        /_Last self-update:\s*([^_(]+?)(?:\s*\(|_)/i,
+      )?.[1];
       const parsed = updated ? parseStateTimestamp(updated) : undefined;
       if (!parsed) {
         add(
@@ -376,7 +663,10 @@ export function assessStateReadiness(
           "Exclude workspace state: project self-update timestamp is missing or invalid.",
           workspaceStatePath,
         );
-      } else if (latestLog && sourceIsNewer(latestLog, parsed, WORKSPACE_STATE_LAG_MS)) {
+      } else if (
+        latestLog &&
+        sourceIsNewer(latestLog, parsed, WORKSPACE_STATE_LAG_MS)
+      ) {
         add(
           "WORKSPACE_PROJECT_STALE",
           "DEGRADED",
@@ -387,37 +677,47 @@ export function assessStateReadiness(
     }
   }
 
-  const readiness: StateReadiness = findings.some((finding) => finding.level === "BLOCK")
+  const readiness: StateReadiness = findings.some(
+    (finding) => finding.level === "BLOCK",
+  )
     ? "BLOCK"
     : findings.length > 0
       ? "DEGRADED"
       : "PASS";
-  return {
+  return result(
     readiness,
     project,
     projectCwd,
     workspaceRoot,
-    checkedAt: now.toISOString(),
+    now,
     findings,
-  };
+  );
 }
 
 export function formatStateReadiness(
-  result: StateReadinessResult,
+  state: StateReadinessResult,
   maxBytes = 1000,
   maxFindings = 5,
 ): string {
-  if (result.readiness === "PASS") {
+  if (state.readiness === "PASS") {
     return "STATE READINESS PASS — current shared sources are structurally safe.";
   }
-  const shown = result.findings.slice(0, maxFindings);
+  const ordered = state.findings
+    .map((finding, index) => ({ finding, index }))
+    .sort((a, b) => {
+      const severity =
+        Number(b.finding.level === "BLOCK") - Number(a.finding.level === "BLOCK");
+      return severity || a.index - b.index;
+    })
+    .map(({ finding }) => finding);
+  const shown = ordered.slice(0, maxFindings);
   const lines = [
-    `STATE READINESS ${result.readiness} — ${result.project}`,
+    `STATE READINESS ${state.readiness} — ${state.project}`,
     ...shown.map(
       (finding) => `- ${finding.level} ${finding.code}: ${finding.message}`,
     ),
   ];
-  const hidden = result.findings.length - shown.length;
+  const hidden = ordered.length - shown.length;
   if (hidden > 0) lines.push(`- ${hidden} additional finding(s) withheld.`);
   let output = lines.join("\n");
   while (Buffer.byteLength(output, "utf8") > maxBytes && output.length > 32) {

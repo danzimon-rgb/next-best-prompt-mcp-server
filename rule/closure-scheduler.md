@@ -13,6 +13,10 @@ assumption, second-order consequence, unpriced risk, or overlooked option belong
 on the board when it is highest-leverage, even if it reopens a settled-looking
 question. A board of only safe procedural steps has failed.
 
+Stakes raise this obligation rather than lowering it. The moments that most
+deserve a non-obvious move are the expensive, irreversible, or already-decided
+ones.
+
 **Never substitute paperwork for analysis because paperwork is defensible.**
 Process is often genuinely right — verify the credential, confirm the ceiling,
 get the approval — and saying so is not timidity. The failure is letting it
@@ -67,6 +71,7 @@ Do not force one label to describe both.
 
 For project work, call `check_state_readiness` at session start/project switch
 and after material shared-state writes; reuse it while inputs are unchanged.
+Pass `project_name` when the cwd is not under the canonical checkout.
 `PASS` permits ordinary prioritization. `DEGRADED` quarantines every named source:
 verify around it and name exclusions in the checkpoint. `BLOCK` forbids ordinary
 `NOW` actions: reconcile state or emit `No board: state readiness is BLOCK`,

@@ -25,7 +25,7 @@ and is code-generated into a shared module that both transports import:
 Both expose identical surfaces: the `instructions` field, a `next_best_prompt` prompt, and
 a `get_next_best_prompts_rule` tool.
 
-## closure_scheduler v0.5.3 canary
+## closure_scheduler v0.5.4 canary
 
 The repository also carries a separate, stdio-only `closure_scheduler` candidate.
 It keeps the incumbent and hosted behavior unchanged while the execution-board
@@ -65,7 +65,16 @@ classifies the continuity stack as `PASS`, `DEGRADED`, or `BLOCK`. It checks the
 handoff TTL, live-file size budgets, project hot/log chronology and freshness,
 active-action freshness, and the project workspace-state section. `DEGRADED`
 quarantines named sources; `BLOCK` permits only state reconciliation until a
-recheck passes. Output is capped at five findings and 1,000 bytes.
+recheck passes. Missing wikis, size hygiene, future timestamps, and ordinary
+hot/log lag are `DEGRADED`, not hard stops. `BLOCK` is reserved for contradictory
+within-section chronology or a hot head more than 14 days behind usable durable
+history. Output is severity-ordered and capped at five findings and 1,000 bytes.
+
+Project identity is derived from the enclosing Git checkout or first workspace
+path segment, including linked worktrees and nested cwd values. Wiki resolution
+matches the workspace loader: canonical `_wikis/<project>/wiki`, legacy sibling
+`<project>-wiki/wiki`, then common suffix-stripped variants. `--project-name`
+remains an explicit fallback for ambiguous non-Git layouts.
 
 The same engine is available without MCP:
 

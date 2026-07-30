@@ -49,15 +49,32 @@ const smokeProject = join(smokeWorkspace, "smoke-project");
 const smokeWiki = join(smokeWorkspace, "_wikis", "smoke-project", "wiki");
 mkdirSync(smokeProject, { recursive: true });
 mkdirSync(smokeWiki, { recursive: true });
-for (const path of [
+const smokeNow = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+writeFileSync(
   join(smokeWorkspace, "_handoff.md"),
+  `---\nproject: smoke-project\nclosed_at: ${smokeNow}\nttl_hours: 6\n---\n`,
+  "utf8",
+);
+writeFileSync(
   join(smokeWorkspace, "_active_actions.md"),
+  `_Last curated: ${smokeNow} by smoke._\n`,
+  "utf8",
+);
+writeFileSync(
   join(smokeWorkspace, "_workspace_state.md"),
+  `<!-- BEGIN: smoke-project -->\n_Last self-update: ${smokeNow}_\n<!-- END: smoke-project -->\n`,
+  "utf8",
+);
+writeFileSync(
   join(smokeWiki, "hot.md"),
+  `<!-- curated: ${smokeNow} -->\n# hot\n`,
+  "utf8",
+);
+writeFileSync(
   join(smokeWiki, "log.md"),
-]) {
-  writeFileSync(path, "", "utf8");
-}
+  `## ${smokeNow} — smoke\n`,
+  "utf8",
+);
 const readinessCall = await client.callTool({
   name: "check_state_readiness",
   arguments: {
@@ -72,14 +89,14 @@ rmSync(smokeWorkspace, { recursive: true, force: true });
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.3": serverInfo?.version === "0.5.3",
+  "server identifies as version 0.5.4": serverInfo?.version === "0.5.4",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
   "tool name matches the incumbent": tools.includes("get_next_best_prompts_rule"),
   "state readiness tool is present": tools.includes("check_state_readiness"),
-  "state readiness tool returns a bounded verdict":
-    /^STATE READINESS (PASS|DEGRADED|BLOCK)\b/.test(readinessText) &&
+  "state readiness tool returns a bounded PASS":
+    readinessText.startsWith("STATE READINESS PASS") &&
     Buffer.byteLength(readinessText, "utf8") <= 1000,
   "instructions are a compact tool-call bootstrap":
     instructions.length < 500 &&
