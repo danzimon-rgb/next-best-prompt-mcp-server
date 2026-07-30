@@ -1,6 +1,6 @@
 # State readiness gate — Codex remediation to Claude Code
 
-Updated: 2026-07-30 12:48 EDT
+Updated: 2026-07-30 14:52 EDT
 Builder: Codex
 Requested next lane: Claude Code independent re-review
 Human gate: Dan decides whether anything merges or is loaded
@@ -10,10 +10,13 @@ Human gate: Dan decides whether anything merges or is loaded
 - Repository: `danzimon-rgb/next-best-prompt-mcp-server`
 - Draft PR: https://github.com/danzimon-rgb/next-best-prompt-mcp-server/pull/7
 - Branch: `feat/state-readiness-gate`
-- Base: `main` at `1e2813a78b7b6957de52340ba3927489eab983e4`
+- Base: `main` at `d3dce3d817f997b18b8a1f461e3ca99a1614dab5`
+  after PR #8
 - Original reviewed head: `e08678af3345ad0dac800ded00e509f3b4b9213f`
-- Severity-remediation commit:
-  `af39b96c87684ff017a7dca55eb38c98cd4774aa`
+- First re-review head before the rebase:
+  `723d8ccde7644ca6ff08cc88cc0aa19bf817f3d2`
+- Post-rebase remediation commit:
+  `3b8c9ef96fbf3df1520de90c2e310f032d842970`
 - Canary fingerprint after remediation: `closure_scheduler 0.5.4`
 - The branch still contains the previously pushed, unmerged
   `fix/closure-validator-no-growth` lineage at `b73f1f7`.
@@ -33,7 +36,7 @@ Verdict was `BLOCK`: 46 candidate findings, 14 refuted, 32 surviving. Codex
 accepts the three blockers and the five majors. The architecture was retained;
 the failure was severity calibration and incomplete boundary coverage.
 
-### Blocker and major closure map
+### First-review blocker and major closure map
 
 1. `HOT_MISSING` no longer blocks. Missing and unreadable project heads are
    `DEGRADED`. Wiki lookup now matches the workspace loader: canonical, legacy
@@ -82,17 +85,49 @@ the failure was severity calibration and incomplete boundary coverage.
 - The removed high-stakes non-obvious-move paragraph was restored within the
   unchanged 15,655-byte ceiling.
 
+## Second re-review and PR #8 reconciliation
+
+Claude Code's second read-only review at pre-rebase head `723d8cc` returned
+`BLOCK` with one blocker, one major, and eight advisories:
+
+https://github.com/danzimon-rgb/next-best-prompt-mcp-server/pull/7#issuecomment-5134501355
+
+PR #8 merged during that review and advanced `origin/main` to `d3dce3d`. Codex
+rebased PR #7 onto that exact SHA before making any further fix. The rebase
+preserved #8's invariant that every substantive response emits a numbered board.
+
+Dan resolved the only semantic conflict between #7 and #8:
+
+- Under state-readiness `BLOCK`, the board is still mandatory.
+- It contains at least one `NOW` action and every action is state reconciliation.
+- `Program: GATED`, the exact clearing owner, and a recheck remain mandatory.
+- `S01_STATE_BLOCKED_NO_BOARD` now makes the BLOCK-specific omission explicit;
+  the general `E21_MISSING_NEXT_ACTION` also remains active.
+
+The re-review blocker and major are closed in `3b8c9ef`:
+
+1. Project identity now tries the workspace's first path segment before an
+   enclosing nested Git repository. Linked worktrees under underscore-prefixed
+   workspace containers still fall back to canonical Git identity.
+2. `HOT_NON_MONOTONIC` compares both headings through
+   `targetReferenceTime`, so a date-only heading is treated as the end of its
+   New York calendar day instead of midnight.
+3. The 14-day hard-stop has explicit 13-day-23-hour and 14-day-1-hour fixtures.
+
+The advisory about `reconciliationPatterns` being a substring allowlist remains
+deferred and is not a merge gate.
+
 ## Verification
 
-Fresh after `af39b96`:
+Fresh after rebase and `3b8c9ef`:
 
 ```text
 npm test
   generated copies: in sync
   incumbent smoke: 15/15 pass
   closure_scheduler 0.5.4 smoke: 17/17 pass
-  rendered closure fixtures: 24/24 pass
-  state-readiness checks: 22/22 pass
+  rendered closure fixtures: 25/25 pass
+  state-readiness checks: 26/26 pass
   wrapper checks: 2/2 pass
 
 npm run typecheck
@@ -111,13 +146,13 @@ npm pack --dry-run
 Payload and performance:
 
 ```text
-closure rule: 15,607 bytes
+closure rule: 15,655 bytes
 fixed ceiling: 15,655 bytes
 
 200 live Teranode checks:
-median 1.326 ms
-p95 2.358 ms
-max 5.179 ms
+median 1.373 ms
+p95 2.604 ms
+max 5.839 ms
 bounded output 144 bytes
 ```
 
@@ -127,8 +162,8 @@ The 24 top-level Git projects under `/home/dan/.openclaw/workspace` were checked
 with the remediated engine:
 
 ```text
-PASS:      1
-DEGRADED: 23
+PASS:      4
+DEGRADED: 20
 BLOCK:     0
 ```
 
@@ -172,8 +207,8 @@ live evidence is the 24-project matrix above.
 
 ## Requested Claude Code re-review
 
-Review `e08678a..HEAD` read-only and return `APPROVE` or `BLOCK` with exact
-file/line evidence. Please rerun:
+Review `d3dce3d..HEAD` read-only and return `APPROVE` or `BLOCK` with exact
+file/line evidence. Confirm the rebase retained #8 and rerun:
 
 ```bash
 npm ci
@@ -189,14 +224,12 @@ node dist/state-readiness-cli.js \
 
 Concentrate on:
 
-1. whether any healthy current workspace state can still produce `BLOCK`;
-2. whether the 14-day hard-stop threshold is consistent with the intended
-   severity ladder;
-3. whether future headings are fully excluded from freshness references;
-4. whether Git/worktree/subdirectory identity can read a foreign project;
-5. whether date-only and New York timezone boundaries remain deterministic;
-6. whether BLOCK-first bounded rendering can ever hide the hard-stop reason;
-7. whether the incumbent and hosted endpoint remain unchanged.
+1. whether `BLOCK` always emits at least one reconciliation-only `NOW` action;
+2. whether nested `.git` metadata can still redirect a workspace project;
+3. whether mixed date-only/time chronology is deterministic;
+4. whether the 14-day ±1-hour fixtures straddle the hard-stop correctly;
+5. whether any healthy current workspace state can still produce `BLOCK`;
+6. whether the incumbent and hosted endpoint remain unchanged.
 
 Do not edit, merge, release, publish, change client configuration, restart an
 MCP server, adopt the hosted surface, or deploy production as part of review.
@@ -211,5 +244,6 @@ PR #7.
 
 ## Next gate
 
-Claude Code independent re-review, then Dan's merge/load decision. The live MCP
-checkout remains on the prior 0.5.2 branch and has not loaded this gate.
+Claude Code independent re-review of the rebased head, then Dan's merge/load
+decision. Canonical main runs 0.5.3 for new stdio connections; this branch's
+0.5.4 state-readiness gate has not been loaded.
