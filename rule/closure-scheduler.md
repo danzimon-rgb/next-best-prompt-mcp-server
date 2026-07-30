@@ -1,4 +1,4 @@
-# next_best_prompt v0.5.3 — closure scheduler
+# next_best_prompt v0.5.4 — closure scheduler
 
 Supersedes v0.4, preserving its execution board and red-team corrections while
 keeping product compliance out (§9).

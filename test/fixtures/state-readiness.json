@@ -41,6 +41,21 @@
     "expectedCodes": []
   },
   {
+    "name": "ignores nested git metadata inside an underscore-prefixed linked-worktree container",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "projectCwdName": "_worktrees/alpha-feature/nested-repo",
+    "gitWorktreeProject": "alpha",
+    "gitWorktreeCwdName": "_worktrees/alpha-feature",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_worktrees/alpha-feature/nested-repo/.git/HEAD": "ref: refs/heads/main\n"
+    },
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
     "name": "honors a healthy legacy sibling wiki",
     "extends": "accepts coherent state from a nested project cwd",
     "project": "alpha",

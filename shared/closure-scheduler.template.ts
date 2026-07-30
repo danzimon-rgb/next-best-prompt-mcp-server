@@ -39,8 +39,8 @@ const PROMPT_DESCRIPTION =
   "Return the closure-scheduler end-of-turn rule: classify the turn, act before " +
   "offering, then render an execution board of 1-3 digit-selectable actions with " +
   "explicit dispatch semantics (RUN HERE / PASTE TO / EXTERNAL), plus QUEUE and " +
-  "IN FLIGHT sections and a request/program handoff. Skip the board when there is " +
-  "no valuable next move, and say so.";
+  "IN FLIGHT sections and a request/program handoff. Always render at least one " +
+  "NOW action, including when no alternative is valuable.";
 
 const TOOL_DESCRIPTION =
   "Return the full closure_scheduler rule as text for clients that receive only " +

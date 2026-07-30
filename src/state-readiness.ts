@@ -273,7 +273,6 @@ function gitProjectName(
   let cursor = projectCwd;
   while (cursor !== workspaceRoot && cursor.startsWith(`${workspaceRoot}${sep}`)) {
     const dotGit = join(cursor, ".git");
-    if (isDirectory(dotGit)) return basename(cursor);
     const gitFile = read(dotGit);
     const gitDir = gitFile?.match(/^gitdir:\s*(.+)$/m)?.[1]?.trim();
     if (gitDir) {
@@ -282,7 +281,6 @@ function gitProjectName(
       if (markerIndex !== -1) {
         return basename(gitDir.slice(0, markerIndex));
       }
-      return basename(cursor);
     }
     cursor = dirname(cursor);
   }

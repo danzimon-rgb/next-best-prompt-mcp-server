@@ -34,8 +34,13 @@ for (const fixture of fixtures) {
     );
     mkdirSync(projectCwd, { recursive: true });
     if (fixture.gitWorktreeProject) {
+      const gitWorktreeCwd = join(
+        workspaceRoot,
+        fixture.gitWorktreeCwdName ?? fixture.projectCwdName ?? fixture.project,
+      );
+      mkdirSync(gitWorktreeCwd, { recursive: true });
       writeFileSync(
-        join(projectCwd, ".git"),
+        join(gitWorktreeCwd, ".git"),
         `gitdir: ${join(workspaceRoot, fixture.gitWorktreeProject, ".git", "worktrees", "fixture")}\n`,
         "utf8",
       );

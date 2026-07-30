@@ -37,7 +37,7 @@ of being duplicated in both startup instructions and the tool result. The local
 wrapper also resolves a numeric nvm default directly, avoiding a full nvm startup
 when possible.
 
-Unlike v0.5.2, v0.5.3 requires at least one selectable next suggested prompt
+Unlike v0.5.2, v0.5.4 requires at least one selectable next suggested prompt
 after every substantive response, including completed, gated, and in-flight
 turns. When no alternative is genuinely useful, it emits one honest optional
 follow-up rather than omitting the board or padding the menu.
@@ -85,9 +85,10 @@ closure-state-readiness --project-cwd /absolute/worktree --project-name canonica
 ```
 
 Exit codes are `0` for `PASS`, `2` for `DEGRADED`, `1` for `BLOCK`, and `64`
-for invalid invocation. The rendered-output validator accepts
-`stateReadiness`, `stateReadinessExcludedSources`, and optional
-`stateReconciliationActionPatterns` context fields to enforce the verdict.
+for invalid invocation. The rendered-output validator accepts `stateReadiness`
+and `stateReadinessExcludedSources` context fields. Under `BLOCK` it enforces a
+nonempty board, `Program: GATED`, and an exact clearing owner; the rule itself
+governs whether the actions are genuinely state reconciliation.
 
 ## Install
 

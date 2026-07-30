@@ -68,27 +68,6 @@ export function validateClosureOutput(output, context = {}) {
         "State readiness BLOCK requires at least one numbered state-reconciliation action.",
       );
     }
-    const reconciliationPatterns =
-      context.stateReconciliationActionPatterns ??
-      [
-        "reconcile state",
-        "refresh shared state",
-        "repair shared state",
-        "curate hot.md",
-        "replace handoff",
-      ];
-    const ordinaryActions = actions.filter(
-      (action) =>
-        !reconciliationPatterns.some((pattern) =>
-          action.body.toLowerCase().includes(String(pattern).toLowerCase()),
-        ),
-    );
-    if (ordinaryActions.length > 0) {
-      add(
-        "S01_STATE_BLOCKED_ACTION",
-        "State readiness BLOCK permits only explicit state-reconciliation actions.",
-      );
-    }
     const program = field(output, "Program");
     const nextOwner = field(output, "Next owner");
     if (
