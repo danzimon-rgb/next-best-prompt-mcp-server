@@ -16,7 +16,7 @@ Human gate: Dan decides whether anything merges or is loaded
   - `906a1381606fc315e7e89e7bbe86ecd2899cb214` — canonical project-name override for named worktrees
 - The branch is based on the pushed but unmerged
   `fix/closure-validator-no-growth` lineage at `b73f1f7`; PR #7 intentionally
-  carries that full eight-commit canary lineage into `main`.
+  carries that full not-yet-merged canary lineage into `main`.
 - PR is draft and mergeable. CI restarted after the second commit and was still
   pending when this handoff was written.
 - GitHub's normal integration automatically created a Vercel preview. Codex did
@@ -160,7 +160,7 @@ Concentrate on:
 3. whether `BLOCK` can leak an ordinary action through the rendered validator;
 4. whether bounded formatting can exceed 1,000 bytes or hide the severity;
 5. whether the new tool changes the incumbent or hosted endpoint;
-6. whether the eight-commit PR lineage is acceptable as one review unit.
+6. whether the multi-commit canary lineage is acceptable as one review unit.
 
 Do not edit, merge, release, publish, change client configuration, restart an
 MCP server, adopt the hosted surface, or deploy production as part of the
