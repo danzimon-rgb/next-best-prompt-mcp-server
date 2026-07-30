@@ -47,7 +47,7 @@ await client.close();
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.2": serverInfo?.version === "0.5.2",
+  "server identifies as version 0.5.3": serverInfo?.version === "0.5.3",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
@@ -61,6 +61,9 @@ const checks = {
     toolText.includes("never means \"nothing happens"),
   "tool guarantees digit selection":
     toolText.includes("One digit in, one useful outcome out"),
+  "tool always requires a next suggested prompt":
+    toolText.includes("Always include the next suggested prompt") &&
+    toolText.includes("never omit the board"),
   "tool carries the execution board":
     toolText.includes("IN FLIGHT") &&
     toolText.includes("RUN HERE") &&

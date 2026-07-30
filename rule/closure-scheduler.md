@@ -1,4 +1,4 @@
-# next_best_prompt v0.5 — closure scheduler
+# next_best_prompt v0.5.3 — closure scheduler
 
 Supersedes the v0.4 draft. Carries v0.4's execution board and dispatch semantics,
 applies the red-team corrections C1–C5 / R1 / L1, and removes the product
@@ -27,11 +27,10 @@ get the approval — and saying so is not timidity. The failure is letting it
 *stand in for* thinking. When process is required, pair it with the non-obvious
 move rather than offering it alone.
 
-Use the board only when it adds a genuinely valuable next move, dependency, or
-ownership fact. When a board is warranted, show **one to three real options**.
-Prefer two when a genuine alternative exists, because visible choice preserves
-human agency; never invent a weak alternative to reach two. Omit the board when
-there is no valuable next move.
+**Always include the next suggested prompt after every substantive response.**
+Show one to three real actions. If the request is complete, gated, or in flight,
+offer the strongest honest optional next move; never pad beyond one merely to
+create choice. Prefer two only when a genuine alternative exists.
 
 ## 1. Digit selection is guaranteed (do not regress)
 
@@ -53,8 +52,8 @@ else it improves.
   `EXTERNAL` never means "nothing happens." The agent cannot press the button;
   it can remove every other obstacle to pressing it.
 
-- When omitting the board, say why in one truthful line: complete, in flight,
-  gated, or no valuable move. Silence is indistinguishable from rule failure.
+- Every substantive response includes at least one numbered `NOW` action.
+  Complete, gated, and in-flight states do not excuse omission.
 
 ## 2. Classify the turn
 
@@ -89,7 +88,7 @@ encodes state.
 If a safe action is already authorized, belongs to the current agent, and needs
 no user judgment, perform it now. Do not convert delegated work into a board
 item. Reserve selectable actions for real choices, approvals, irreversible steps,
-spending, cross-surface dispatch, or defensible forks.
+spending, cross-surface dispatch, defensible forks, or the best optional follow-up.
 
 ## 5. Dispatch semantics
 
@@ -172,8 +171,8 @@ Rules:
 
 ## 7. Handoff
 
-End every substantive response with the following — including turns with no
-board, and including deliberation turns. *(R1)*
+End every substantive response with the following, including deliberation
+turns. *(R1)*
 
 ```text
 **Execution handoff**
@@ -225,7 +224,7 @@ than thinking.
 ## 10. Final test
 
 1. Did I already perform everything I was authorized to do?
-2. Are all numbered actions executable now, and selectable by digit alone?
+2. Did I include at least one numbered action, executable now by digit alone?
 3. With two or more options, is exactly one marked `SUGGESTED MOVE` (or none with
    sound reason)? With one option, is it unlabeled? *(G3)*
 4. Could any two numbered actions run *simultaneously* against one exclusive
@@ -233,12 +232,12 @@ than thinking.
 5. Does every prompt survive a fresh session?
 6. Does every action name its completion proof?
 7. Are request state, program state, next owner, and human gate consistent?
-8. Did I surface the non-obvious move — or, if none exists, say so?
+8. Did I surface the strongest honest next move, including after completion?
 9. If more than one action is `NOW`, did I state whether they are alternatives or
    independent?
 10. If I withheld queued loops, did I name the count and where they went?
 
-If any answer fails, repair the board or omit it.
+If any answer fails, repair the board; never omit it.
 
 ---
 
@@ -266,7 +265,7 @@ If any answer fails, repair the board or omit it.
 | E18 | `Request: WORKING` at turn end | Fail unless the agent actually continues |
 | E19 | Optional board after completed request | Allow `Request: DONE`, `Program: DONE/N/A`, `Human: None` |
 | E20 | Generated copies contain the text | Insufficient alone; rendered outputs must satisfy **every other scenario in this matrix** — a self-maintaining reference, because an explicit range goes stale the moment a row is added *(C3, G2)* |
-| E21 | No valuable next action exists | Omit the board; say so in one line |
+| E21 | No obvious high-value action exists | Emit one honest optional next prompt; never omit the board |
 | E22 | A blank status or null conclusion is read | Treat as unknown, never done; re-query |
 | E23 | Only procedural options are available | Pair the required process with the non-obvious move; if none was found, say so explicitly rather than leaving the obligation silently unmet *(F6)* |
 | E24 | One option only *(F1)* | Render without `SUGGESTED MOVE` / `OPTION`; a label with nothing to contrast is noise |

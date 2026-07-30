@@ -25,7 +25,7 @@ and is code-generated into a shared module that both transports import:
 Both expose identical surfaces: the `instructions` field, a `next_best_prompt` prompt, and
 a `get_next_best_prompts_rule` tool.
 
-## closure_scheduler v0.5.2 canary
+## closure_scheduler v0.5.3 canary
 
 The repository also carries a separate, stdio-only `closure_scheduler` candidate.
 It keeps the incumbent and hosted behavior unchanged while the execution-board
@@ -36,6 +36,11 @@ Its startup instructions are a 260-byte bootstrap that requires one
 of being duplicated in both startup instructions and the tool result. The local
 wrapper also resolves a numeric nvm default directly, avoiding a full nvm startup
 when possible.
+
+Unlike v0.5.2, v0.5.3 requires at least one selectable next suggested prompt
+after every substantive response, including completed, gated, and in-flight
+turns. When no alternative is genuinely useful, it emits one honest optional
+follow-up rather than omitting the board or padding the menu.
 
 Rendered responses can be checked without adding runtime prompt tokens:
 

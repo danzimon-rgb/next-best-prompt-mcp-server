@@ -58,8 +58,11 @@ export function validateClosureOutput(output, context = {}) {
   };
   const actions = parseNowActions(output);
 
-  if (actions.length === 0 && !/^No board:\s*\S/im.test(output)) {
-    add("E21_NO_BOARD_REASON", "A response without NOW actions needs a truthful No board line.");
+  if (actions.length === 0) {
+    add(
+      "E21_MISSING_NEXT_ACTION",
+      "Every substantive response needs at least one numbered NOW action.",
+    );
   }
 
   if (actions.length === 1 && (actions[0].suggested || actions[0].option)) {

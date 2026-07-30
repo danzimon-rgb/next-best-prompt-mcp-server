@@ -24,6 +24,7 @@
     },
     "output": "No board: everything actionable is gated.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** wave staged\n- **Next owner:** None (waiting)\n- **Human:** Dan — relay cx's confirmation when it arrives",
     "expectedCodes": [
+      "E21_MISSING_NEXT_ACTION",
       "HANDOFF_HUMAN_WITHOUT_OWNER",
       "OPERATOR_COURIER"
     ]
@@ -45,10 +46,12 @@
     "expectedCodes": []
   },
   {
-    "name": "accepts a truthful gated no-board reason",
+    "name": "rejects a truthful gated no-board reason",
     "context": {},
     "output": "No board: the only remaining work is gated on the running CI check.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** CI run 123 is in progress\n- **Next owner:** GitHub Actions — finish run 123\n- **Human:** None",
-    "expectedCodes": []
+    "expectedCodes": [
+      "E21_MISSING_NEXT_ACTION"
+    ]
   },
   {
     "name": "rejects a missing relationship statement",
@@ -87,6 +90,7 @@
     },
     "output": "CC should correct the one-pager taxonomy and rerun the scanner trio.\n\nNo board: the requested review is complete.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** five defects verified\n- **Next owner:** Claude Code — correct the one-pager\n- **Human:** Dan — review the corrected draft afterward",
     "expectedCodes": [
+      "E21_MISSING_NEXT_ACTION",
       "E08_MISSING_AGENT_DISPATCH"
     ]
   },
@@ -107,7 +111,7 @@
         "Claude Code"
       ]
     },
-    "output": "No board: the required correction is already running in Claude Code.\n\nIN FLIGHT\n- Claude Code · VS Code · correcting one-pager taxonomy at commit abc123 · verified 23:55 EDT\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** ACTIVE\n- **Checkpoint:** Claude Code editing from commit abc123\n- **Next owner:** Claude Code — return the bounded diff and scanner result\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh Claude Code's live checkpoint and report whether the correction is complete.\" Done when: the latest transcript yields a timestamped terminal or in-flight status.\n\nIN FLIGHT\n- Claude Code · VS Code · correcting one-pager taxonomy at commit abc123 · verified 23:55 EDT\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** ACTIVE\n- **Checkpoint:** Claude Code editing from commit abc123\n- **Next owner:** Claude Code — return the bounded diff and scanner result\n- **Human:** None",
     "expectedCodes": []
   },
   {
@@ -115,7 +119,7 @@
     "context": {
       "completionDeliveryRequired": true
     },
-    "output": "No board: PR #284 checks are still in flight.\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish the checks\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish the checks\n- **Human:** None",
     "expectedCodes": [
       "E29_MISSING_COMPLETION_NOTICE",
       "E30_MISSING_POST_COMPLETION_ACTION"
@@ -126,7 +130,7 @@
     "context": {
       "completionDeliveryRequired": true
     },
-    "output": "No board: PR checks are still running somewhere.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5\n- **Next owner:** GitHub Actions — finish checks\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5\n- **Next owner:** GitHub Actions — finish checks\n- **Human:** None",
     "expectedCodes": [
       "E29_MISSING_COMPLETION_NOTICE"
     ]
@@ -136,7 +140,7 @@
     "context": {
       "completionDeliveryRequired": true
     },
-    "output": "No board: PR #284 checks are still in flight.\n\nQUEUE\n- **AFTER:** all nine PR #284 checks pass → offer the merge decision to Dan\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** GitHub will post terminal status on PR #284; this chat cannot proactively send after the turn, so the next user message triggers Codex to refresh and report the result.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\nQUEUE\n- **AFTER:** all nine PR #284 checks pass → offer the merge decision to Dan\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** GitHub will post terminal status on PR #284; this chat cannot proactively send after the turn, so the next user message triggers Codex to refresh and report the result.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
     "expectedCodes": []
   },
   {
@@ -144,10 +148,16 @@
     "context": {
       "completionDeliveryRequired": true
     },
-    "output": "No board: PR #284 checks are still in flight.\n\nQUEUE\n- **AFTER:** pass → review\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** status report\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\nQUEUE\n- **AFTER:** pass → review\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** status report\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
     "expectedCodes": [
       "E29_MISSING_COMPLETION_NOTICE",
       "E30_MISSING_POST_COMPLETION_ACTION"
     ]
+  },
+  {
+    "name": "accepts one optional next prompt after completed work",
+    "context": {},
+    "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"Turn the completed audit into a reusable checklist.\" Done when: a concise checklist is returned.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** audit findings delivered\n- **Next owner:** None\n- **Human:** None",
+    "expectedCodes": []
   }
 ]
