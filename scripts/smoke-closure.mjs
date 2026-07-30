@@ -47,7 +47,7 @@ await client.close();
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.3": serverInfo?.version === "0.5.3",
+  "server identifies as version 0.5.4": serverInfo?.version === "0.5.4",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
@@ -79,11 +79,18 @@ const checks = {
     toolText.includes("governs the menu, not the product") &&
     !toolText.includes("suggested_move_scope"),
   "tool carries no-courier and handoff consistency fixes":
-    toolText.includes("never make the operator relay agent state") &&
+    toolText.includes("never make the operator relay state") &&
     toolText.includes("cannot coexist with `Next owner: None`"),
+  "tool carries the repeated-review circuit breaker":
+    toolText.includes("After two independent `BLOCK`s in one subsystem") &&
+    toolText.includes("patch again only with a new discriminating invariant"),
+  "tool locks cross-agent evidence to the named source":
+    toolText.includes("read that exact source") &&
+    toolText.includes("never substitute another") &&
+    toolText.includes("globally newest transcript"),
   "tool stays within the v0.5 no-growth ceiling": ruleBytes <= 15_655,
-  "matrix carries all 28 scenarios":
-    toolText.includes("| E28 |") && toolText.includes("| E01 |"),
+  "matrix carries all 30 scenarios":
+    toolText.includes("| E30 |") && toolText.includes("| E01 |"),
 };
 
 console.log("server:", serverInfo?.name, serverInfo?.version);
