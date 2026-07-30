@@ -16,7 +16,10 @@ let ok = true;
 for (const fixture of fixtures) {
   const workspaceRoot = mkdtempSync(join(tmpdir(), "state-readiness-"));
   try {
-    const projectCwd = join(workspaceRoot, fixture.project);
+    const projectCwd = join(
+      workspaceRoot,
+      fixture.projectCwdName ?? fixture.project,
+    );
     mkdirSync(projectCwd, { recursive: true });
     for (const [relativePath, contents] of Object.entries(fixture.files)) {
       const path = join(workspaceRoot, relativePath);
@@ -25,6 +28,7 @@ for (const fixture of fixtures) {
     }
     const result = assessStateReadiness({
       projectCwd,
+      projectName: fixture.project,
       workspaceRoot,
       now: new Date(fixture.now),
     });

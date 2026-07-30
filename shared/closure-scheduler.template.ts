@@ -79,6 +79,10 @@ export function registerClosureScheduler(server) {
       description: STATE_READINESS_DESCRIPTION,
       inputSchema: {
         project_cwd: z.string().describe("Absolute path to the project checkout"),
+        project_name: z
+          .string()
+          .optional()
+          .describe("Canonical project basename when the checkout is a named worktree"),
         workspace_root: z
           .string()
           .optional()
@@ -91,9 +95,10 @@ export function registerClosureScheduler(server) {
         openWorldHint: false,
       },
     },
-    async ({ project_cwd, workspace_root }) => {
+    async ({ project_cwd, project_name, workspace_root }) => {
       const result = assessStateReadiness({
         projectCwd: project_cwd,
+        projectName: project_name,
         workspaceRoot: workspace_root,
       });
       return {

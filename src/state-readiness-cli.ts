@@ -15,6 +15,7 @@ function main(): void {
   if (!projectCwd) {
     throw new Error("--project-cwd requires an absolute path");
   }
+  const projectName = valueAfter(args, "--project-name");
   const workspaceRoot = valueAfter(args, "--workspace-root");
   const nowValue = valueAfter(args, "--now");
   const now = nowValue ? new Date(nowValue) : undefined;
@@ -22,7 +23,12 @@ function main(): void {
     throw new Error("--now must be a valid timestamp");
   }
 
-  const result = assessStateReadiness({ projectCwd, workspaceRoot, now });
+  const result = assessStateReadiness({
+    projectCwd,
+    projectName,
+    workspaceRoot,
+    now,
+  });
   process.stdout.write(
     `${args.includes("--json") ? JSON.stringify(result, null, 2) : formatStateReadiness(result)}\n`,
   );

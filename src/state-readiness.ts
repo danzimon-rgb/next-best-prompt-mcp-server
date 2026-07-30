@@ -26,6 +26,7 @@ export interface StateReadinessResult {
 
 export interface StateReadinessOptions {
   projectCwd: string;
+  projectName?: string;
   workspaceRoot?: string;
   now?: Date;
 }
@@ -176,7 +177,10 @@ export function assessStateReadiness(
   const workspaceRoot = options.workspaceRoot
     ? resolve(options.workspaceRoot)
     : findWorkspaceRoot(projectCwd);
-  const project = basename(projectCwd);
+  const project = options.projectName?.trim() || basename(projectCwd);
+  if (project.includes("/") || project.includes("\\")) {
+    throw new Error("projectName must be a basename, not a path");
+  }
   const now = options.now ?? new Date();
   const findings: StateReadinessFinding[] = [];
   const add = (

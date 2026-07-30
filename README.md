@@ -72,6 +72,7 @@ The same engine is available without MCP:
 ```bash
 closure-state-readiness --project-cwd /absolute/project/path
 closure-state-readiness --project-cwd /absolute/project/path --json
+closure-state-readiness --project-cwd /absolute/worktree --project-name canonical-project
 ```
 
 Exit codes are `0` for `PASS`, `2` for `DEGRADED`, `1` for `BLOCK`, and `64`
