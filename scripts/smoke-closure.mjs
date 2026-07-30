@@ -10,6 +10,8 @@
 // Run with: npm run smoke:closure (after npm run build).
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -42,13 +44,31 @@ const call = await client.callTool({
 });
 const toolText = call.content?.[0]?.text ?? "";
 const ruleBytes = Buffer.byteLength(toolText, "utf8");
+const smokeWorkspace = mkdtempSync(join(tmpdir(), "closure-readiness-smoke-"));
+const smokeProject = join(smokeWorkspace, "smoke-project");
+const smokeWiki = join(smokeWorkspace, "_wikis", "smoke-project", "wiki");
+mkdirSync(smokeProject, { recursive: true });
+mkdirSync(smokeWiki, { recursive: true });
+for (const path of [
+  join(smokeWorkspace, "_handoff.md"),
+  join(smokeWorkspace, "_active_actions.md"),
+  join(smokeWorkspace, "_workspace_state.md"),
+  join(smokeWiki, "hot.md"),
+  join(smokeWiki, "log.md"),
+]) {
+  writeFileSync(path, "", "utf8");
+}
 const readinessCall = await client.callTool({
   name: "check_state_readiness",
-  arguments: { project_cwd: root },
+  arguments: {
+    project_cwd: smokeProject,
+    workspace_root: smokeWorkspace,
+  },
 });
 const readinessText = readinessCall.content?.[0]?.text ?? "";
 
 await client.close();
+rmSync(smokeWorkspace, { recursive: true, force: true });
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",

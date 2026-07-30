@@ -14,6 +14,8 @@ Human gate: Dan decides whether anything merges or is loaded
 - Implementation commits:
   - `3683dd3124807059a70a419cfff853c0f7f74afd` — state-readiness engine, MCP/CLI surfaces, rule and validator enforcement
   - `906a1381606fc315e7e89e7bbe86ecd2899cb214` — canonical project-name override for named worktrees
+  - branch head also makes the MCP smoke self-contained with a temporary
+    synthetic continuity tree
 - The branch is based on the pushed but unmerged
   `fix/closure-validator-no-growth` lineage at `b73f1f7`; PR #7 intentionally
   carries that full not-yet-merged canary lineage into `main`.
@@ -72,7 +74,7 @@ the rule and low-freedom validation in code.
 
 ## Checks performed
 
-Fresh after `906a138`:
+Fresh at the current branch head:
 
 ```text
 npm test
@@ -88,6 +90,13 @@ npm run typecheck
 git diff --check
   pass
 ```
+
+The first GitHub CI run exposed one test-harness portability defect: the MCP
+smoke called readiness against the developer's real workspace ancestry, which
+does not exist on a GitHub runner. Production behavior was correct; the smoke
+received an invocation error instead of a verdict. The branch now creates a
+temporary synthetic continuity tree for that call. The full suite and typecheck
+pass locally after this correction.
 
 Payload and performance:
 
