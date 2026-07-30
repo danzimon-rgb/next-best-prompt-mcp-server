@@ -1,190 +1,215 @@
-# State readiness gate — Codex to Claude Code
+# State readiness gate — Codex remediation to Claude Code
 
-Date: 2026-07-30 EDT  
-Builder: Codex  
-Requested next lane: Claude Code independent review  
+Updated: 2026-07-30 12:48 EDT
+Builder: Codex
+Requested next lane: Claude Code independent re-review
 Human gate: Dan decides whether anything merges or is loaded
 
-## State
+## Current state
 
 - Repository: `danzimon-rgb/next-best-prompt-mcp-server`
 - Draft PR: https://github.com/danzimon-rgb/next-best-prompt-mcp-server/pull/7
 - Branch: `feat/state-readiness-gate`
 - Base: `main` at `1e2813a78b7b6957de52340ba3927489eab983e4`
-- Implementation commits:
-  - `3683dd3124807059a70a419cfff853c0f7f74afd` — state-readiness engine, MCP/CLI surfaces, rule and validator enforcement
-  - `906a1381606fc315e7e89e7bbe86ecd2899cb214` — canonical project-name override for named worktrees
-  - `0db6b0ef3de475d109a6672b8dcfd96d905f8de6` — make the MCP smoke
-    self-contained with a temporary synthetic continuity tree
-- The branch is based on the pushed but unmerged
-  `fix/closure-validator-no-growth` lineage at `b73f1f7`; PR #7 intentionally
-  carries that full not-yet-merged canary lineage into `main`.
-- PR is draft and mergeable. GitHub CI and both preview checks are green.
-- GitHub's normal integration automatically created a Vercel preview. Codex did
-  not initiate or authorize a production deployment.
+- Original reviewed head: `e08678af3345ad0dac800ded00e509f3b4b9213f`
+- Severity-remediation commit:
+  `af39b96c87684ff017a7dca55eb38c98cd4774aa`
+- Canary fingerprint after remediation: `closure_scheduler 0.5.4`
+- The branch still contains the previously pushed, unmerged
+  `fix/closure-validator-no-growth` lineage at `b73f1f7`.
+- No merge, production deploy, release, npm publication, client configuration
+  change, MCP restart, or hosted adoption has been authorized.
 
-## Why this exists
+GitHub's normal repository integration creates a Vercel preview after branch
+pushes. That is not a production deployment.
 
-`closure_scheduler` 0.5.2 could tell an agent to refresh shared state, but could
-not prove that the state inputs were structurally safe before recommending work.
-That left a load-bearing gap: an expired handoff, oversized or nonchronological
-`hot.md`, stale `_active_actions.md`, or stale/missing `_workspace_state.md`
-could still steer the action board.
+## Review received and disposition
 
-This change makes readiness executable and fail-closed:
+Claude Code posted the independent review here:
 
-- `PASS`: ordinary prioritization is allowed.
-- `DEGRADED`: every named source is quarantined; the agent must verify around it
-  and record the exclusions in the execution checkpoint.
-- `BLOCK`: ordinary `NOW` work is invalid. Only explicit state reconciliation
-  is allowed, or the response must emit a state-readiness no-board reason with
-  `Program: GATED`. A recheck must pass before ordinary work resumes.
+https://github.com/danzimon-rgb/next-best-prompt-mcp-server/pull/7#issuecomment-5133504850
 
-This is deterministic code inside the canary, not a large standalone skill.
-That keeps the clean-path prompt cost to one short verdict and avoids loading a
-second policy document. The skill-creation guidance was used to keep judgment in
-the rule and low-freedom validation in code.
+Verdict was `BLOCK`: 46 candidate findings, 14 refuted, 32 surviving. Codex
+accepts the three blockers and the five majors. The architecture was retained;
+the failure was severity calibration and incomplete boundary coverage.
 
-## Surfaces and behavior
+### Blocker and major closure map
 
-- `check_state_readiness` MCP tool:
-  - local and read-only
-  - MCP annotations: read-only, idempotent, non-destructive, closed-world
-  - inputs: absolute `project_cwd`, optional `project_name` for named worktrees,
-    and optional `workspace_root`
-  - output: at most five findings and 1,000 bytes
-- `closure-state-readiness` CLI:
-  - exit `0` = `PASS`
-  - exit `2` = `DEGRADED`
-  - exit `1` = `BLOCK`
-  - exit `64` = invalid invocation
-  - supports `--json`, `--project-name`, `--workspace-root`, and deterministic
-    `--now`
-- `closure_scheduler` rule:
-  - now instructs the agent to run readiness at session/project start and after
-    material shared-state writes
-  - includes adversarial cases `S01` and `S02`
-  - remains below the fixed no-growth ceiling
-- rendered-output validator:
-  - rejects ordinary actions under `BLOCK`
-  - requires `Program: GATED` plus a state-readiness block checkpoint
-  - permits explicit reconciliation actions
-  - requires all quarantined sources in a `DEGRADED` checkpoint
+1. `HOT_MISSING` no longer blocks. Missing and unreadable project heads are
+   `DEGRADED`. Wiki lookup now matches the workspace loader: canonical, legacy
+   sibling, then common suffix-stripped variants.
+2. Project identity no longer defaults blindly to `basename(projectCwd)`.
+   Nested cwd values resolve through the enclosing Git root, linked worktrees
+   resolve through their `.git` gitdir, and non-Git paths use the first
+   workspace segment. `project_name` remains an explicit fallback.
+3. Ordinary hot/log lag is `DEGRADED`. Only lag greater than 14 days produces
+   `HOT_SEVERELY_BEHIND_LOG` and `BLOCK`.
+4. `HOT_NON_MONOTONIC` comparisons reset at every `##` section boundary.
+5. Future log headings are reported once as `DEGRADED` and excluded from every
+   downstream freshness reference. New York wall time is resolved through
+   `America/New_York`; a hand-typed `EST` label in July no longer adds a false
+   hour.
+6. `HOT_OVERSIZE` and `ACTIVE_ACTIONS_OVERSIZE` are `DEGRADED`, matching
+   `HANDOFF_OVERSIZE`.
+7. Date-only timestamps are treated as the end of their New York calendar day
+   and all 24-hour / 7-day tolerances are applied.
+8. Tests now cover both remaining `BLOCK` codes, legacy/missing wikis, linked
+   worktrees, nested cwd values, future timestamp poisoning, section
+   boundaries, empty-vs-missing files, exact size ceilings, one-byte overflow,
+   date-only boundaries, every CLI exit class, severity-first truncation, and
+   no-workspace behavior.
 
-## Checks performed
+### Secondary review findings closed
 
-Fresh at the current branch head:
+- BLOCK findings are stably sorted ahead of DEGRADED findings before the
+  five-finding output cap.
+- Empty files are distinguished from absent/unreadable files.
+- A cwd outside the continuity workspace returns a bounded `DEGRADED` verdict
+  instead of an MCP error.
+- Zone-less timestamps are rejected instead of using host-local time.
+- A nonempty log with no supported heading returns
+  `LOG_TIMESTAMP_UNPARSEABLE`.
+- The numeric-nvm wrapper handles newline-less aliases, selects the highest
+  version with `sort -V`, and reports a missing Node executable on stderr with
+  exit 127.
+- Wrapped closure actions are parsed as one action; E01/E08/S01 can no longer
+  miss continuation lines.
+- The validator accepts the rule's italic relationship example and requires an
+  exact clearing owner under `BLOCK`, rather than a magic checkpoint phrase.
+- All four CLI exit classes are exercised.
+- The MCP smoke now exercises an exact synthetic `PASS`, not merely any verdict.
+- `get_next_best_prompts_rule` has an accurate compact-bootstrap description.
+- The removed high-stakes non-obvious-move paragraph was restored within the
+  unchanged 15,655-byte ceiling.
+
+## Verification
+
+Fresh after `af39b96`:
 
 ```text
 npm test
-  check-sync: all generated copies in sync
+  generated copies: in sync
   incumbent smoke: 15/15 pass
-  closure_scheduler 0.5.3 smoke: all pass, including a real MCP readiness call
-  closure output fixtures: 20/20 pass
-  state readiness fixtures: 4/4 pass
+  closure_scheduler 0.5.4 smoke: 17/17 pass
+  rendered closure fixtures: 24/24 pass
+  state-readiness checks: 22/22 pass
+  wrapper checks: 2/2 pass
 
 npm run typecheck
   pass
 
+bash -n bin/closure-scheduler-mcp-wrapper.sh
+  pass
+
 git diff --check
   pass
-```
 
-The first GitHub CI run exposed one test-harness portability defect: the MCP
-smoke called readiness against the developer's real workspace ancestry, which
-does not exist on a GitHub runner. Production behavior was correct; the smoke
-received an invocation error instead of a verdict. The branch now creates a
-temporary synthetic continuity tree for that call. The full suite and typecheck
-pass locally after this correction.
+npm pack --dry-run
+  state-readiness CLI and engine present in the package
+```
 
 Payload and performance:
 
 ```text
-closure rule: 15,432 bytes
-previous 0.5.2 rule: 15,539 bytes
+closure rule: 15,607 bytes
 fixed ceiling: 15,655 bytes
 
-200 in-process Teranode checks:
-median 0.922 ms
-p95 1.709 ms
-max 3.079 ms
-blocked output 529 bytes
+200 live Teranode checks:
+median 1.326 ms
+p95 2.358 ms
+max 5.179 ms
+bounded output 144 bytes
 ```
 
-Live workspace results at `2026-07-30T14:38:00Z`:
+## Live false-BLOCK matrix
+
+The 24 top-level Git projects under `/home/dan/.openclaw/workspace` were checked
+with the remediated engine:
 
 ```text
-next-best-prompt-mcp-server: DEGRADED
-- HANDOFF_EXPIRED
-- ACTIVE_ACTIONS_STALE
-- WORKSPACE_PROJECT_MISSING
-
-teranode-ai: BLOCK
-- HANDOFF_EXPIRED
-- HOT_OVERSIZE (41,300 bytes > 24,576)
-- HOT_NON_MONOTONIC
-- ACTIVE_ACTIONS_STALE
-- WORKSPACE_PROJECT_STALE
+PASS:      1
+DEGRADED: 23
+BLOCK:     0
 ```
 
-The Teranode result reproduces the motivating failure: an 08:55 EDT item is
-followed by a 12:50 EDT item and then later 13:35/21:xx items, so the supposedly
-newest-first shared buffer is unsafe as a prioritization authority.
+The 13 wiki-less projects now quarantine missing state rather than gating work.
+Additional live identity checks:
 
-## Files that deserve the closest review
+```text
+prism-cli
+  -> resolves prism-cli-wiki/wiki
+  -> DEGRADED HOT_CURATED_MISSING, not HOT_MISSING/BLOCK
 
-- `src/state-readiness.ts`
-- `src/state-readiness-cli.ts`
-- `shared/closure-scheduler.template.ts`
-- `rule/closure-scheduler.md`
-- `scripts/validate-closure-output.mjs`
-- `scripts/test-state-readiness.mjs`
-- `test/fixtures/state-readiness.json`
-- `test/fixtures/closure-validator.json`
+_next-best-prompt-worktrees/state-readiness-gate-codex
+  -> project next-best-prompt-mcp-server
+  -> DEGRADED, not BLOCK
 
-Generated `src/closure-scheduler.generated.ts` should match the template/rule
-and should not be reviewed as an independent source of truth.
+teranode-ai/council-site
+  -> project teranode-ai
+  -> PASS at the check time
 
-## Requested Claude Code review
+amsco-realty/brain
+  -> project amsco-realty
+  -> DEGRADED WORKSPACE_PROJECT_STALE
+  -> does not read the unrelated brain project's wiki
+```
 
-Please review PR #7 read-only and return `APPROVE` or `BLOCK` with exact
-file/line evidence. Re-run:
+At the later performance check, an ordinary Teranode log append produced:
+
+```text
+STATE READINESS DEGRADED — teranode-ai
+- DEGRADED HOT_BEHIND_LOG
+```
+
+That is the intended replacement for the reviewer-reproduced false `BLOCK`.
+
+## Historical snapshot labeling
+
+The 41,300-byte / nonchronological Teranode result in the first handoff was a
+real point-in-time measurement at `2026-07-30T14:38:00Z`; it is not current
+workspace state. Teranode was later curated below the size ceiling. The current
+live evidence is the 24-project matrix above.
+
+## Requested Claude Code re-review
+
+Review `e08678a..HEAD` read-only and return `APPROVE` or `BLOCK` with exact
+file/line evidence. Please rerun:
 
 ```bash
 npm ci
 npm test
 npm run typecheck
 node dist/state-readiness-cli.js \
-  --project-cwd /home/dan/.openclaw/workspace/teranode-ai \
-  --workspace-root /home/dan/.openclaw/workspace
+  --project-cwd /home/dan/.openclaw/workspace/prism-cli
+node dist/state-readiness-cli.js \
+  --project-cwd /home/dan/.openclaw/workspace/teranode-ai/council-site
+node dist/state-readiness-cli.js \
+  --project-cwd /home/dan/.openclaw/workspace/_next-best-prompt-worktrees/state-readiness-gate-codex
 ```
 
 Concentrate on:
 
-1. false `PASS` and false `BLOCK` risks in TTL, timezone, date-only curation,
-   log freshness, and newest-first detection;
-2. whether named worktrees route to the canonical wiki safely through
-   `project_name`;
-3. whether `BLOCK` can leak an ordinary action through the rendered validator;
-4. whether bounded formatting can exceed 1,000 bytes or hide the severity;
-5. whether the new tool changes the incumbent or hosted endpoint;
-6. whether the multi-commit canary lineage is acceptable as one review unit.
+1. whether any healthy current workspace state can still produce `BLOCK`;
+2. whether the 14-day hard-stop threshold is consistent with the intended
+   severity ladder;
+3. whether future headings are fully excluded from freshness references;
+4. whether Git/worktree/subdirectory identity can read a foreign project;
+5. whether date-only and New York timezone boundaries remain deterministic;
+6. whether BLOCK-first bounded rendering can ever hide the hard-stop reason;
+7. whether the incumbent and hosted endpoint remain unchanged.
 
 Do not edit, merge, release, publish, change client configuration, restart an
-MCP server, adopt the hosted surface, or deploy production as part of the
-review. If blocked, report the minimum bounded fix; authorship returns to Codex
-unless Dan explicitly assigns a different lane.
+MCP server, adopt the hosted surface, or deploy production as part of review.
+Do not reply to or resolve the prior PR comment on Codex's behalf.
 
 ## Known boundary
 
-This gate proves structural readiness, not semantic truth. It can detect
-expired, oversized, missing, stale, future-dated, or nonchronological state; it
-cannot prove that two well-formed prose statements do not contradict each
-other. That would require structured state markers or a separate semantic
-reconciliation design and is intentionally outside this PR.
+This gate proves structural readiness, not semantic truth. It cannot prove that
+two well-formed prose statements are mutually consistent. That would require a
+separate structured-state or semantic-reconciliation design and remains outside
+PR #7.
 
 ## Next gate
 
-Claude Code independent verdict, then Dan's merge decision. No merge, release,
-npm publication, client load/restart, hosted adoption, or production deployment
-has been authorized.
+Claude Code independent re-review, then Dan's merge/load decision. The live MCP
+checkout remains on the prior 0.5.2 branch and has not loaded this gate.
