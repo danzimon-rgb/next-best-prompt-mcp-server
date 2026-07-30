@@ -71,7 +71,7 @@ Do not force one label to describe both.
 
 For project work, call `check_state_readiness` at session start/project switch
 and after material shared-state writes; reuse it while inputs are unchanged.
-Pass `project_name` when the cwd is not under the canonical checkout.
+Pass `project_name` for ambiguous identity or noncanonical checkout.
 `PASS` permits ordinary prioritization. `DEGRADED` quarantines every named source:
 verify around it and name exclusions in the checkpoint. `BLOCK` requires a board
 with one or more state-reconciliation `NOW` actions and no others,

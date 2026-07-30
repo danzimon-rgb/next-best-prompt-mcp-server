@@ -182,7 +182,7 @@
     ]
   },
   {
-    "name": "accepts an explicit reconciliation action while state readiness is blocked",
+    "name": "accepts a structurally valid blocked board while action semantics remain rule-governed",
     "context": {
       "stateReadiness": "BLOCK"
     },
@@ -226,7 +226,7 @@
     ]
   },
   {
-    "name": "accepts a wrapped reconciliation action while blocked",
+    "name": "accepts wrapped action text while enforcing only the blocked structure",
     "context": {
       "stateReadiness": "BLOCK"
     },
@@ -234,7 +234,7 @@
     "expectedCodes": []
   },
   {
-    "name": "does not treat a negated substring as proof of reconciliation",
+    "name": "does not infer blocked action semantics from a negated substring",
     "context": {
       "stateReadiness": "BLOCK"
     },

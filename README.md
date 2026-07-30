@@ -66,15 +66,18 @@ handoff TTL, live-file size budgets, project hot/log chronology and freshness,
 active-action freshness, and the project workspace-state section. `DEGRADED`
 quarantines named sources; `BLOCK` permits only state reconciliation until a
 recheck passes. Missing wikis, size hygiene, future timestamps, and ordinary
-hot/log lag are `DEGRADED`, not hard stops. `BLOCK` is reserved for contradictory
-within-section chronology or a hot head more than 14 days behind usable durable
-history. Output is severity-ordered and capped at five findings and 1,000 bytes.
+hot/log lag are `DEGRADED`, not hard stops. `BLOCK` is reserved for invalid or
+ambiguous project identity, contradictory within-section chronology, or a hot
+head more than 14 days behind usable durable history. Output is severity-ordered
+and capped at five findings and 1,000 bytes.
 
-Project identity is derived from the enclosing Git checkout or first workspace
-path segment, including linked worktrees and nested cwd values. Wiki resolution
-matches the workspace loader: canonical `_wikis/<project>/wiki`, legacy sibling
-`<project>-wiki/wiki`, then common suffix-stripped variants. `--project-name`
-remains an explicit fallback for ambiguous non-Git layouts.
+Project identity is derived from one validated enclosing Git checkout, then the
+first workspace path segment. Conflicting nested checkout identities `BLOCK`
+until `--project-name` resolves the ambiguity. Linked-worktree metadata is
+trusted only when its target, common directory, and checkout back-pointer all
+validate inside the workspace. Wiki resolution matches the workspace loader:
+canonical `_wikis/<project>/wiki`, legacy sibling `<project>-wiki/wiki`, then
+common suffix-stripped variants.
 
 The same engine is available without MCP:
 

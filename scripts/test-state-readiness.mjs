@@ -38,10 +38,33 @@ for (const fixture of fixtures) {
         workspaceRoot,
         fixture.gitWorktreeCwdName ?? fixture.projectCwdName ?? fixture.project,
       );
+      const gitAdminDir = join(
+        workspaceRoot,
+        fixture.gitWorktreeProject,
+        ".git",
+        "worktrees",
+        "fixture",
+      );
       mkdirSync(gitWorktreeCwd, { recursive: true });
+      mkdirSync(gitAdminDir, { recursive: true });
       writeFileSync(
         join(gitWorktreeCwd, ".git"),
-        `gitdir: ${join(workspaceRoot, fixture.gitWorktreeProject, ".git", "worktrees", "fixture")}\n`,
+        `gitdir: ${gitAdminDir}\n`,
+        "utf8",
+      );
+      writeFileSync(
+        join(gitAdminDir, "commondir"),
+        "../..\n",
+        "utf8",
+      );
+      writeFileSync(
+        join(gitAdminDir, "HEAD"),
+        "ref: refs/heads/fixture\n",
+        "utf8",
+      );
+      writeFileSync(
+        join(gitAdminDir, "gitdir"),
+        `${join(gitWorktreeCwd, ".git")}\n`,
         "utf8",
       );
     }
@@ -71,6 +94,7 @@ for (const fixture of fixtures) {
     const codes = result.findings.map((finding) => finding.code).sort();
     const pass =
       result.readiness === fixture.expectedReadiness &&
+      result.project === (fixture.expectedProject ?? fixture.project) &&
       JSON.stringify(codes) === JSON.stringify([...fixture.expectedCodes].sort()) &&
       Buffer.byteLength(formatStateReadiness(result), "utf8") <= 1000;
     const cliArgs = [

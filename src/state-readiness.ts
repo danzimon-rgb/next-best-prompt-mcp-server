@@ -1,6 +1,7 @@
 import {
   existsSync,
   readFileSync,
+  realpathSync,
   statSync,
 } from "node:fs";
 import {
@@ -51,6 +52,11 @@ interface LogTimestamps {
   parsedCount: number;
 }
 
+interface ProjectIdentity {
+  project: string;
+  finding?: StateReadinessFinding;
+}
+
 const MAX_SHARED_BYTES = 24 * 1024;
 const MAX_HANDOFF_BYTES = 4 * 1024;
 const FUTURE_TOLERANCE_MS = 5 * 60 * 1000;
@@ -86,6 +92,26 @@ function isDirectory(path: string): boolean {
   } catch {
     return false;
   }
+}
+
+function realpath(path: string): string | undefined {
+  try {
+    return realpathSync(path);
+  } catch {
+    return undefined;
+  }
+}
+
+function pathIsInside(root: string, target: string): boolean {
+  const pathFromRoot = relative(root, target);
+  return (
+    pathFromRoot === "" ||
+    (
+      pathFromRoot !== ".." &&
+      !pathFromRoot.startsWith(`..${sep}`) &&
+      !isAbsolute(pathFromRoot)
+    )
+  );
 }
 
 function newYorkOffsetMinutes(instant: Date): number {
@@ -266,34 +292,10 @@ function findWorkspaceRoot(projectCwd: string): string | undefined {
   }
 }
 
-function gitProjectName(
+function fallbackProjectName(
   projectCwd: string,
   workspaceRoot: string,
-): string | undefined {
-  let cursor = projectCwd;
-  while (cursor !== workspaceRoot && cursor.startsWith(`${workspaceRoot}${sep}`)) {
-    const dotGit = join(cursor, ".git");
-    const gitFile = read(dotGit);
-    const gitDir = gitFile?.match(/^gitdir:\s*(.+)$/m)?.[1]?.trim();
-    if (gitDir) {
-      const marker = `${sep}.git${sep}worktrees${sep}`;
-      const markerIndex = gitDir.indexOf(marker);
-      if (markerIndex !== -1) {
-        return basename(gitDir.slice(0, markerIndex));
-      }
-    }
-    cursor = dirname(cursor);
-  }
-  return undefined;
-}
-
-function deriveProjectName(
-  projectCwd: string,
-  workspaceRoot: string,
-  explicit?: string,
 ): string {
-  const override = explicit?.trim();
-  if (override) return override;
   const firstSegment = relative(workspaceRoot, projectCwd).split(sep)[0];
   if (
     firstSegment &&
@@ -303,9 +305,140 @@ function deriveProjectName(
   ) {
     return firstSegment;
   }
-  const gitName = gitProjectName(projectCwd, workspaceRoot);
-  if (gitName) return gitName;
   return basename(projectCwd);
+}
+
+function invalidGitdir(
+  project: string,
+  dotGit: string,
+  message: string,
+): ProjectIdentity {
+  return {
+    project,
+    finding: {
+      code: "PROJECT_GITDIR_INVALID",
+      level: "BLOCK",
+      message,
+      path: dotGit,
+    },
+  };
+}
+
+function gitFileProject(
+  dotGit: string,
+  checkoutRoot: string,
+  workspaceRoot: string,
+  fallbackProject: string,
+): ProjectIdentity {
+  const gitFile = read(dotGit);
+  const rawGitDir = gitFile?.match(/^gitdir:\s*(.+)$/m)?.[1]?.trim();
+  if (!rawGitDir) {
+    return invalidGitdir(
+      fallbackProject,
+      dotGit,
+      "The checkout .git file has no readable gitdir target.",
+    );
+  }
+
+  const workspaceReal = realpath(workspaceRoot) ?? resolve(workspaceRoot);
+  const targetPath = resolve(dirname(dotGit), rawGitDir);
+  const targetReal = realpath(targetPath);
+  if (
+    !targetReal ||
+    !isDirectory(targetReal) ||
+    !pathIsInside(workspaceReal, targetReal) ||
+    read(join(targetReal, "HEAD")) === undefined
+  ) {
+    return invalidGitdir(
+      fallbackProject,
+      dotGit,
+      "The checkout gitdir target must be readable inside the continuity workspace.",
+    );
+  }
+
+  const targetSegments = relative(workspaceReal, targetReal).split(sep);
+  const worktreesIndex = targetSegments.lastIndexOf("worktrees");
+  const looksLikeLinkedWorktree =
+    worktreesIndex > 0 && targetSegments[worktreesIndex - 1] === ".git";
+  const commonDirValue = read(join(targetReal, "commondir"))?.trim();
+  if (!commonDirValue) {
+    if (looksLikeLinkedWorktree) {
+      return invalidGitdir(
+        fallbackProject,
+        dotGit,
+        "The linked-worktree gitdir has no readable commondir.",
+      );
+    }
+    return { project: basename(checkoutRoot) };
+  }
+
+  const commonDirReal = realpath(resolve(targetReal, commonDirValue));
+  const backPointerValue = read(join(targetReal, "gitdir"))?.trim();
+  const backPointerReal = backPointerValue
+    ? realpath(resolve(targetReal, backPointerValue))
+    : undefined;
+  const dotGitReal = realpath(dotGit);
+  if (
+    !commonDirReal ||
+    !isDirectory(commonDirReal) ||
+    basename(commonDirReal) !== ".git" ||
+    !pathIsInside(workspaceReal, commonDirReal) ||
+    !backPointerReal ||
+    !dotGitReal ||
+    backPointerReal !== dotGitReal
+  ) {
+    return invalidGitdir(
+      fallbackProject,
+      dotGit,
+      "The linked-worktree gitdir failed its common-dir or checkout back-pointer check.",
+    );
+  }
+
+  return { project: basename(dirname(commonDirReal)) };
+}
+
+function deriveProjectIdentity(
+  projectCwd: string,
+  workspaceRoot: string,
+  explicit?: string,
+): ProjectIdentity {
+  const override = explicit?.trim();
+  if (override) return { project: override };
+  const fallbackProject = fallbackProjectName(projectCwd, workspaceRoot);
+  const candidates = new Map<string, string>();
+  let cursor = projectCwd;
+  while (cursor !== workspaceRoot && cursor.startsWith(`${workspaceRoot}${sep}`)) {
+    const dotGit = join(cursor, ".git");
+    if (isDirectory(dotGit)) {
+      candidates.set(basename(cursor), dotGit);
+    } else if (existsSync(dotGit)) {
+      const identity = gitFileProject(
+        dotGit,
+        cursor,
+        workspaceRoot,
+        fallbackProject,
+      );
+      if (identity.finding) return identity;
+      candidates.set(identity.project, dotGit);
+    }
+    cursor = dirname(cursor);
+  }
+
+  if (candidates.size > 1) {
+    return {
+      project: fallbackProject,
+      finding: {
+        code: "PROJECT_IDENTITY_AMBIGUOUS",
+        level: "BLOCK",
+        message:
+          `Multiple enclosing Git identities disagree (${[...candidates.keys()].join(", ")}); pass project_name explicitly.`,
+        path: projectCwd,
+      },
+    };
+  }
+  return {
+    project: candidates.keys().next().value ?? fallbackProject,
+  };
 }
 
 function wikiCandidates(workspaceRoot: string, project: string): string[] {
@@ -393,11 +526,12 @@ export function assessStateReadiness(
     );
   }
   const workspaceRoot = discoveredRoot;
-  const project = deriveProjectName(
+  const identity = deriveProjectIdentity(
     projectCwd,
     workspaceRoot,
     options.projectName,
   );
+  const project = identity.project;
   if (
     !project ||
     project.includes("/") ||
@@ -406,6 +540,16 @@ export function assessStateReadiness(
     project === ".."
   ) {
     throw new Error("projectName must be a basename, not a path");
+  }
+  if (identity.finding) {
+    return result(
+      "BLOCK",
+      project,
+      projectCwd,
+      workspaceRoot,
+      now,
+      [identity.finding],
+    );
   }
 
   const findings: StateReadinessFinding[] = [];
