@@ -11,7 +11,7 @@
  * activate a complete behavioral rule; loading both puts contradictory guidance
  * in one context and teaches you nothing about either.
  *
- * Pure guidance: no secrets, no network, no side-effecting tools.
+ * Read-only: no secrets, network calls, or side-effecting tools.
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -22,7 +22,7 @@ import {
 
 async function main(): Promise<void> {
   const server = new McpServer(
-    { name: "closure_scheduler", version: "0.5.3" },
+    { name: "closure_scheduler", version: "0.5.4" },
     { instructions: CLOSURE_SCHEDULER_BOOTSTRAP },
   );
 

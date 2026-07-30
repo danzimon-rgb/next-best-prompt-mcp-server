@@ -1,21 +1,17 @@
-# next_best_prompt v0.5.3 — closure scheduler
+# next_best_prompt v0.5.4 — closure scheduler
 
-Supersedes the v0.4 draft. Carries v0.4's execution board and dispatch semantics,
-applies the red-team corrections C1–C5 / R1 / L1, and removes the product
-compliance section (see §9). Built on canonical `3eb1d99`.
+Supersedes v0.4, preserving its execution board and red-team corrections while
+keeping product compliance out (§9).
 
 ## Objective
 
-After a substantive response, expose the smallest truthful set of actions that
-moves the current thread toward a verified end. Do not list everything that could
-happen. Prefer closure over expansion in execution work, and decision quality
-over premature closure in deliberative work.
+After a substantive response, expose the smallest truthful action set toward a
+verified end. Prefer closure in execution and decision quality in deliberation.
 
-**Closure is the goal; timidity is not the method.** If the highest-leverage next
-step is a reframe, a disproven assumption, a second-order consequence, an
-unpriced risk, or an option the user has not considered, it belongs on the board
-— **including when it reopens a question that looked settled.** A board of only
-safe procedural steps has failed even when every option is executable.
+**Closure is the goal; timidity is not the method.** A reframe, disproven
+assumption, second-order consequence, unpriced risk, or overlooked option belongs
+on the board when it is highest-leverage, even if it reopens a settled-looking
+question. A board of only safe procedural steps has failed.
 
 Stakes raise this obligation rather than lowering it. The moments that most
 deserve a non-obvious move are the expensive, irreversible, or already-decided
@@ -72,6 +68,14 @@ Also separate two levels of state:
 Do not force one label to describe both.
 
 ## 3. Refresh unstable state
+
+For project work, call `check_state_readiness` at session start/project switch
+and after material shared-state writes; reuse it while inputs are unchanged.
+Pass `project_name` for ambiguous identity or noncanonical checkout.
+`PASS` permits ordinary prioritization. `DEGRADED` quarantines every named source:
+verify around it and name exclusions in the checkpoint. `BLOCK` requires a board
+with one or more state-reconciliation `NOW` actions and no others,
+`Program: GATED`, and the exact clearing owner. Recheck before proceeding
 
 Before naming a live PR, branch, SHA, check, deployment, inbox, calendar,
 database, agent session, or external gate, verify it when cheap. Read available
@@ -207,15 +211,11 @@ work stays on the execution board.
 
 ## 9. This rule governs the menu, not the product (load-bearing)
 
-This document decides what to put in front of **the operator** — the person who
-already owns the work and delegated it. It is a thinking instrument.
+This document governs what to put before **the operator** who owns the work.
 
-**Domain compliance controls do not belong here.** If a product built by this
-operator emits regulated content to an end user — investment, legal, medical, or
-similar — that surface needs its own recommendation, review, disclosure, and
-recordkeeping controls, enforced in *that product's* rules. Importing them here
-is a category error with a predictable cost: the board turns procedural exactly
-when the stakes make insight most valuable.
+**Domain compliance controls do not belong here.** Regulated end-user surfaces
+need their own controls in *that product's* rules. Importing them here makes the
+operator's board procedural when insight matters most.
 
 The two rules in §6 that resemble compliance — the `⚠` mark and the ban on labels
 that sanitize substance — stay, because they restrain surprise and naming rather
@@ -273,5 +273,7 @@ If any answer fails, repair the board; never omit it.
 | E26 | More queued loops exist than are shown *(F4)* | Name the withheld count and where it went; never truncate silently |
 | E27 | Board offered after the request is complete *(F5)* | Head it `NOW (optional)` with `Next owner: None`; otherwise the page contradicts itself |
 | E28 | `EXTERNAL` action is selected *(F3)* | Emit surface, click path/command, exact values, and the confirming check; offer verification where machine-checkable |
+| S01 | State readiness is `BLOCK` | Only reconciliation `NOW` actions, at least one; `Program: GATED` until a recheck passes |
+| S02 | State readiness is `DEGRADED` | Quarantine named sources and record exclusions in the checkpoint |
 
 **Out of scope:** product compliance tests belong in product rules (§9).

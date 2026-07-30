@@ -1,0 +1,492 @@
+[
+  {
+    "name": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "projectCwdName": "alpha/subdir",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-31T01:00:00Z\nttl_hours: 6\n---\n# Current handoff\n",
+      "_active_actions.md": "# Active Actions\n\n_Last curated: 2026-07-30T21:00:00-04:00 by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 09:00 PM EDT (sync)_\n<!-- END: alpha -->\n",
+      "alpha/.git/HEAD": "ref: refs/heads/main\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n## Current\n### 2026-07-30 21:30 EDT — latest\n### 2026-07-30 21:00 EDT — prior\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-30 21:20 EDT — update\n"
+    },
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "derives canonical identity from a linked worktree gitdir",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "projectCwdName": "_worktrees/alpha-feature",
+    "gitWorktreeProject": "alpha",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {},
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "blocks when a nested checkout and its workspace parent disagree",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "projectCwdName": "alpha/nested-repo",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "alpha/nested-repo/.git/HEAD": "ref: refs/heads/main\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["PROJECT_IDENTITY_AMBIGUOUS"]
+  },
+  {
+    "name": "keeps the canonical BLOCK inside an underscore-prefixed container with nested git metadata",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "projectCwdName": "_worktrees/alpha-feature/nested-repo",
+    "gitWorktreeProject": "alpha",
+    "gitWorktreeCwdName": "_worktrees/alpha-feature",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 09:00 PM EDT (sync)_\n<!-- END: alpha -->\n<!-- BEGIN: nested-repo -->\n_Last self-update: 2026-07-30 09:00 PM EDT (sync)_\n<!-- END: nested-repo -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n## Current\n### 2026-07-30 08:00 EDT — older shown first\n### 2026-07-30 09:00 EDT — newer shown later\n",
+      "_wikis/nested-repo/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n## Current\n### 2026-07-30 21:30 EDT — latest\n### 2026-07-30 21:00 EDT — prior\n",
+      "_wikis/nested-repo/wiki/log.md": "## 2026-07-30 21:20 EDT — update\n",
+      "_worktrees/alpha-feature/nested-repo/.git/HEAD": "ref: refs/heads/main\n"
+    },
+    "expectedProject": "nested-repo",
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["PROJECT_IDENTITY_AMBIGUOUS"]
+  },
+  {
+    "name": "keeps checkout-root identity when cwd is below a plain clone in an underscore container",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "myrepo",
+    "projectCwdName": "_archive/myrepo/src",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: myrepo\nclosed_at: 2026-07-31T01:00:00Z\nttl_hours: 6\n---\n# Current handoff\n",
+      "_workspace_state.md": "<!-- BEGIN: myrepo -->\n_Last self-update: 2026-07-30 09:00 PM EDT (sync)_\n<!-- END: myrepo -->\n",
+      "_archive/myrepo/.git/HEAD": "ref: refs/heads/main\n",
+      "_wikis/myrepo/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n## Current\n### 2026-07-30 08:00 EDT — older shown first\n### 2026-07-30 09:00 EDT — newer shown later\n",
+      "_wikis/myrepo/wiki/log.md": "## 2026-07-30 09:00 EDT — update\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["HOT_NON_MONOTONIC"]
+  },
+  {
+    "name": "blocks when a nested linked worktree and its workspace parent disagree",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "projectCwdName": "alpha/review-beta",
+    "gitWorktreeProject": "beta",
+    "gitWorktreeCwdName": "alpha/review-beta",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "beta/.git/HEAD": "ref: refs/heads/main\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 09:00 PM EDT (sync)_\n<!-- END: alpha -->\n<!-- BEGIN: beta -->\n_Last self-update: 2026-07-30 09:00 PM EDT (sync)_\n<!-- END: beta -->\n",
+      "_wikis/beta/wiki/hot.md": "<!-- curated: 2026-07-01 -->\n# hot\n",
+      "_wikis/beta/wiki/log.md": "## 2026-07-30 21:20 EDT — update\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["PROJECT_IDENTITY_AMBIGUOUS"]
+  },
+  {
+    "name": "blocks a gitdir target that does not exist inside the workspace",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "innocent",
+    "projectCwdName": "_worktrees/innocent",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_worktrees/innocent/.git": "gitdir: /nonexistent/path/teranode-ai/.git/worktrees/whatever\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["PROJECT_GITDIR_INVALID"]
+  },
+  {
+    "name": "blocks an existing gitdir target outside the workspace",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "innocent",
+    "projectCwdName": "_worktrees/innocent",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_worktrees/innocent/.git": "gitdir: /tmp\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["PROJECT_GITDIR_INVALID"]
+  },
+  {
+    "name": "blocks an in-workspace directory that is not a readable gitdir",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "innocent",
+    "projectCwdName": "_worktrees/innocent",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_worktrees/innocent/.git": "gitdir: ../../ordinary-directory\n",
+      "ordinary-directory/README.md": "not git metadata\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["PROJECT_GITDIR_INVALID"]
+  },
+  {
+    "name": "blocks a linked-worktree gitdir without validated metadata",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "innocent",
+    "projectCwdName": "_worktrees/innocent",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_worktrees/innocent/.git": "gitdir: ../../alpha/.git/worktrees/bad\n",
+      "alpha/.git/worktrees/bad/HEAD": "ref: refs/heads/main\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["PROJECT_GITDIR_INVALID"]
+  },
+  {
+    "name": "blocks a copied linked-worktree marker whose back-pointer names another checkout",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "copied",
+    "projectCwdName": "_worktrees/copied",
+    "gitWorktreeProject": "alpha",
+    "gitWorktreeCwdName": "_worktrees/copied",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "alpha/.git/worktrees/fixture/gitdir": "/nonexistent/other-checkout/.git\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["PROJECT_GITDIR_INVALID"]
+  },
+  {
+    "name": "keeps checkout-root identity below a valid markerless gitdir checkout",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "submod",
+    "projectCwdName": "_archive/submod/src",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: submod\nclosed_at: 2026-07-31T01:00:00Z\nttl_hours: 6\n---\n# Current handoff\n",
+      "_workspace_state.md": "<!-- BEGIN: submod -->\n_Last self-update: 2026-07-30 09:00 PM EDT (sync)_\n<!-- END: submod -->\n",
+      "_archive/submod/.git": "gitdir: ../../alpha/.git/modules/submod\n",
+      "alpha/.git/modules/submod/HEAD": "ref: refs/heads/main\n",
+      "_wikis/submod/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n## Current\n### 2026-07-30 08:00 EDT — older shown first\n### 2026-07-30 09:00 EDT — newer shown later\n",
+      "_wikis/submod/wiki/log.md": "## 2026-07-30 09:00 EDT — update\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["HOT_NON_MONOTONIC"]
+  },
+  {
+    "name": "allows an explicit project name to clear nested checkout ambiguity",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "projectCwdName": "alpha/nested-repo",
+    "omitProjectName": false,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "alpha/nested-repo/.git/HEAD": "ref: refs/heads/main\n"
+    },
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "honors a healthy legacy sibling wiki",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "projectCwdName": "alpha",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_wikis/alpha/wiki/hot.md": null,
+      "_wikis/alpha/wiki/log.md": null,
+      "alpha-wiki/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n",
+      "alpha-wiki/wiki/log.md": "## 2026-07-30 21:20 EDT — update\n"
+    },
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "quarantines a project that has no wiki",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "projectCwdName": "alpha",
+    "omitProjectName": true,
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_wikis/alpha/wiki/hot.md": null,
+      "_wikis/alpha/wiki/log.md": null
+    },
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["HOT_MISSING", "LOG_MISSING"]
+  },
+  {
+    "name": "quarantines an expired handoff without blocking current sources",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-30T14:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-29T10:00:00Z\nttl_hours: 6\n---\n# Old handoff\n",
+      "_active_actions.md": "# Active Actions\n\n_Last curated: 2026-07-30T09:00:00-04:00 by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 09:00 AM EDT (sync)_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-30 09:20 EDT — update\n"
+    },
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["HANDOFF_EXPIRED"]
+  },
+  {
+    "name": "blocks a nonchronological run inside one hot section",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-30T14:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-30T13:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-07-30T09:00:00-04:00 by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 09:00 AM EDT (sync)_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n## Current\n### 2026-07-30 08:00 EDT — older shown first\n### 2026-07-30 09:00 EDT — newer shown later\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-30 09:00 EDT — update\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["HOT_NON_MONOTONIC"]
+  },
+  {
+    "name": "accepts newest-first chronology independently in each hot section",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n## Current\n### 2026-07-30 09:30 EDT — latest current\n### 2026-07-20 09:00 EDT — older current\n## Recently closed\n### 2026-07-28 15:00 EDT — latest closed\n### 2026-07-25 15:00 EDT — older closed\n"
+    },
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "accepts a time heading after a same-day date-only heading",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-30 -->\n# hot\n## Current\n### 2026-07-30 — date-only newest boundary\n### 2026-07-30 09:00 EDT — same-day precise entry\n"
+    },
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "degrades for modest hot lag after an ordinary log append",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-30T16:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-30T15:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-07-30 11:00 EDT by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 11:00 EDT (sync)_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-30 09:00 EDT -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-30 10:00 EDT — update\n"
+    },
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["HOT_BEHIND_LOG"]
+  },
+  {
+    "name": "blocks only when hot is more than fourteen days behind",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-30T16:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-30T15:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-07-30 11:00 EDT by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 11:00 EDT (sync)_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-01 09:00 EDT -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-30 10:00 EDT — update\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["HOT_SEVERELY_BEHIND_LOG"]
+  },
+  {
+    "name": "degrades one hour below the fourteen-day hot-lag block boundary",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-30T16:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-30T15:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-07-30 11:00 EDT by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 11:00 EDT (sync)_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-16 10:00 EDT -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-30 09:00 EDT — update\n"
+    },
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["HOT_BEHIND_LOG"]
+  },
+  {
+    "name": "degrades at exactly the fourteen-day hot-lag block boundary",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-30T16:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-30T15:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-07-30 11:00 EDT by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 11:00 EDT (sync)_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-16 09:00 EDT -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-30 09:00 EDT — update\n"
+    },
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["HOT_BEHIND_LOG"]
+  },
+  {
+    "name": "blocks one hour above the fourteen-day hot-lag boundary",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-30T16:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-30T15:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-07-30 11:00 EDT by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 11:00 EDT (sync)_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-16 10:00 EDT -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-30 11:00 EDT — update\n"
+    },
+    "expectedReadiness": "BLOCK",
+    "expectedCodes": ["HOT_SEVERELY_BEHIND_LOG"]
+  },
+  {
+    "name": "quarantines future headings without poisoning usable log freshness",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-30T16:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-30T15:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-07-30 11:00 EDT by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 11:00 EDT (sync)_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-30 10:00 EDT -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2027-07-30 10:00 EDT — typo\n## 2026-07-30 10:00 EDT — usable\n"
+    },
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["LOG_FUTURE_TIMESTAMP"]
+  },
+  {
+    "name": "uses America New York daylight time despite an EST label in July",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-30T16:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-30T15:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-07-30 11:45 EDT by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-30 11:45 ET (sync)_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-30 11:40 EDT -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-30 11:45 AM EST — mislabeled but New York wall time\n"
+    },
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "quarantines oversize hot and active heads instead of blocking",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-31T02:00:00Z",
+    "targetFileSizes": {
+      "_wikis/alpha/wiki/hot.md": 24577,
+      "_active_actions.md": 24577
+    },
+    "files": {},
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["ACTIVE_ACTIONS_OVERSIZE", "HOT_OVERSIZE"]
+  },
+  {
+    "name": "accepts exact handoff and shared-file size ceilings",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-31T02:00:00Z",
+    "targetFileSizes": {
+      "_handoff.md": 4096,
+      "_active_actions.md": 24576,
+      "_wikis/alpha/wiki/hot.md": 24576
+    },
+    "files": {},
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "quarantines a handoff one byte above its ceiling",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-31T02:00:00Z",
+    "targetFileSizes": {
+      "_handoff.md": 4097
+    },
+    "files": {},
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["HANDOFF_OVERSIZE"]
+  },
+  {
+    "name": "applies seven-day tolerance to a date-only workspace timestamp",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-06-14T18:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-06-14T17:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-06-14 10:00 EDT by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-06-10_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-06-14 -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-06-14 10:00 EDT — update\n"
+    },
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "degrades after the full seven-day date-only tolerance",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-06-10T18:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-06-10T17:00:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-06-10 10:00 EDT by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-06-01_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-06-10 -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-06-10 10:00 EDT — update\n"
+    },
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["WORKSPACE_PROJECT_STALE"]
+  },
+  {
+    "name": "does not call a date-only active head stale minutes after midnight",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-31T05:00:00Z",
+    "files": {
+      "_handoff.md": "---\nproject: alpha\nclosed_at: 2026-07-31T04:30:00Z\nttl_hours: 6\n---\n",
+      "_active_actions.md": "_Last curated: 2026-07-30 by Codex._\n",
+      "_workspace_state.md": "<!-- BEGIN: alpha -->\n_Last self-update: 2026-07-31_\n<!-- END: alpha -->\n",
+      "_wikis/alpha/wiki/hot.md": "<!-- curated: 2026-07-31 -->\n# hot\n",
+      "_wikis/alpha/wiki/log.md": "## 2026-07-31 00:10 EDT — update\n"
+    },
+    "expectedReadiness": "PASS",
+    "expectedCodes": []
+  },
+  {
+    "name": "distinguishes an empty hot file from a missing file",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_wikis/alpha/wiki/hot.md": ""
+    },
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["HOT_EMPTY"]
+  },
+  {
+    "name": "quarantines a nonempty log with no supported timestamp",
+    "extends": "accepts coherent state from a nested project cwd",
+    "project": "alpha",
+    "now": "2026-07-31T02:00:00Z",
+    "files": {
+      "_wikis/alpha/wiki/log.md": "# durable log\nNo dated headings yet.\n"
+    },
+    "expectedReadiness": "DEGRADED",
+    "expectedCodes": ["LOG_TIMESTAMP_UNPARSEABLE"]
+  }
+]

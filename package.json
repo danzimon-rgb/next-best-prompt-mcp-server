@@ -4,6 +4,7 @@
   "description": "MCP server for the next_best_prompt 'next-best-prompts' end-of-turn rule \u2014 end a substantive turn with 2-4 ranked, copy-paste-ready next moves, and skip when there's none. Pure guidance: no secrets, no network, no side-effecting tools. Install locally (stdio) for Claude Code / Claude Desktop, or use the hosted endpoint (this repo's remote/) for Claude.ai web + mobile connectors.",
   "type": "module",
   "bin": {
+    "closure-state-readiness": "dist/state-readiness-cli.js",
     "next-best-prompt-mcp": "dist/index.js",
     "next-best-prompt-mcp-server": "dist/index.js"
   },
@@ -19,10 +20,12 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "node scripts/check-sync.mjs && npm run build",
     "smoke": "node scripts/smoke.mjs",
-    "test": "npm run check-sync && npm run build && npm run smoke && npm run smoke:closure && npm run test:closure-validator",
+    "test": "npm run check-sync && npm run build && npm run smoke && npm run smoke:closure && npm run test:closure-validator && npm run test:state-readiness && npm run test:closure-wrapper",
     "start": "node dist/index.js",
     "smoke:closure": "node scripts/smoke-closure.mjs",
     "test:closure-validator": "node scripts/test-closure-validator.mjs",
+    "test:closure-wrapper": "node scripts/test-closure-wrapper.mjs",
+    "test:state-readiness": "node scripts/test-state-readiness.mjs",
     "validate:closure": "node scripts/validate-closure-output.mjs"
   },
   "keywords": [
@@ -42,7 +45,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.29.0"
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -25,7 +25,7 @@ and is code-generated into a shared module that both transports import:
 Both expose identical surfaces: the `instructions` field, a `next_best_prompt` prompt, and
 a `get_next_best_prompts_rule` tool.
 
-## closure_scheduler v0.5.3 canary
+## closure_scheduler v0.5.4 canary
 
 The repository also carries a separate, stdio-only `closure_scheduler` candidate.
 It keeps the incumbent and hosted behavior unchanged while the execution-board
@@ -37,7 +37,7 @@ of being duplicated in both startup instructions and the tool result. The local
 wrapper also resolves a numeric nvm default directly, avoiding a full nvm startup
 when possible.
 
-Unlike v0.5.2, v0.5.3 requires at least one selectable next suggested prompt
+Unlike v0.5.2, v0.5.4 requires at least one selectable next suggested prompt
 after every substantive response, including completed, gated, and in-flight
 turns. When no alternative is genuinely useful, it emits one honest optional
 follow-up rather than omitting the board or padding the menu.
@@ -59,6 +59,39 @@ cross-surface agents whose required work must appear as either a self-contained
 `PASTE TO` action or a verified `IN FLIGHT` checkpoint. The committed fixtures
 cover the observed regressions and valid counterexamples. The root test enforces
 the original 15,655-byte rule ceiling.
+
+The canary also exposes `check_state_readiness`, a read-only local gate that
+classifies the continuity stack as `PASS`, `DEGRADED`, or `BLOCK`. It checks the
+handoff TTL, live-file size budgets, project hot/log chronology and freshness,
+active-action freshness, and the project workspace-state section. `DEGRADED`
+quarantines named sources; `BLOCK` permits only state reconciliation until a
+recheck passes. Missing wikis, size hygiene, future timestamps, and ordinary
+hot/log lag are `DEGRADED`, not hard stops. `BLOCK` is reserved for invalid or
+ambiguous project identity, contradictory within-section chronology, or a hot
+head more than 14 days behind usable durable history. Output is severity-ordered
+and capped at five findings and 1,000 bytes.
+
+Project identity is derived from one validated enclosing Git checkout, then the
+first workspace path segment. Conflicting nested checkout identities `BLOCK`
+until `--project-name` resolves the ambiguity. Linked-worktree metadata is
+trusted only when its target, common directory, and checkout back-pointer all
+validate inside the workspace. Wiki resolution matches the workspace loader:
+canonical `_wikis/<project>/wiki`, legacy sibling `<project>-wiki/wiki`, then
+common suffix-stripped variants.
+
+The same engine is available without MCP:
+
+```bash
+closure-state-readiness --project-cwd /absolute/project/path
+closure-state-readiness --project-cwd /absolute/project/path --json
+closure-state-readiness --project-cwd /absolute/worktree --project-name canonical-project
+```
+
+Exit codes are `0` for `PASS`, `2` for `DEGRADED`, `1` for `BLOCK`, and `64`
+for invalid invocation. The rendered-output validator accepts `stateReadiness`
+and `stateReadinessExcludedSources` context fields. Under `BLOCK` it enforces a
+nonempty board, `Program: GATED`, and an exact clearing owner; the rule itself
+governs whether the actions are genuinely state reconciliation.
 
 ## Install
 

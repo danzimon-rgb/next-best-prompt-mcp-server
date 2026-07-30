@@ -10,6 +10,8 @@
 // Run with: npm run smoke:closure (after npm run build).
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -42,16 +44,60 @@ const call = await client.callTool({
 });
 const toolText = call.content?.[0]?.text ?? "";
 const ruleBytes = Buffer.byteLength(toolText, "utf8");
+const smokeWorkspace = mkdtempSync(join(tmpdir(), "closure-readiness-smoke-"));
+const smokeProject = join(smokeWorkspace, "smoke-project");
+const smokeWiki = join(smokeWorkspace, "_wikis", "smoke-project", "wiki");
+mkdirSync(smokeProject, { recursive: true });
+mkdirSync(smokeWiki, { recursive: true });
+const smokeNow = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+writeFileSync(
+  join(smokeWorkspace, "_handoff.md"),
+  `---\nproject: smoke-project\nclosed_at: ${smokeNow}\nttl_hours: 6\n---\n`,
+  "utf8",
+);
+writeFileSync(
+  join(smokeWorkspace, "_active_actions.md"),
+  `_Last curated: ${smokeNow} by smoke._\n`,
+  "utf8",
+);
+writeFileSync(
+  join(smokeWorkspace, "_workspace_state.md"),
+  `<!-- BEGIN: smoke-project -->\n_Last self-update: ${smokeNow}_\n<!-- END: smoke-project -->\n`,
+  "utf8",
+);
+writeFileSync(
+  join(smokeWiki, "hot.md"),
+  `<!-- curated: ${smokeNow} -->\n# hot\n`,
+  "utf8",
+);
+writeFileSync(
+  join(smokeWiki, "log.md"),
+  `## ${smokeNow} — smoke\n`,
+  "utf8",
+);
+const readinessCall = await client.callTool({
+  name: "check_state_readiness",
+  arguments: {
+    project_cwd: smokeProject,
+    workspace_root: smokeWorkspace,
+  },
+});
+const readinessText = readinessCall.content?.[0]?.text ?? "";
 
 await client.close();
+rmSync(smokeWorkspace, { recursive: true, force: true });
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.3": serverInfo?.version === "0.5.3",
+  "server identifies as version 0.5.4": serverInfo?.version === "0.5.4",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
   "tool name matches the incumbent": tools.includes("get_next_best_prompts_rule"),
+  "state readiness tool is present": tools.includes("check_state_readiness"),
+  "state readiness tool returns a bounded PASS":
+    readinessText.startsWith("STATE READINESS PASS") &&
+    Buffer.byteLength(readinessText, "utf8") <= 1000,
   "instructions are a compact tool-call bootstrap":
     instructions.length < 500 &&
     instructions.includes("get_next_best_prompts_rule") &&
@@ -81,6 +127,10 @@ const checks = {
   "tool carries no-courier and handoff consistency fixes":
     toolText.includes("never make the operator relay agent state") &&
     toolText.includes("cannot coexist with `Next owner: None`"),
+  "tool carries executable state readiness semantics":
+    toolText.includes("call `check_state_readiness`") &&
+    toolText.includes("`BLOCK` requires a board") &&
+    toolText.includes("| S02 |"),
   "tool stays within the v0.5 no-growth ceiling": ruleBytes <= 15_655,
   "matrix carries all 28 scenarios":
     toolText.includes("| E28 |") && toolText.includes("| E01 |"),
