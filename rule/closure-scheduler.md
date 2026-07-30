@@ -1,4 +1,4 @@
-# next_best_prompt v0.5.4 — closure scheduler
+# next_best_prompt v0.5.5 — closure scheduler
 
 Supersedes the v0.4 draft. Carries v0.4's execution board and dispatch semantics,
 applies the red-team corrections C1–C5 / R1 / L1, and removes the product
@@ -73,12 +73,12 @@ Do not force one label to describe both.
 
 ## 3. Refresh unstable state
 
-Verify live PRs, branches, SHAs, checks, deployments, inboxes, calendars,
-databases, agent sessions, and external gates when cheap. When the user names a
-window, session, or artifact, read that exact source; never substitute another
-active session or the globally newest transcript. Read shared/live sources
-directly; never make the operator relay state. Include the checkpoint and time
-when staleness matters. Never re-offer completed or in-flight work.
+Before naming live state, verify when cheap. If the user names a window, session,
+repo or artifact, read that exact source; never substitute another session or
+newest transcript. If unreadable, state the gap; request a checkpoint; never
+infer. Read shared/live sources; never make the operator relay agent state.
+Include checkpoint and verification time when staleness could change the
+recommendation. Never re-offer completed/in-flight work.
 
 **An empty field is not a value.** A blank status, a null conclusion, or a
 missing timestamp means *unknown*, never *done*. Query the field that actually
@@ -136,7 +136,10 @@ Rules:
 - **State the relationship whenever more than one action is `NOW`.** *(F2)* End
   with *"1 and 2 are alternatives; picking one drops the other"* or *"1 and 2
   are independent and may both be dispatched."* Otherwise the board is ambiguous.
-- `SUGGESTED MOVE` closes the loop with fewest wrong turns. After two independent `BLOCK`s in one subsystem, prefer `PARK` or `REDESIGN`; patch again only with a new discriminating invariant.
+- `SUGGESTED MOVE` closes the loop with fewest wrong turns.
+- **Break repeated review loops.** After two independent `BLOCK` verdicts
+  cite one subsystem, prefer an action to park or redesign it. Patch again only
+  if the action states a new discriminating invariant.
 - **Collision means concurrent dispatch, not a shared target.** *(C1)* Two
   actions that would run **at the same time** against one agent window,
   branch/worktree, PR, deploy lane, inbox, database, paid quota, or other
@@ -265,16 +268,16 @@ If any answer fails, repair the board; never omit it.
 | E17 | Four open **queued** loops *(C5)* | Show at most three queued; archive the rest |
 | E18 | `Request: WORKING` at turn end | Fail unless the agent actually continues |
 | E19 | Optional board after completed request | Allow `Request: DONE`, `Program: DONE/N/A`, `Human: None` |
-| E20 | Generated copies contain the text | Insufficient: rendered outputs must satisfy every matrix row |
+| E20 | Generated copies contain the text | Insufficient: rendered outputs must satisfy every other matrix row |
 | E21 | No obvious high-value action exists | Emit one honest optional next prompt; never omit the board |
 | E22 | A blank status or null conclusion is read | Treat as unknown, never done; re-query |
-| E23 | Only procedural options exist | Pair required process with the non-obvious move, or say none was found |
+| E23 | Only procedural options exist | Pair process with the non-obvious move; if none was found, say so explicitly |
 | E24 | One option only *(F1)* | Render without `SUGGESTED MOVE` / `OPTION`; a label with nothing to contrast is noise |
 | E25 | Two `NOW` options shown *(F2)* | State whether they are alternatives or independent; a board that does not say is not actionable |
 | E26 | Queued loops are withheld | Name the count and location; never truncate silently |
 | E27 | Board follows a completed request | Mark it optional with `Next owner: None` |
 | E28 | `EXTERNAL` is selected | Emit procedure, exact values, confirming check, and verification offer when possible |
-| E29 | Two independent `BLOCK`s hit one subsystem | Prefer `PARK` or `REDESIGN`; patch again only with a new discriminating invariant |
+| E29 | Two independent `BLOCK` verdicts cite one subsystem | Park or redesign it; patch only if the action states a new discriminating invariant |
 | E30 | User names one agent window/session but another transcript is newer | Read the named source; never substitute the globally newest or another active session |
 
 **Out of scope:** product compliance tests belong in product rules (§9).

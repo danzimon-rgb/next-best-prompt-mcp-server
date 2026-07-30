@@ -25,7 +25,7 @@ and is code-generated into a shared module that both transports import:
 Both expose identical surfaces: the `instructions` field, a `next_best_prompt` prompt, and
 a `get_next_best_prompts_rule` tool.
 
-## closure_scheduler v0.5.4 canary
+## closure_scheduler v0.5.5 canary
 
 The repository also carries a separate, stdio-only `closure_scheduler` candidate.
 It keeps the incumbent and hosted behavior unchanged while the execution-board
@@ -42,7 +42,7 @@ after every substantive response, including completed, gated, and in-flight
 turns. When no alternative is genuinely useful, it emits one honest optional
 follow-up rather than omitting the board or padding the menu.
 
-v0.5.4 adds two prompt-only safeguards: after two independent `BLOCK` verdicts
+v0.5.5 adds two prompt-only safeguards: after two independent review `BLOCK` verdicts
 in one subsystem, it prefers parking or redesign unless another patch introduces
 a new discriminating invariant; and when the user names an agent window,
 session, or artifact, it reads that exact source instead of substituting another

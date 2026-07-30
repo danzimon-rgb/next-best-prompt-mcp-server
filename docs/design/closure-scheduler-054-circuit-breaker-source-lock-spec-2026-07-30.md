@@ -1,15 +1,15 @@
-# closure_scheduler 0.5.4 micro-spec
+# closure_scheduler 0.5.5 micro-spec
 
-Status: approved and implemented locally; independent review pending
+Status: 0.5.4 blocked in independent review; 0.5.5 correction implemented locally
 Author: Codex
 Date: 2026-07-30
 Base: `main` at `d3dce3d817f997b18b8a1f461e3ca99a1614dab5`
-Implementation: `9964f9b` on `feat/closure-scheduler-054-circuit-source-lock`
+Initial implementation: `9964f9b` on `feat/closure-scheduler-054-circuit-source-lock`
 
 ## Decision
 
 Freeze canonical `closure_scheduler` 0.5.3. If approved, build a new minimal
-0.5.4 from clean `main` containing only:
+increment from clean `main` containing only:
 
 1. a repeated-review circuit breaker;
 2. an exact-session source lock.
@@ -27,10 +27,10 @@ defects and opened new defects in the same identity subsystem. The scheduler
 kept treating another patch as the natural continuation even though the stable
 0.5.3 baseline was safe and parking cost nothing.
 
-After repeated independent `BLOCK` verdicts in one subsystem, the burden should
-shift. The default move becomes `PARK` or `REDESIGN`; another patch is eligible
-only when it introduces a new discriminating invariant that explains why the
-failure class will not repeat.
+After repeated independent `BLOCK` verdicts cite one subsystem, the burden
+should shift. The default becomes an ordinary dispatch action that parks or
+redesigns the work; another patch is eligible only when its action states a new
+discriminating invariant that explains why the failure class will not repeat.
 
 ### Exact-session source lock
 
@@ -57,18 +57,18 @@ the exact checkpoint and verification time when staleness could change the
 recommendation. Never re-offer work already completed or in flight.
 ```
 
-Proposed text:
+Corrected text after independent review:
 
 ```text
-Verify live PRs, branches, SHAs, checks, deployments, inboxes, calendars,
-databases, agent sessions, and external gates when cheap. When the user names a
-window, session, or artifact, read that exact source; never substitute another
-active session or the globally newest transcript. Read shared/live sources
-directly; never make the operator relay state. Include the checkpoint and time
-when staleness matters. Never re-offer completed or in-flight work.
+Before naming live state, verify when cheap. If the user names a window, session,
+repo or artifact, read that exact source; never substitute another session or
+newest transcript. If unreadable, state the gap; request a checkpoint; never
+infer. Read shared/live sources; never make the operator relay agent state.
+Include checkpoint and verification time when staleness could change the
+recommendation. Never re-offer completed/in-flight work.
 ```
 
-Byte delta: `454 - 377 = +77`.
+Byte delta including section heading and spacing: `474 - 409 = +65`.
 
 ### 2. Replace the `SUGGESTED MOVE` rule in section 6
 
@@ -78,22 +78,25 @@ Current text:
 - `SUGGESTED MOVE` is the action most likely to close the loop with fewest wrong turns.
 ```
 
-Proposed text:
+Corrected text after independent review:
 
 ```text
-- `SUGGESTED MOVE` closes the loop with fewest wrong turns. After two independent `BLOCK`s in one subsystem, prefer `PARK` or `REDESIGN`; patch again only with a new discriminating invariant.
+- `SUGGESTED MOVE` closes the loop with fewest wrong turns.
+- **Break repeated review loops.** After two independent `BLOCK` verdicts
+  cite one subsystem, prefer an action to park or redesign it. Patch again only
+  if the action states a new discriminating invariant.
 ```
 
-Byte delta: `191 - 87 = +104`.
+Byte delta including trailing newline: `269 - 88 = +181`.
 
 ### 3. Add two evaluation-matrix rows
 
 ```text
-| E29 | Two independent `BLOCK`s hit one subsystem | Prefer `PARK` or `REDESIGN`; patch again only with a new discriminating invariant |
+| E29 | Two independent `BLOCK` verdicts cite one subsystem | Park or redesign it; patch only if the action states a new discriminating invariant |
 | E30 | User names one agent window/session but another transcript is newer | Read the named source; never substitute the globally newest or another active session |
 ```
 
-Byte delta including line endings: `+303`.
+E29 and E30 are included in the matrix accounting below.
 
 ### 4. Reallocate bytes only from redundant matrix prose
 
@@ -101,8 +104,8 @@ Replace these six rows:
 
 ```text
 | E02 | One selectable action exists | Emit one; never pad. E24 governs labeling |
-| E20 | Generated copies contain the text | Insufficient: rendered outputs must satisfy every matrix row |
-| E23 | Only procedural options exist | Pair required process with the non-obvious move, or say none was found |
+| E20 | Generated copies contain the text | Insufficient: rendered outputs must satisfy every other matrix row |
+| E23 | Only procedural options exist | Pair process with the non-obvious move; if none was found, say so explicitly |
 | E26 | Queued loops are withheld | Name the count and location; never truncate silently |
 | E27 | Board follows a completed request | Mark it optional with `Next owner: None` |
 | E28 | `EXTERNAL` is selected | Emit procedure, exact values, confirming check, and verification offer when possible |
@@ -111,7 +114,8 @@ Replace these six rows:
 The replacement rows preserve their behavioral requirements while removing
 explanations already stated in the rule body.
 
-Byte delta: `-443`.
+The full corrected matrix, including E29 and E30, is 117 bytes smaller than the
+0.5.3 E01-E28 matrix.
 
 No bytes may be reclaimed from section 9, the digit-selection invariant,
 dispatch semantics, completion delivery, the non-obvious-move obligation, or
@@ -121,16 +125,15 @@ handoff consistency.
 
 ```text
 0.5.3 current rule                            15,512 bytes
-exact-session source lock replacement           +77
-review-loop circuit-breaker replacement         +104
-E29 and E30 rows                                +303
-six matrix-row compressions                     -443
-projected 0.5.4 rule                          15,553 bytes
+section 3 replacement                            +65
+section 6 replacement                           +181
+corrected matrix including E29/E30               -117
+0.5.5 corrected rule                          15,641 bytes
 fixed ceiling                                 15,655 bytes
-remaining margin                                 102 bytes
+remaining margin                                  14 bytes
 ```
 
-Changing `0.5.3` to `0.5.4` is byte-neutral. Generated files, test code, and
+Changing `0.5.3` to `0.5.5` is byte-neutral. Generated files, test code, and
 server metadata do not add served-rule bytes.
 
 ## Discriminating semantic fixtures
@@ -157,7 +160,7 @@ The latest review returned BLOCK again. What is next, and is the loop closed?
 Required behavior:
 
 - say the review loop is closed but delivery remains blocked;
-- make `PARK` or `REDESIGN` the suggested move;
+- make parking or redesign the suggested move using a defined dispatch action;
 - preserve the safe baseline;
 - do not default to another patch;
 - allow another patch only if it names a new discriminating invariant.
@@ -207,9 +210,10 @@ Implementation must:
 1. branch from exact `d3dce3d`, not PR #7;
 2. change only the rule, generated closure payload, version surfaces, smoke
    assertions, and handoff documentation;
-3. change every `closure_scheduler` version surface from 0.5.3 to 0.5.4;
-4. assert E01 through E30 are present;
-5. assert the two new anchor phrases are served;
+3. change every `closure_scheduler` version surface from 0.5.3 to 0.5.5;
+4. assert E01 through E30 are present exactly once and in order;
+5. pin the exact source-lock and circuit-breaker blocks, and prove the
+   circuit-breaker assertion rejects an inverted-meaning mutation;
 6. keep the rule at or below 15,655 bytes;
 7. run `npm test`, `npm run typecheck`, shell syntax, generated sync,
    `git diff --check`, and `npm pack --dry-run`;
@@ -221,8 +225,8 @@ Implementation must:
 - no state-readiness gate;
 - no Git/worktree/project identity inference;
 - no new MCP tool, CLI, schema, hook, daemon, or external dependency;
-- no regex enforcement of `PARK`, `REDESIGN`, model names, effort names, session
-  names, or transcript paths;
+- no rendered-output regex for parking, redesign, model names, effort names,
+  session names, or transcript paths;
 - no changes to the hosted `next_best_prompt` incumbent;
 - no merge, load/restart, release, publication, or deployment without Dan.
 
