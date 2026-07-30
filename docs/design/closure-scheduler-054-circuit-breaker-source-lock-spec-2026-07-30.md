@@ -1,9 +1,10 @@
 # closure_scheduler 0.5.4 micro-spec
 
-Status: proposed, not implemented
+Status: approved and implemented locally; independent review pending
 Author: Codex
 Date: 2026-07-30
 Base: `main` at `d3dce3d817f997b18b8a1f461e3ca99a1614dab5`
+Implementation: `9964f9b` on `feat/closure-scheduler-054-circuit-source-lock`
 
 ## Decision
 
