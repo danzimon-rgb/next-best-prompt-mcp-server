@@ -20,6 +20,15 @@
 
 export const CLOSURE_SCHEDULER_RULE = __CLOSURE_SCHEDULER_RULE_JSON__;
 
+// Keep startup context small. The full rule is returned once, by the required
+// session-start tool call, rather than duplicated in both server instructions
+// and the tool result.
+export const CLOSURE_SCHEDULER_BOOTSTRAP =
+  "At the beginning of every session, call `get_next_best_prompts_rule` and " +
+  "treat the returned rule as active instructions for the session. Follow it " +
+  "after every substantive response. Call again only after reconnecting or when " +
+  "the server identity/version changes.";
+
 const PROMPT_DESCRIPTION =
   "Return the closure-scheduler end-of-turn rule: classify the turn, act before " +
   "offering, then render an execution board of 1-3 digit-selectable actions with " +

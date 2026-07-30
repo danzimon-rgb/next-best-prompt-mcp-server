@@ -25,6 +25,41 @@ and is code-generated into a shared module that both transports import:
 Both expose identical surfaces: the `instructions` field, a `next_best_prompt` prompt, and
 a `get_next_best_prompts_rule` tool.
 
+## closure_scheduler v0.5.3 canary
+
+The repository also carries a separate, stdio-only `closure_scheduler` candidate.
+It keeps the incumbent and hosted behavior unchanged while the execution-board
+contract is evaluated.
+
+Its startup instructions are a 260-byte bootstrap that requires one
+`get_next_best_prompts_rule` call. The full rule is returned by that call instead
+of being duplicated in both startup instructions and the tool result. The local
+wrapper also resolves a numeric nvm default directly, avoiding a full nvm startup
+when possible.
+
+Unlike v0.5.2, v0.5.3 requires at least one selectable next suggested prompt
+after every substantive response, including completed, gated, and in-flight
+turns. When no alternative is genuinely useful, it emits one honest optional
+follow-up rather than omitting the board or padding the menu.
+
+Rendered responses can be checked without adding runtime prompt tokens:
+
+```bash
+npm run validate:closure -- response.md
+npm run validate:closure -- --context scenario.json response.md
+npm run test:closure-validator
+```
+
+The optional context JSON supports `defensiblePriority`,
+`alreadyAuthorizedActionPatterns`, `operatorCourierPatterns`, and
+`requiredAgentDispatchOwners`. It also supports `completionDeliveryRequired`,
+which makes blocking `IN FLIGHT` work name how its terminal result reaches the
+user and requires a concrete `AFTER` action. `requiredAgentDispatchOwners` names
+cross-surface agents whose required work must appear as either a self-contained
+`PASTE TO` action or a verified `IN FLIGHT` checkpoint. The committed fixtures
+cover the observed regressions and valid counterexamples. The root test enforces
+the original 15,655-byte rule ceiling.
+
 ## Install
 
 ### Claude Code

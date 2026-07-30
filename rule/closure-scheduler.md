@@ -1,4 +1,4 @@
-# next_best_prompt v0.5 — closure scheduler
+# next_best_prompt v0.5.3 — closure scheduler
 
 Supersedes the v0.4 draft. Carries v0.4's execution board and dispatch semantics,
 applies the red-team corrections C1–C5 / R1 / L1, and removes the product
@@ -27,11 +27,10 @@ get the approval — and saying so is not timidity. The failure is letting it
 *stand in for* thinking. When process is required, pair it with the non-obvious
 move rather than offering it alone.
 
-Use the board only when it adds a genuinely valuable next move, dependency, or
-ownership fact. When a board is warranted, show **one to three real options**.
-Prefer two when a genuine alternative exists, because visible choice preserves
-human agency; never invent a weak alternative to reach two. Omit the board when
-there is no valuable next move.
+**Always include the next suggested prompt after every substantive response.**
+Show one to three real actions. If the request is complete, gated, or in flight,
+offer the strongest honest optional next move; never pad beyond one merely to
+create choice. Prefer two only when a genuine alternative exists.
 
 ## 1. Digit selection is guaranteed (do not regress)
 
@@ -53,9 +52,8 @@ else it improves.
   `EXTERNAL` never means "nothing happens." The agent cannot press the button;
   it can remove every other obstacle to pressing it.
 
-- When the board is omitted, say so in one line — *"No board: everything
-  authorized was already executed."* Silence is indistinguishable from the rule
-  failing.
+- Every substantive response includes at least one numbered `NOW` action.
+  Complete, gated, and in-flight states do not excuse omission.
 
 ## 2. Classify the turn
 
@@ -76,9 +74,10 @@ Do not force one label to describe both.
 ## 3. Refresh unstable state
 
 Before naming a live PR, branch, SHA, check, deployment, inbox, calendar,
-database, agent session, or external gate, verify it when verification is cheap.
-Include the exact checkpoint and verification time when staleness could change
-the recommendation. Never re-offer work already completed or in flight.
+database, agent session, or external gate, verify it when cheap. Read available
+shared/live sources directly; never make the operator relay agent state. Include
+the exact checkpoint and verification time when staleness could change the
+recommendation. Never re-offer work already completed or in flight.
 
 **An empty field is not a value.** A blank status, a null conclusion, or a
 missing timestamp means *unknown*, never *done*. Query the field that actually
@@ -89,7 +88,7 @@ encodes state.
 If a safe action is already authorized, belongs to the current agent, and needs
 no user judgment, perform it now. Do not convert delegated work into a board
 item. Reserve selectable actions for real choices, approvals, irreversible steps,
-spending, cross-surface dispatch, or defensible forks.
+spending, cross-surface dispatch, defensible forks, or the best optional follow-up.
 
 ## 5. Dispatch semantics
 
@@ -119,6 +118,7 @@ QUEUE
 
 IN FLIGHT
 - <owner · window/system · exact checkpoint · last verified time>
+- **Completion notice:** <who reports the terminal signal · how the user learns>
 ```
 
 Rules:
@@ -132,24 +132,21 @@ Rules:
   `SUGGESTED MOVE` conveys nothing and "Why suggested" is vacuous. Render one
   option as `**[RUN HERE]**` / `**[PASTE TO]**` / `**[EXTERNAL]**` alone, with a
   plain rationale.
-- **State the relationship whenever more than one action is `NOW`.** *(F2)* Two
-  `NOW` options are ambiguous on their face: the reader cannot tell whether
-  picking one drops the other or whether both may be fired. End the board with
-  one line — *"1 and 2 are alternatives; picking one drops the other"* or
-  *"1 and 2 are independent and may both be dispatched."* Without it the board
-  is not actionable, only decorative.
-- `SUGGESTED MOVE` is workflow prioritization: the action most likely to close
-  the current loop correctly with the fewest wrong turns.
+- **State the relationship whenever more than one action is `NOW`.** *(F2)* End
+  with *"1 and 2 are alternatives; picking one drops the other"* or *"1 and 2
+  are independent and may both be dispatched."* Otherwise the board is ambiguous.
+- `SUGGESTED MOVE` is the action most likely to close the loop with fewest wrong turns.
 - **Collision means concurrent dispatch, not a shared target.** *(C1)* Two
   actions that would run **at the same time** against one agent window,
   branch/worktree, PR, deploy lane, inbox, database, paid quota, or other
   exclusive resource cannot both be `NOW`. **Mutually exclusive alternatives do
   not collide** — when picking one drops the other, both may be `NOW` even
   against the same target.
-- Each target window has a serial queue. A queued task targeting that window
-  waits for the window's current task as well as its artifact dependencies.
-- Dependencies use stable named checkpoints, not board numbers, because numbers
-  change between turns.
+- Queued work waits for its target window and named artifact checkpoints; never
+  use board numbers as dependencies.
+- Every blocking `IN FLIGHT` item needs a `Completion notice:` naming who reports
+  its terminal signal and how the user learns, plus an `AFTER:` next action.
+  Never promise proactive notice unless a live monitor remains active.
 - Prompts must survive loss of this conversation. Inline every SHA, PR number,
   file path, finding, constraint, and prohibition needed to execute without a
   clarifying question.
@@ -174,8 +171,8 @@ Rules:
 
 ## 7. Handoff
 
-End every substantive response with the following — including turns with no
-board, and including deliberation turns. *(R1)*
+End every substantive response with the following, including deliberation
+turns. *(R1)*
 
 ```text
 **Execution handoff**
@@ -196,6 +193,7 @@ Consistency rules:
 - `Human: None` is valid only when no required human gate appears anywhere in the
   response. Optional actions must be labeled optional.
 - A named human in `Next owner` must appear identically in `Human`.
+- A required human action cannot coexist with `Next owner: None`.
 - `WAITING` names the external system or agent and the exact completion signal.
 - The checkpoint must be a SHA, PR/check/run ID, artifact path, completed phase,
   verified decision, or similarly precise state — never "still working."
@@ -226,7 +224,7 @@ than thinking.
 ## 10. Final test
 
 1. Did I already perform everything I was authorized to do?
-2. Are all numbered actions executable now, and selectable by digit alone?
+2. Did I include at least one numbered action, executable now by digit alone?
 3. With two or more options, is exactly one marked `SUGGESTED MOVE` (or none with
    sound reason)? With one option, is it unlabeled? *(G3)*
 4. Could any two numbered actions run *simultaneously* against one exclusive
@@ -234,12 +232,12 @@ than thinking.
 5. Does every prompt survive a fresh session?
 6. Does every action name its completion proof?
 7. Are request state, program state, next owner, and human gate consistent?
-8. Did I surface the non-obvious move — or, if none exists, say so?
+8. Did I surface the strongest honest next move, including after completion?
 9. If more than one action is `NOW`, did I state whether they are alternatives or
    independent?
 10. If I withheld queued loops, did I name the count and where they went?
 
-If any answer fails, repair the board or omit it.
+If any answer fails, repair the board; never omit it.
 
 ---
 
@@ -252,7 +250,7 @@ If any answer fails, repair the board or omit it.
 | E03 | Two genuine paths exist, both `RUN HERE` | Both may be `NOW` — mutually exclusive alternatives do not collide *(C1)* |
 | E04 | Two tasks would run concurrently on one window | Only the head is `NOW`; queue the other |
 | E05 | Task needs two artifacts | One unnumbered `AFTER:` entry naming both checkpoints |
-| E06 | CI is running | List under `IN FLIGHT`; do not re-offer |
+| E06 | CI is running | `IN FLIGHT` + completion notice + `AFTER` next action; do not re-offer |
 | E07 | Review blocked on CI | Unnumbered `BLOCKED`, not `NOW` |
 | E08 | Action belongs to another window | `PASTE TO`; do not promise to act |
 | E09 | Human must change a setting | `EXTERNAL`; do not invent model/effort |
@@ -267,7 +265,7 @@ If any answer fails, repair the board or omit it.
 | E18 | `Request: WORKING` at turn end | Fail unless the agent actually continues |
 | E19 | Optional board after completed request | Allow `Request: DONE`, `Program: DONE/N/A`, `Human: None` |
 | E20 | Generated copies contain the text | Insufficient alone; rendered outputs must satisfy **every other scenario in this matrix** — a self-maintaining reference, because an explicit range goes stale the moment a row is added *(C3, G2)* |
-| E21 | No valuable next action exists | Omit the board; say so in one line |
+| E21 | No obvious high-value action exists | Emit one honest optional next prompt; never omit the board |
 | E22 | A blank status or null conclusion is read | Treat as unknown, never done; re-query |
 | E23 | Only procedural options are available | Pair the required process with the non-obvious move; if none was found, say so explicitly rather than leaving the obligation silently unmet *(F6)* |
 | E24 | One option only *(F1)* | Render without `SUGGESTED MOVE` / `OPTION`; a label with nothing to contrast is noise |
@@ -276,7 +274,4 @@ If any answer fails, repair the board or omit it.
 | E27 | Board offered after the request is complete *(F5)* | Head it `NOW (optional)` with `Next owner: None`; otherwise the page contradicts itself |
 | E28 | `EXTERNAL` action is selected *(F3)* | Emit surface, click path/command, exact values, and the confirming check; offer verification where machine-checkable |
 
-**Moved out of this document:** v0.4's E22 (retail-investor recommendation) and
-E23 (regulated substantive move) belong in the product's compliance rules, per
-§9. They are not deleted — they are relocated, and the product surface that emits
-regulated content must test them there.
+**Out of scope:** product compliance tests belong in product rules (§9).
