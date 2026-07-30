@@ -159,5 +159,58 @@
     "context": {},
     "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"Turn the completed audit into a reusable checklist.\" Done when: a concise checklist is returned.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** audit findings delivered\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": []
+  },
+  {
+    "name": "rejects ordinary work while state readiness is blocked",
+    "context": {
+      "stateReadiness": "BLOCK"
+    },
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** Implement the product feature. Done when: tests pass.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** feature is ready\n- **Next owner:** Dan — select action 1\n- **Human:** Dan — select action 1",
+    "expectedCodes": [
+      "S01_STATE_BLOCKED_ACTION",
+      "S01_STATE_BLOCKED_HANDOFF"
+    ]
+  },
+  {
+    "name": "accepts a gated state-readiness block with no ordinary board",
+    "context": {
+      "stateReadiness": "BLOCK"
+    },
+    "output": "No board: state readiness is BLOCK; ordinary prioritization is suspended until hot.md is reconciled.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** state readiness BLOCK at HOT_NON_MONOTONIC\n- **Next owner:** Claude Code — reconcile hot.md and rerun the gate\n- **Human:** None",
+    "expectedCodes": []
+  },
+  {
+    "name": "accepts an explicit reconciliation action while state readiness is blocked",
+    "context": {
+      "stateReadiness": "BLOCK"
+    },
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** Reconcile state in hot.md, preserving durable history. Done when: the readiness gate passes.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** GATED\n- **Checkpoint:** state readiness BLOCK at HOT_BEHIND_LOG\n- **Next owner:** Dan — select action 1\n- **Human:** Dan — select action 1",
+    "expectedCodes": []
+  },
+  {
+    "name": "requires quarantined sources in a degraded checkpoint",
+    "context": {
+      "stateReadiness": "DEGRADED",
+      "stateReadinessExcludedSources": [
+        "_handoff.md",
+        "_active_actions.md"
+      ]
+    },
+    "output": "No board: the requested status answer is complete.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** ACTIVE\n- **Checkpoint:** live repository state verified; _handoff.md excluded\n- **Next owner:** None\n- **Human:** None",
+    "expectedCodes": [
+      "S02_STATE_DEGRADED_EXCLUSION"
+    ]
+  },
+  {
+    "name": "accepts a degraded checkpoint naming every quarantined source",
+    "context": {
+      "stateReadiness": "DEGRADED",
+      "stateReadinessExcludedSources": [
+        "_handoff.md",
+        "_active_actions.md"
+      ]
+    },
+    "output": "No board: the requested status answer is complete.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** ACTIVE\n- **Checkpoint:** live repository state verified; _handoff.md and _active_actions.md excluded\n- **Next owner:** None\n- **Human:** None",
+    "expectedCodes": []
   }
 ]

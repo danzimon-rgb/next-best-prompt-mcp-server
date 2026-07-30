@@ -23,6 +23,12 @@ export const CLOSURE_SCHEDULER_RULE = __CLOSURE_SCHEDULER_RULE_JSON__;
 // Keep startup context small. The full rule is returned once, by the required
 // session-start tool call, rather than duplicated in both server instructions
 // and the tool result.
+import { z } from "zod";
+import {
+  assessStateReadiness,
+  formatStateReadiness,
+} from "./state-readiness.js";
+
 export const CLOSURE_SCHEDULER_BOOTSTRAP =
   "At the beginning of every session, call `get_next_best_prompts_rule` and " +
   "treat the returned rule as active instructions for the session. Follow it " +
@@ -40,6 +46,11 @@ const TOOL_DESCRIPTION =
   "Return the closure_scheduler rule as text — the same guidance this server " +
   "carries in its `instructions`, for clients that don't auto-load server " +
   "instructions.";
+
+const STATE_READINESS_DESCRIPTION =
+  "Read-only local continuity check. Returns a bounded PASS, DEGRADED, or BLOCK " +
+  "verdict for handoff TTL, shared-state size/freshness, and hot/log ordering. " +
+  "It performs no writes, network calls, or model calls.";
 
 /**
  * Register closure_scheduler's surfaces on an MCP server. Transport-agnostic:
@@ -61,4 +72,33 @@ export function registerClosureScheduler(server) {
   server.tool("get_next_best_prompts_rule", TOOL_DESCRIPTION, async () => ({
     content: [{ type: "text", text: CLOSURE_SCHEDULER_RULE }],
   }));
+
+  server.registerTool(
+    "check_state_readiness",
+    {
+      description: STATE_READINESS_DESCRIPTION,
+      inputSchema: {
+        project_cwd: z.string().describe("Absolute path to the project checkout"),
+        workspace_root: z
+          .string()
+          .optional()
+          .describe("Optional explicit continuity workspace root"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async ({ project_cwd, workspace_root }) => {
+      const result = assessStateReadiness({
+        projectCwd: project_cwd,
+        workspaceRoot: workspace_root,
+      });
+      return {
+        content: [{ type: "text", text: formatStateReadiness(result) }],
+      };
+    },
+  );
 }

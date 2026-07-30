@@ -57,6 +57,57 @@ export function validateClosureOutput(output, context = {}) {
     if (!findings.has(code)) findings.set(code, { code, message });
   };
   const actions = parseNowActions(output);
+  const stateReadiness = String(context.stateReadiness ?? "").toUpperCase();
+
+  if (stateReadiness === "BLOCK") {
+    const reconciliationPatterns =
+      context.stateReconciliationActionPatterns ??
+      [
+        "reconcile state",
+        "refresh shared state",
+        "repair shared state",
+        "curate hot.md",
+        "replace handoff",
+      ];
+    const ordinaryActions = actions.filter(
+      (action) =>
+        !reconciliationPatterns.some((pattern) =>
+          action.body.toLowerCase().includes(String(pattern).toLowerCase()),
+        ),
+    );
+    if (ordinaryActions.length > 0) {
+      add(
+        "S01_STATE_BLOCKED_ACTION",
+        "State readiness BLOCK permits only explicit state-reconciliation actions.",
+      );
+    }
+    const program = field(output, "Program");
+    const checkpoint = field(output, "Checkpoint");
+    if (
+      !/^GATED\b/i.test(program) ||
+      !/(state readiness.*block|block.*state readiness)/i.test(checkpoint)
+    ) {
+      add(
+        "S01_STATE_BLOCKED_HANDOFF",
+        "State readiness BLOCK requires Program: GATED and a BLOCK checkpoint.",
+      );
+    }
+  }
+
+  if (stateReadiness === "DEGRADED") {
+    const checkpoint = field(output, "Checkpoint").toLowerCase();
+    const excludedSources = context.stateReadinessExcludedSources ?? [];
+    if (
+      excludedSources.some(
+        (source) => !checkpoint.includes(String(source).toLowerCase()),
+      )
+    ) {
+      add(
+        "S02_STATE_DEGRADED_EXCLUSION",
+        "State readiness DEGRADED requires every quarantined source in the checkpoint.",
+      );
+    }
+  }
 
   if (actions.length === 0) {
     add(

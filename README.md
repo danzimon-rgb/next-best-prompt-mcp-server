@@ -60,6 +60,25 @@ cross-surface agents whose required work must appear as either a self-contained
 cover the observed regressions and valid counterexamples. The root test enforces
 the original 15,655-byte rule ceiling.
 
+The canary also exposes `check_state_readiness`, a read-only local gate that
+classifies the continuity stack as `PASS`, `DEGRADED`, or `BLOCK`. It checks the
+handoff TTL, live-file size budgets, project hot/log chronology and freshness,
+active-action freshness, and the project workspace-state section. `DEGRADED`
+quarantines named sources; `BLOCK` permits only state reconciliation until a
+recheck passes. Output is capped at five findings and 1,000 bytes.
+
+The same engine is available without MCP:
+
+```bash
+closure-state-readiness --project-cwd /absolute/project/path
+closure-state-readiness --project-cwd /absolute/project/path --json
+```
+
+Exit codes are `0` for `PASS`, `2` for `DEGRADED`, `1` for `BLOCK`, and `64`
+for invalid invocation. The rendered-output validator accepts
+`stateReadiness`, `stateReadinessExcludedSources`, and optional
+`stateReconciliationActionPatterns` context fields to enforce the verdict.
+
 ## Install
 
 ### Claude Code

@@ -11,7 +11,7 @@
  * activate a complete behavioral rule; loading both puts contradictory guidance
  * in one context and teaches you nothing about either.
  *
- * Pure guidance: no secrets, no network, no side-effecting tools.
+ * Read-only: no secrets, network calls, or side-effecting tools.
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";

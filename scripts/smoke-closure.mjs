@@ -42,6 +42,11 @@ const call = await client.callTool({
 });
 const toolText = call.content?.[0]?.text ?? "";
 const ruleBytes = Buffer.byteLength(toolText, "utf8");
+const readinessCall = await client.callTool({
+  name: "check_state_readiness",
+  arguments: { project_cwd: root },
+});
+const readinessText = readinessCall.content?.[0]?.text ?? "";
 
 await client.close();
 
@@ -52,6 +57,10 @@ const checks = {
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
   "tool name matches the incumbent": tools.includes("get_next_best_prompts_rule"),
+  "state readiness tool is present": tools.includes("check_state_readiness"),
+  "state readiness tool returns a bounded verdict":
+    /^STATE READINESS (PASS|DEGRADED|BLOCK)\b/.test(readinessText) &&
+    Buffer.byteLength(readinessText, "utf8") <= 1000,
   "instructions are a compact tool-call bootstrap":
     instructions.length < 500 &&
     instructions.includes("get_next_best_prompts_rule") &&
@@ -81,6 +90,10 @@ const checks = {
   "tool carries no-courier and handoff consistency fixes":
     toolText.includes("never make the operator relay agent state") &&
     toolText.includes("cannot coexist with `Next owner: None`"),
+  "tool carries executable state readiness semantics":
+    toolText.includes("call `check_state_readiness`") &&
+    toolText.includes("`BLOCK` forbids ordinary") &&
+    toolText.includes("| S02 |"),
   "tool stays within the v0.5 no-growth ceiling": ruleBytes <= 15_655,
   "matrix carries all 28 scenarios":
     toolText.includes("| E28 |") && toolText.includes("| E01 |"),
