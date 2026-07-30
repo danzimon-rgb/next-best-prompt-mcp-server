@@ -113,7 +113,8 @@ const checks = {
   "tool carries the execution board":
     toolText.includes("IN FLIGHT") &&
     toolText.includes("RUN HERE") &&
-    toolText.includes("PASTE TO"),
+    toolText.includes("PASTE TO") &&
+    toolText.includes("one exact available model and effort level"),
   "tool carries the completion-delivery contract":
     toolText.includes("Completion notice:") &&
     toolText.includes("Never promise proactive notice unless a live monitor remains active") &&
