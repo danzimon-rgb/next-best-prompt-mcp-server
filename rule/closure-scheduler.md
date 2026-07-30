@@ -73,9 +73,9 @@ For project work, call `check_state_readiness` at session start/project switch
 and after material shared-state writes; reuse it while inputs are unchanged.
 Pass `project_name` when the cwd is not under the canonical checkout.
 `PASS` permits ordinary prioritization. `DEGRADED` quarantines every named source:
-verify around it and name exclusions in the checkpoint. `BLOCK` forbids ordinary
-`NOW` actions: reconcile state or emit `No board: state readiness is BLOCK`,
-`Program: GATED`, and the exact clearing owner. Recheck before proceeding.
+verify around it and name exclusions in the checkpoint. `BLOCK` requires a board
+with one or more state-reconciliation `NOW` actions and no others,
+`Program: GATED`, and the exact clearing owner. Recheck before proceeding
 
 Before naming a live PR, branch, SHA, check, deployment, inbox, calendar,
 database, agent session, or external gate, verify it when cheap. Read available
@@ -273,7 +273,7 @@ If any answer fails, repair the board; never omit it.
 | E26 | More queued loops exist than are shown *(F4)* | Name the withheld count and where it went; never truncate silently |
 | E27 | Board offered after the request is complete *(F5)* | Head it `NOW (optional)` with `Next owner: None`; otherwise the page contradicts itself |
 | E28 | `EXTERNAL` action is selected *(F3)* | Emit surface, click path/command, exact values, and the confirming check; offer verification where machine-checkable |
-| S01 | State readiness is `BLOCK` | No ordinary `NOW`; reconcile or gate until a recheck passes |
+| S01 | State readiness is `BLOCK` | Only reconciliation `NOW` actions, at least one; `Program: GATED` until a recheck passes |
 | S02 | State readiness is `DEGRADED` | Quarantine named sources and record exclusions in the checkpoint |
 
 **Out of scope:** product compliance tests belong in product rules (§9).

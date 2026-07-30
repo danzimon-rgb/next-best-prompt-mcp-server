@@ -62,6 +62,12 @@ export function validateClosureOutput(output, context = {}) {
   const stateReadiness = String(context.stateReadiness ?? "").toUpperCase();
 
   if (stateReadiness === "BLOCK") {
+    if (actions.length === 0) {
+      add(
+        "S01_STATE_BLOCKED_NO_BOARD",
+        "State readiness BLOCK requires at least one numbered state-reconciliation action.",
+      );
+    }
     const reconciliationPatterns =
       context.stateReconciliationActionPatterns ??
       [

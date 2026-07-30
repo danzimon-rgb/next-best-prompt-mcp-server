@@ -296,8 +296,6 @@ function deriveProjectName(
 ): string {
   const override = explicit?.trim();
   if (override) return override;
-  const gitName = gitProjectName(projectCwd, workspaceRoot);
-  if (gitName) return gitName;
   const firstSegment = relative(workspaceRoot, projectCwd).split(sep)[0];
   if (
     firstSegment &&
@@ -307,6 +305,8 @@ function deriveProjectName(
   ) {
     return firstSegment;
   }
+  const gitName = gitProjectName(projectCwd, workspaceRoot);
+  if (gitName) return gitName;
   return basename(projectCwd);
 }
 
@@ -536,7 +536,11 @@ export function assessStateReadiness(
       for (let index = 1; index < run.length; index += 1) {
         const previous = run[index - 1];
         const current = run[index];
-        if (previous && current && current.date.getTime() > previous.date.getTime()) {
+        if (
+          previous &&
+          current &&
+          targetReferenceTime(current) > targetReferenceTime(previous)
+        ) {
           add(
             "HOT_NON_MONOTONIC",
             "BLOCK",

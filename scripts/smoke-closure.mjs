@@ -129,7 +129,7 @@ const checks = {
     toolText.includes("cannot coexist with `Next owner: None`"),
   "tool carries executable state readiness semantics":
     toolText.includes("call `check_state_readiness`") &&
-    toolText.includes("`BLOCK` forbids ordinary") &&
+    toolText.includes("`BLOCK` requires a board") &&
     toolText.includes("| S02 |"),
   "tool stays within the v0.5 no-growth ceiling": ruleBytes <= 15_655,
   "matrix carries all 28 scenarios":

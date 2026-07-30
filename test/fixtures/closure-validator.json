@@ -172,12 +172,15 @@
     ]
   },
   {
-    "name": "accepts a gated state-readiness block with no ordinary board",
+    "name": "rejects a state-readiness block with no board",
     "context": {
       "stateReadiness": "BLOCK"
     },
     "output": "No board: state readiness is BLOCK; ordinary prioritization is suspended until hot.md is reconciled.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** state readiness BLOCK at HOT_NON_MONOTONIC\n- **Next owner:** Claude Code — reconcile hot.md and rerun the gate\n- **Human:** None",
-    "expectedCodes": []
+    "expectedCodes": [
+      "E21_MISSING_NEXT_ACTION",
+      "S01_STATE_BLOCKED_NO_BOARD"
+    ]
   },
   {
     "name": "accepts an explicit reconciliation action while state readiness is blocked",
@@ -196,7 +199,7 @@
         "_active_actions.md"
       ]
     },
-    "output": "No board: the requested status answer is complete.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** ACTIVE\n- **Checkpoint:** live repository state verified; _handoff.md excluded\n- **Next owner:** None\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"Refresh the quarantined continuity sources and report whether readiness improves.\" Done when: the recheck and exclusions are reported.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** ACTIVE\n- **Checkpoint:** live repository state verified; _handoff.md excluded\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": [
       "S02_STATE_DEGRADED_EXCLUSION"
     ]
@@ -210,7 +213,7 @@
         "_active_actions.md"
       ]
     },
-    "output": "No board: the requested status answer is complete.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** ACTIVE\n- **Checkpoint:** live repository state verified; _handoff.md and _active_actions.md excluded\n- **Next owner:** None\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"Refresh the quarantined continuity sources and report whether readiness improves.\" Done when: the recheck and exclusions are reported.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** ACTIVE\n- **Checkpoint:** live repository state verified; _handoff.md and _active_actions.md excluded\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": []
   },
   {
@@ -218,7 +221,7 @@
     "context": {
       "stateReadiness": "BLOCK"
     },
-    "output": "No board: state readiness is BLOCK until hot.md is reconciled.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** HOT_NON_MONOTONIC at hot.md\n- **Next owner:** None\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** Reconcile state in hot.md. Done when: the readiness gate passes.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** HOT_NON_MONOTONIC at hot.md\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": [
       "S01_STATE_BLOCKED_HANDOFF"
     ]
