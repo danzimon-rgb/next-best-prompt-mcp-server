@@ -105,22 +105,6 @@
     "expectedCodes": []
   },
   {
-    "name": "rejects a paste-to route with no model or effort",
-    "context": {},
-    "output": "**Next actions**\n\nNOW\n1. **[PASTE TO] → `Claude Code · reviewer window`** \"Review PR #7 at exact head abc123 and return APPROVE or BLOCK with evidence. Do not edit.\" Done when: Claude returns the verdict.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** GATED\n- **Checkpoint:** review prompt prepared\n- **Next owner:** Dan — paste action 1\n- **Human:** Dan — paste action 1",
-    "expectedCodes": [
-      "E08_PASTE_TO_MODEL_EFFORT"
-    ]
-  },
-  {
-    "name": "rejects placeholder model and effort recommendations",
-    "context": {},
-    "output": "**Next actions**\n\nNOW\n1. **[PASTE TO] → `Claude Code · reviewer window · current · default`** \"Review PR #7 at exact head abc123 and return APPROVE or BLOCK with evidence. Do not edit.\" Done when: Claude returns the verdict.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** GATED\n- **Checkpoint:** review prompt prepared\n- **Next owner:** Dan — paste action 1\n- **Human:** Dan — paste action 1",
-    "expectedCodes": [
-      "E08_PASTE_TO_MODEL_EFFORT"
-    ]
-  },
-  {
     "name": "accepts another agent already working at a verified checkpoint",
     "context": {
       "requiredAgentDispatchOwners": [

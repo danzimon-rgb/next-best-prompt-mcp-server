@@ -101,8 +101,7 @@ Every numbered action uses exactly one dispatch type:
 - **`RUN HERE`** — replying with the number authorizes the current agent to run
   it in this session.
 - **`PASTE TO`** — the user sends the quoted prompt to the named agent window.
-  Recommend one exact available model and effort level, chosen for task/risk;
-  name agent and window. No placeholders.
+  Name agent, window/tab, model, and effort.
 - **`EXTERNAL`** — a named human or outside surface must act. Name the actor and
   surface; model and effort do not apply.
 
@@ -212,11 +211,11 @@ work stays on the execution board.
 
 ## 9. This rule governs the menu, not the product (load-bearing)
 
-This governs the **operator's** menu.
+This document governs what to put before **the operator** who owns the work.
 
 **Domain compliance controls do not belong here.** Regulated end-user surfaces
-need controls in *that product's* rules; importing them makes this board
-procedural.
+need their own controls in *that product's* rules. Importing them here makes the
+operator's board procedural when insight matters most.
 
 The two rules in §6 that resemble compliance — the `⚠` mark and the ban on labels
 that sanitize substance — stay, because they restrain surprise and naming rather

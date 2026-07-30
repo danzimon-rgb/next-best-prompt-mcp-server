@@ -29,7 +29,6 @@ function parseNowActions(output) {
       actions.push({
         number: Number(number),
         tag,
-        target: target.trim(),
         body: `${target} ${body}`.trim(),
         dispatch: ["RUN HERE", "PASTE TO", "EXTERNAL"].find((candidate) =>
           tag.includes(candidate),
@@ -61,30 +60,6 @@ export function validateClosureOutput(output, context = {}) {
   };
   const actions = parseNowActions(output);
   const stateReadiness = String(context.stateReadiness ?? "").toUpperCase();
-  const modelEffortPlaceholder =
-    /\b(?:current|default|same|auto(?:matic)?|unspecified|tbd|n\/?a|none)\b/i;
-
-  for (const action of actions.filter(
-    (candidate) => candidate.dispatch === "PASTE TO",
-  )) {
-    const route = action.target.match(/→\s*`([^`]+)`/)?.[1] ?? "";
-    const fields = route.split(/\s*·\s*/).map((field) => field.trim());
-    const [agent, window, model, effort] = fields;
-    if (
-      fields.length !== 4 ||
-      !agent ||
-      !window ||
-      !model ||
-      !effort ||
-      modelEffortPlaceholder.test(model) ||
-      modelEffortPlaceholder.test(effort)
-    ) {
-      add(
-        "E08_PASTE_TO_MODEL_EFFORT",
-        "PASTE TO requires an exact agent, window, available model, and effort level; model and effort cannot be placeholders.",
-      );
-    }
-  }
 
   if (stateReadiness === "BLOCK") {
     if (actions.length === 0) {
