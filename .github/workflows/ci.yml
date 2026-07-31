@@ -3,8 +3,10 @@ name: CI
 # Drift guard: each rule lives in rule/ and is embedded into the generated
 # transport copies (src/ + remote/lib/) by scripts/embed.mjs.
 # `npm test` runs check-sync (fails if a copy is stale, i.e. someone edited
-# a rule without re-running `npm run embed`), then build + both stdio smokes and
-# the validator fixtures. This makes silent rule-drift impossible to merge.
+# a rule without re-running `npm run embed`) and check-always-on (fails if the
+# hand-condensed paste block in ALWAYS-ON.md no longer matches the rule's size),
+# then build + both stdio smokes and the validator fixtures. This makes silent
+# rule-drift impossible to merge.
 #
 # `npm run smoke:remote` is deliberately NOT run here: it is the only script that
 # makes a network call, and it targets the deployed host, which does not exist

@@ -141,25 +141,37 @@ npm run dev        # local
 
 Only **Claude Code** auto-fires the rule every turn. On Desktop, web, and mobile,
 the server is available as an on-demand prompt/tool — for automatic every-turn
-behavior, paste the condensed rule into your account preferences or a project's
-custom instructions. See [`ALWAYS-ON.md`](ALWAYS-ON.md).
+behavior, paste the condensed **v0.5.5** rule into your account preferences or a
+project's custom instructions. See [`ALWAYS-ON.md`](ALWAYS-ON.md), which carries
+a 3,924-byte rendering of the 15,641-byte rule.
 
 ## Development
 
 ```bash
 npm install
-npm run embed        # rule/*.md + shared/*.template.ts -> generated modules
-npm run check-sync   # fail if the generated copies drifted from source
-npm run build        # tsc -> dist/ (prebuild runs embed)
-npm test             # check-sync + build + both stdio smokes + validator fixtures
-npm run smoke:remote # live handshake against the hosted endpoint (network)
+npm run embed           # rule/*.md + shared/*.template.ts -> generated modules
+npm run check-sync      # fail if the generated copies drifted from source
+npm run check-always-on # fail if ALWAYS-ON.md's condensed block drifted
+npm run build           # tsc -> dist/ (prebuild runs embed)
+npm test                # both drift checks + build + stdio smokes + fixtures
+npm run smoke:remote    # live handshake against the hosted endpoint (network)
 ```
 
 Edit a rule in `rule/` or the prompt/tool wiring in the matching
 `shared/*.template.ts`, then `npm run embed`. `check-sync` (run on
 `prepublishOnly`) guarantees the stdio and HTTP builds never drift; it covers
-every target in `scripts/embed.mjs`, including `remote/lib/`. `npm test` is
-hermetic; `smoke:remote` is the only script that touches the network.
+every target in `scripts/embed.mjs`, including `remote/lib/`.
+
+`ALWAYS-ON.md`'s paste block is the one copy of the rule written by hand rather
+than generated, because a 15 KB rule cannot go in a preferences field.
+`check-always-on` guards it by asserting the byte counts the file states about
+itself and about the rule are both currently true — so any change to the rule
+fails the build and forces a human to re-read the condensed copy. It cannot
+prove the condensed wording is still *faithful*; treat a failure as "go re-read
+both", not "fix the number".
+
+`npm test` is hermetic; `smoke:remote` is the only script that touches the
+network.
 
 ## License
 
