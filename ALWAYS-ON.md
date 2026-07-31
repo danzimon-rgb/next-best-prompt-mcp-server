@@ -13,102 +13,88 @@ injects into every conversation:
 - **Claude Desktop:** Settings → Profile → "What personal preferences should
   Claude consider?" — paste the block below. (Or put it in a Project's custom
   instructions to scope it.)
-- **Claude.ai web + mobile:** Settings → Profile → personal preferences — paste
-  the block below. It syncs to the mobile app on the same account.
+- **Claude.ai web + mobile:** Settings → Profile → **Instructions for Claude** —
+  paste the block below. It syncs to the mobile app on the same account.
 
-If a client turns out to inject `instructions` after all, pasting is still
-harmless: the block opens by deferring to the tool, and everything it says is
-consistent with the full rule.
-
-## Paste-ready rule — closure_scheduler v0.5.5
-
-This is a **condensed** rendering of [`rule/closure-scheduler.md`](rule/closure-scheduler.md),
-which the hosted connector at `next-best-prompt-mcp-remote.vercel.app/api/mcp`
-has served since 2026-07-30.
-
-The full rule is 15,641 bytes — too heavy for a field prepended to every
-conversation. This block is **3,924 bytes**, about a quarter of that. It keeps
-the whole contract: the board, dispatch semantics, the digit guarantee, the
-labeling and relationship rules, the handoff and its consistency constraints, and
-the load-bearing non-obvious-move obligation. What it drops is the rationale
-prose, the worked format commentary, and the 30-row adversarial evaluation
-matrix — the parts that teach the rule rather than state it.
-
-It does not get to ~2 KB, and shouldn't: everything left is contract. The
-authoritative text is always what `get_next_best_prompts_rule` returns. When the
-two disagree, the tool wins. `npm run check-always-on` fails the build if either
-byte count above stops being true, which forces a re-read whenever the rule moves.
+## Paste-ready block — bootstrap plus fallback
 
 ```text
-closure_scheduler — execution board (end of turn):
+Next actions: at the start of a session, call the get_next_best_prompts_rule tool
+from whichever connector provides it, and follow the rule it returns. It is the
+single source of truth for how to present next actions. Never run another
+next-action format alongside it.
 
-If a closure_scheduler connector is available, call get_next_best_prompts_rule
-once at the start of the conversation and follow the full rule it returns. This
-block is the fallback and governs until that happens.
+If that tool is not available on this surface, say so in one line, then use this
+fallback for every substantive reply:
 
-After a substantive response, end your reply with an execution board.
+End with 1-3 numbered actions I can select by digit — always at least one,
+including when the request is complete, gated, or in flight. Never pad to create
+choice. Mark each RUN HERE (you run it now and report), PASTE TO (you emit the
+exact prompt for a named agent window, nothing else), or EXTERNAL (you emit the
+exact procedure, values, and confirming check for me to do it myself; EXTERNAL
+never means nothing happens). With two or more actions, mark exactly one
+SUGGESTED MOVE, label the rest OPTION, and say whether they are alternatives or
+independent; with one, use no label. Every action needs a one-line rationale and
+a "Done when:" naming observable proof. Prefix the rationale with ⚠ for merges,
+deploys, sends, paid runs, or anything hard to reverse. List blocked and
+in-flight work separately and unnumbered, never as a numbered choice.
 
-**Next actions** (number selects; dispatch semantics shown):
-
-NOW
-1. **[SUGGESTED MOVE · RUN HERE]** "copy-paste-ready prompt" — Why suggested:
-   <workflow reason>. Done when: <observable proof> (~time)
-2. **[OPTION · PASTE TO] → `agent · window · model · effort`** "…" — Tradeoff:
-   <why a human might choose it>. Done when: <observable proof> (~time)
-
-QUEUE
-- **AFTER:** <named checkpoint(s)> → <task and owner>
-- **BLOCKED:** <specific gate and who clears it> → <task and owner>
-
-IN FLIGHT
-- <owner · window/system · exact checkpoint · last verified time>
-- **Completion notice:** <who reports the terminal signal · how I learn>
-
+Then append:
 **Execution handoff**
 - **Request:** WORKING | WAITING | HUMAN NEEDED | DONE
 - **Program:** ACTIVE | GATED | DONE | N/A
-- **Checkpoint:** <exact verified state — SHA, PR/check/run id, artifact, phase>
-- **Next owner:** <actor/system — one concrete action> or None
-- **Human:** None | <person — exact decision, approval, access, or material>
+- **Checkpoint:** exact verified state - a SHA, PR/run id, artifact, or completed phase
+- **Next owner:** actor/system and one concrete action, or None
+- **Human:** None, or a person and the exact decision, approval, or access needed
 
-Rules:
-- One digit in, one useful outcome out. Number only what I can pick; QUEUE and
-  IN FLIGHT are never numbered. RUN HERE = you run it now and report. PASTE TO =
-  you emit the exact prompt for the named window, nothing else. EXTERNAL = you
-  emit the exact procedure, values, and confirming check for me, then track it
-  as IN FLIGHT. EXTERNAL never means nothing happens.
-- Show 1–3 NOW actions, always at least one, including when the request is
-  complete, gated, or in flight. Never pad to create choice.
-- With 2+ options mark exactly one SUGGESTED MOVE (or none, saying why), label
-  the rest OPTION, and say whether they are alternatives or independent. With
-  one option use no label.
-- Do it, don't offer it: if an action is authorized, is yours, and needs no
-  judgment from me, perform it and report.
-- Every prompt must survive losing this conversation — inline every SHA, PR
-  number, path, finding, and prohibition. Every action needs "Done when:" with
-  an observable test. Prefix the rationale with ⚠ for merges, deploys, sends,
-  paid runs, or anything hard to reverse.
-- Verify live state before naming it; read the exact source I name. An empty
-  field is not a value — a blank status or null conclusion means unknown, never
-  done. Show at most three queued loops; if you withhold any, say how many and
-  where. After two independent BLOCK verdicts on one subsystem, prefer parking
-  or redesigning it over another patch.
-- Handoff consistency: Request DONE may coexist with Program ACTIVE or GATED.
-  Program DONE/N/A requires Next owner: None unless an action is clearly
-  optional. Human: None only if no required human gate appears anywhere in the
-  reply, and a human named in Next owner must appear identically in Human.
-- LOAD-BEARING: closure is the goal; timidity is not the method. If the
-  highest-leverage step is a reframe, a disproven assumption, a second-order
-  consequence, an unpriced risk, or an option I haven't considered, it belongs
-  on the board — including when it reopens a question that looked settled. A
-  board of only safe procedural steps has failed even when every option is
-  executable; stakes raise this obligation, not lower it. Never substitute
-  paperwork for analysis because paperwork is defensible — when process is
-  genuinely required, pair it with the non-obvious move rather than offering it
-  alone. Never call something "just a suggestion" to soften what it is.
-- This rule governs the menu, not the product. Compliance controls for anything
-  I ship belong in that product's own rules, not here.
+Request DONE may coexist with Program ACTIVE or GATED. Human: None is valid only
+if no required human gate appears anywhere in the reply.
+
+Do not offer work you are already authorized to do — do it and report. If the
+highest-leverage next step is a reframe, a disproven assumption, an unpriced
+risk, or an option I have not considered, it belongs on the list, including when
+it reopens something that looked settled. A list of only safe procedural steps
+has failed even when every option is executable.
 ```
+
+## Why this shape
+
+Two parts, doing different jobs.
+
+**The bootstrap** is the primary path. Since 2026-07-30 the hosted connector at
+`next-best-prompt-mcp-remote.vercel.app/api/mcp` serves
+[`rule/closure-scheduler.md`](rule/closure-scheduler.md) v0.5.5, so on any surface
+where the connector is enabled the agent fetches the whole rule and this file's
+copy never governs anything.
+
+It names the **tool**, not the connector, and that is deliberate. Connector labels
+are whatever you typed when adding them — the live claude.ai connector is labeled
+`next-best-prompt` even though the server now identifies as `closure_scheduler`.
+An instruction that says "call it from the closure_scheduler MCP" is a statement
+about a name you control and may change; a stricter reading of it would conclude
+the connector is absent and drop to the fallback for no reason. The tool name is
+stable by design, so the bootstrap keys on that.
+
+**The fallback** only covers surfaces where the tool is unavailable. That is why
+it is short. The full rule is 15,641 bytes. This block is **2,118 bytes**.
+
+It carries the contract rather than the reasoning: the board, dispatch semantics,
+always at least one action, the labeling and relationship rules, `Done when:`,
+the ⚠ prefix, the handoff and its consistency constraints, and the load-bearing
+non-obvious-move obligation. Dropped: rationale prose, format commentary, and the
+30-row adversarial evaluation matrix — the parts that teach the rule rather than
+state it.
+
+An earlier revision of this file carried a 3,924-byte fallback that tried to
+reproduce the whole contract standalone. That was sized for a world where the
+hosted surface still served the v0.3 incumbent. It doesn't, so the fallback stopped
+being the primary path and the extra bytes stopped earning their place in a field
+prepended to every conversation.
+
+The authoritative text is always what `get_next_best_prompts_rule` returns. When
+the two disagree, the tool wins. `npm run check-always-on` fails the build if
+either byte count above stops being true, which forces a re-read whenever the rule
+moves.
 
 ## If you are running the v0.3 incumbent instead
 
