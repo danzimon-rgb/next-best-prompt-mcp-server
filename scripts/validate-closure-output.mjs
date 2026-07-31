@@ -10,7 +10,11 @@ function field(output, name) {
 }
 
 function isNone(value) {
-  return /^none(?:\b|\s*\()/i.test(value);
+  return /^none(?:\b|\s*\()/i.test(value.replaceAll("`", "").trim());
+}
+
+function isStatus(value, expected) {
+  return value.replaceAll("`", "").trim().toUpperCase() === expected;
 }
 
 function parseNowActions(output) {
@@ -30,6 +34,7 @@ function parseNowActions(output) {
       return {
         number: Number(number),
         tag,
+        content: body.trim(),
         body: `${target} ${body}`.trim(),
         dispatch: ["RUN HERE", "PASTE TO", "EXTERNAL"].find((candidate) =>
           tag.includes(candidate),
@@ -57,6 +62,20 @@ export function validateClosureOutput(output, context = {}) {
     if (!findings.has(code)) findings.set(code, { code, message });
   };
   const actions = parseNowActions(output);
+  const request = field(output, "Request");
+  const program = field(output, "Program");
+  const nextOwner = field(output, "Next owner");
+  const human = field(output, "Human");
+  const leadingTerminalAck = output.match(
+    /^\s*\*\*Loop closed — .+ is complete; no required work remains\.\*\*(?:\r?\n|$)/i,
+  );
+  const anyTerminalAck = output.match(
+    /\*\*Loop closed — .+ is complete; no required work remains\.\*\*/i,
+  );
+  const terminalBlock = output.match(
+    /^\s*\*\*Loop closed — .+ is complete; no required work remains\.\*\*\r?\n\*\*Proof:\*\*\s+(.+)(?:\r?\n|$)/i,
+  );
+  const nowOptional = /(?:^|\n)NOW \(optional\)\s*\n/i.test(output);
 
   if (actions.length === 0) {
     add(
@@ -115,13 +134,64 @@ export function validateClosureOutput(output, context = {}) {
     );
   }
 
-  const nextOwner = field(output, "Next owner");
-  const human = field(output, "Human");
   if (human && !isNone(human) && nextOwner && isNone(nextOwner)) {
     add(
       "HANDOFF_HUMAN_WITHOUT_OWNER",
       "A required Human action cannot coexist with Next owner: None.",
     );
+  }
+
+  if (context.terminalClosureRequired === true) {
+    if (!leadingTerminalAck) {
+      add(
+        "E31_MISSING_TERMINAL_ACK",
+        "Program completion needs a leading Loop closed acknowledgement.",
+      );
+    }
+    const proofWords =
+      terminalBlock?.[1]?.trim().split(/\s+/).filter(Boolean) ?? [];
+    if (proofWords.length < 3) {
+      add(
+        "E31_MISSING_COMPLETION_PROOF",
+        "Program completion needs non-vacuous observable proof.",
+      );
+    }
+    if (
+      !isStatus(request, "DONE") ||
+      !isStatus(program, "DONE") ||
+      !isNone(nextOwner) ||
+      !isNone(human)
+    ) {
+      add(
+        "E31_INCONSISTENT_DONE_HANDOFF",
+        "Terminal closure requires Request DONE, Program DONE, Next owner None, and Human None.",
+      );
+    }
+  }
+
+  if (context.terminalClosureForbidden === true && anyTerminalAck) {
+    add(
+      "E32_PREMATURE_TERMINAL_ACK",
+      "Do not declare terminal closure while the program remains active or gated.",
+    );
+  }
+
+  if (context.postClosureOptional === true) {
+    const actionsAreNewScope =
+      actions.length === 1 &&
+      /^["'“”]?New optional scope:/i.test(actions[0].content);
+    if (!actionsAreNewScope) {
+      add(
+        "E33_POST_CLOSURE_NOT_NEW_SCOPE",
+        "After closure, offer at most one action and begin it with New optional scope:.",
+      );
+    }
+    if (!nowOptional) {
+      add(
+        "E33_POST_CLOSURE_BOARD_NOT_OPTIONAL",
+        "After closure, the action board must be NOW (optional).",
+      );
+    }
   }
 
   const courierPatterns = context.operatorCourierPatterns ?? [];

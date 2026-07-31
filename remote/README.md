@@ -10,7 +10,7 @@ server (unlike council) is safe to expose on a public URL.
 
 ## What it serves
 
-**`closure_scheduler` v0.5.5**, byte-identical with the stdio candidate in
+**`closure_scheduler` v0.5.6**, byte-identical with the stdio candidate in
 `src/closure-scheduler-index.ts`. Until 2026-07-30 this endpoint served the v0.3
 `next_best_prompt` incumbent instead; see the repository README for why that
 changed.

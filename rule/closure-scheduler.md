@@ -1,8 +1,8 @@
-# next_best_prompt v0.5.5 — closure scheduler
+# next_best_prompt v0.5.6 — closure scheduler
 
-Supersedes the v0.4 draft. Carries v0.4's execution board and dispatch semantics,
-applies the red-team corrections C1–C5 / R1 / L1, and removes the product
-compliance section (see §9). Built on canonical `3eb1d99`.
+Carries v0.5.5's execution board and dispatch semantics and adds an explicit
+terminal acknowledgement so completed loops end visibly instead of merely
+changing a handoff field.
 
 ## Objective
 
@@ -70,6 +70,30 @@ Also separate two levels of state:
   continuing work is complete, active, or gated.
 
 Do not force one label to describe both.
+
+### Close completed loops visibly
+
+For every repeatable workflow, define an observable termination condition before
+claiming completion. When it is met, lead the response with exactly:
+
+```text
+**Loop closed — <objective> is complete; no required work remains.**
+**Proof:** <artifact, approval, gate result, terminal event, or other observable evidence>
+```
+
+This acknowledgement is required whenever `Program: DONE`. It is forbidden when
+only the immediate request is done while the program remains `ACTIVE` or `GATED`.
+Completion proof must name the observable condition that actually ended the
+loop, not merely restate `DONE`.
+
+After closure, the one required numbered action is new work, not residue from the
+closed loop. Put it under `NOW (optional)`, begin it with `New optional scope:`,
+and show at most one. It must not imply that required work remains.
+
+Reopen a closed loop only for changed input, failed completion proof, or a
+genuinely new defect class, and lead with `Loop reopened — <reason>`. Another
+known instance of the same defect, a stylistic preference, or the availability
+of another reviewer does not reopen it.
 
 ## 3. Refresh unstable state
 
@@ -192,7 +216,8 @@ Consistency rules:
 - `Request: WORKING` means the current agent continues; do not end the turn and
   wait for the user.
 - `Request: DONE` may coexist with `Program: ACTIVE` or `Program: GATED`.
-- `Program: DONE` or `N/A` requires `Next owner: None` unless a clearly optional
+- `Program: DONE` requires the terminal acknowledgement and proof above.
+  `Program: DONE` or `N/A` requires `Next owner: None` unless a clearly optional
   action is shown.
 - `Human: None` is valid only when no required human gate appears anywhere in the
   response. Optional actions must be labeled optional.
@@ -240,6 +265,8 @@ than thinking.
 9. If more than one action is `NOW`, did I state whether they are alternatives or
    independent?
 10. If I withheld queued loops, did I name the count and where they went?
+11. If `Program: DONE`, did I lead with `Loop closed` and observable proof, then
+    limit the board to one genuinely new optional scope?
 
 If any answer fails, repair the board; never omit it.
 
@@ -279,5 +306,8 @@ If any answer fails, repair the board; never omit it.
 | E28 | `EXTERNAL` is selected | Emit procedure, exact values, confirming check, and verification offer when possible |
 | E29 | Two independent `BLOCK` verdicts cite one subsystem | Park or redesign it; patch only if the action states a new discriminating invariant |
 | E30 | User names one agent window/session but another transcript is newer | Read the named source; never substitute the globally newest or another active session |
+| E31 | Observable termination condition is met | Lead with `Loop closed` + proof; use `Program: DONE`, `Next owner: None`, and `Human: None` |
+| E32 | Request is done but program remains active or gated | Do not emit a terminal closure acknowledgement |
+| E33 | A numbered action follows terminal closure | Use `NOW (optional)` and begin the sole action `New optional scope:` |
 
 **Out of scope:** product compliance tests belong in product rules (§9).

@@ -159,5 +159,57 @@
     "context": {},
     "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"Turn the completed audit into a reusable checklist.\" Done when: a concise checklist is returned.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** audit findings delivered\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": []
+  },
+  {
+    "name": "accepts terminal closure with proof and one new optional scope",
+    "context": {
+      "terminalClosureRequired": true,
+      "postClosureOptional": true
+    },
+    "output": "**Loop closed — generation 4 is complete; no required work remains.**\n**Proof:** all 242 gates pass and the rendered artifact hash is recorded.\n\n**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"New optional scope: turn the completed gate set into a reusable checklist.\" Done when: a standalone checklist is returned.\n\n**Execution handoff**\n- **Request:** `DONE`\n- **Program:** `DONE`\n- **Checkpoint:** generation-4 artifact e25b9a13; 242/242 gates pass\n- **Next owner:** `None`\n- **Human:** `None`",
+    "expectedCodes": []
+  },
+  {
+    "name": "rejects missing terminal acknowledgement proof and done handoff",
+    "context": {
+      "terminalClosureRequired": true
+    },
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Check the remaining deployment gate.\" Done when: its current status is reported.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** local tests pass; deployment pending\n- **Next owner:** Vercel — finish deployment\n- **Human:** None",
+    "expectedCodes": [
+      "E31_MISSING_TERMINAL_ACK",
+      "E31_MISSING_COMPLETION_PROOF",
+      "E31_INCONSISTENT_DONE_HANDOFF"
+    ]
+  },
+  {
+    "name": "rejects premature closure while the program remains gated",
+    "context": {
+      "terminalClosureForbidden": true
+    },
+    "output": "**Loop closed — the rollout is complete; no required work remains.**\n**Proof:** local tests pass.\n\n**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Check the production deployment.\" Done when: the live endpoint reports its version.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** local tests pass; production deployment pending\n- **Next owner:** Vercel — finish deployment\n- **Human:** None",
+    "expectedCodes": [
+      "E32_PREMATURE_TERMINAL_ACK"
+    ]
+  },
+  {
+    "name": "rejects unfinished work disguised as a non-optional post-closure action",
+    "context": {
+      "postClosureOptional": true
+    },
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Finish the remaining required review.\" Done when: the reviewer approves.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** implementation complete\n- **Next owner:** None\n- **Human:** None",
+    "expectedCodes": [
+      "E33_POST_CLOSURE_NOT_NEW_SCOPE",
+      "E33_POST_CLOSURE_BOARD_NOT_OPTIONAL"
+    ]
+  },
+  {
+    "name": "rejects multiple new scopes after closure",
+    "context": {
+      "postClosureOptional": true
+    },
+    "output": "**Next actions**\n\nNOW (optional)\n1. **[OPTION · RUN HERE]** \"New optional scope: create a checklist.\" Done when: the checklist is returned.\n2. **[OPTION · EXTERNAL]** \"New optional scope: archive the artifact.\" Done when: the archive is visible.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** rollout complete\n- **Next owner:** None\n- **Human:** None",
+    "expectedCodes": [
+      "E33_POST_CLOSURE_NOT_NEW_SCOPE"
+    ]
   }
 ]
