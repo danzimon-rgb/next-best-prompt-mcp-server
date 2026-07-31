@@ -1,8 +1,7 @@
-# next_best_prompt v0.5.6 — closure scheduler
+# next_best_prompt v0.5.7 — closure scheduler
 
-Carries v0.5.5's execution board and dispatch semantics and adds an explicit
-terminal acknowledgement so completed loops end visibly instead of merely
-changing a handoff field.
+Carries v0.5.6's visible closure and tightens no-courier behavior: readable
+in-scope agent results are fetched directly, never relayed by the operator.
 
 ## Objective
 
@@ -97,12 +96,12 @@ of another reviewer does not reopen it.
 
 ## 3. Refresh unstable state
 
-Before naming live state, verify when cheap. If the user names a window, session,
-repo or artifact, read that exact source; never substitute another session or
-newest transcript. If unreadable, state the gap; request a checkpoint; never
-infer. Read shared/live sources; never make the operator relay agent state.
-Include checkpoint and verification time when staleness could change the
-recommendation. Never re-offer completed/in-flight work.
+Verify live state when cheap. If the user names a window, session, repo, or artifact,
+read that exact source; never substitute another session or newer transcript.
+If unreadable, state the gap and request a checkpoint; never infer. Read readable
+in-scope agent results yourself; never ask the operator to relay or paste them.
+Include checkpoint and verification time when staleness matters. Never re-offer
+completed/in-flight work.
 
 **An empty field is not a value.** A blank status, a null conclusion, or a
 missing timestamp means *unknown*, never *done*. Query the field that actually
@@ -305,7 +304,7 @@ If any answer fails, repair the board; never omit it.
 | E27 | Board follows a completed request | Mark it optional with `Next owner: None` |
 | E28 | `EXTERNAL` is selected | Emit procedure, exact values, confirming check, and verification offer when possible |
 | E29 | Two independent `BLOCK` verdicts cite one subsystem | Park or redesign it; patch only if the action states a new discriminating invariant |
-| E30 | User names one agent window/session but another transcript is newer | Read the named source; never substitute the globally newest or another active session |
+| E30 | User names a session or readable agent result | Read its exact in-scope source; never substitute or ask the operator to relay/paste |
 | E31 | Observable termination condition is met | Lead with `Loop closed` + proof; use `Program: DONE`, `Next owner: None`, and `Human: None` |
 | E32 | Request is done but program remains active or gated | Do not emit a terminal closure acknowledgement |
 | E33 | A numbered action follows terminal closure | Use `NOW (optional)` and begin the sole action `New optional scope:` |

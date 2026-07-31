@@ -20,7 +20,7 @@ export const maxDuration = 30;
  * Holding it there while Claude Code ran closure_scheduler on stdio meant
  * claude.ai web + mobile followed a different rule than the terminal — the
  * split the rule itself forbids, spread across surfaces instead of within one
- * session. Both transports now serve v0.5.6.
+ * session. Both transports now serve v0.5.7.
  *
  * `instructions` is the ~260-byte bootstrap rather than the full rule, matching
  * stdio: clients that inject instructions get one required
@@ -34,7 +34,7 @@ const handler = createMcpHandler(
   },
   {
     instructions: CLOSURE_SCHEDULER_BOOTSTRAP,
-    serverInfo: { name: "closure_scheduler", version: "0.5.6" },
+    serverInfo: { name: "closure_scheduler", version: "0.5.7" },
   },
   { basePath: "/api" },
 );

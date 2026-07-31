@@ -212,6 +212,34 @@ export function validateClosureOutput(output, context = {}) {
     );
   }
 
+  if (context.readableAgentResult === true) {
+    const asksForReadableResult = [
+      /\b(?:bring|paste|relay)\b[^\n.!?]{0,100}\b(?:report|result|response|findings?|status|state)\b[^\n.!?]{0,50}\b(?:here|back|to me|this (?:chat|window|session))\b/i,
+      /\b(?:bring|paste|relay)\s+(?:it|that|them)\s+(?:here|back|to me)\b/i,
+    ].some((pattern) => pattern.test(output));
+    if (asksForReadableResult) {
+      add(
+        "OPERATOR_COURIER",
+        "The operator was asked to carry a readable agent result instead of the current agent reading its in-scope source.",
+      );
+    }
+
+    const directReadVerbs = "(?:read|inspect|refresh|check|open)\\w*";
+    for (const source of context.directReadSourcePatterns ?? []) {
+      const escapedSource = String(source).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const directRead = new RegExp(
+        `\\b${directReadVerbs}\\b[^\\n]{0,120}${escapedSource}`,
+        "i",
+      );
+      if (!directRead.test(output)) {
+        add(
+          "E30_MISSING_DIRECT_READ",
+          `Readable agent result needs a direct read of the named source: ${source}.`,
+        );
+      }
+    }
+  }
+
   const requiredAgentDispatchOwners =
     context.requiredAgentDispatchOwners ?? [];
   const inFlightSection = section(output, "IN FLIGHT");

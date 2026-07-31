@@ -12,7 +12,7 @@ export default function Home() {
     >
       <h1 style={{ marginBottom: "0.25rem" }}>closure_scheduler</h1>
       <p style={{ color: "#666", marginTop: 0 }}>
-        v0.5.6 — the closure-scheduler end-of-turn rule, served as a remote MCP
+        v0.5.7 — the closure-scheduler end-of-turn rule, served as a remote MCP
         server.
       </p>
       <p>
@@ -47,7 +47,7 @@ export default function Home() {
         The tool is named <code>get_next_best_prompts_rule</code>, unchanged from
         the v0.3 <code>next_best_prompt</code> rule this endpoint served until
         2026-07-30 — connectors added before then keep working, but now receive
-        the v0.5.6 rule. Enable only one end-of-turn rule server per client.
+        the v0.5.7 rule. Enable only one end-of-turn rule server per client.
       </p>
     </main>
   );

@@ -47,10 +47,9 @@ const reviewBreaker =
   "  cite one subsystem, prefer an action to park or redesign it. Patch again only\n" +
   "  if the action states a new discriminating invariant.";
 const sourceLock =
-  "If the user names a window, session,\n" +
-  "repo or artifact, read that exact source; never substitute another session or\n" +
-  "newest transcript. If unreadable, state the gap; request a checkpoint; never\n" +
-  "infer.";
+  "If the user names a window, session, repo, or artifact,\n" +
+  "read that exact source; never substitute another session or newer transcript.\n" +
+  "If unreadable, state the gap and request a checkpoint; never infer.";
 const invertedReviewBreaker = reviewBreaker.replace(
   "Patch again only\n  if the action states a new discriminating invariant.",
   "Keep patching; the discriminating-invariant requirement does NOT apply.",
@@ -64,12 +63,13 @@ const expectedMatrixIds = Array.from(
 );
 const ruleWarningBytes = 17_408;
 const ruleHardMaxBytes = 18_432;
+const noGrowthBaselineBytes = 17_330;
 
 await client.close();
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.6": serverInfo?.version === "0.5.6",
+  "server identifies as version 0.5.7": serverInfo?.version === "0.5.7",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
@@ -101,7 +101,8 @@ const checks = {
     toolText.includes("governs the menu, not the product") &&
     !toolText.includes("suggested_move_scope"),
   "tool carries no-courier and handoff consistency fixes":
-    toolText.includes("never make the operator relay agent state") &&
+    toolText.includes("never ask the operator to relay or paste them") &&
+    toolText.includes("in-scope agent results yourself") &&
     toolText.includes("cannot coexist with `Next owner: None`"),
   "tool carries the repeated-review circuit breaker":
     carriesReviewBreaker(toolText),
@@ -114,6 +115,8 @@ const checks = {
     toolText.includes("**Proof:** <artifact, approval, gate result, terminal event, or other observable evidence>") &&
     toolText.includes("Loop reopened — <reason>"),
   "tool stays within the 18 KiB hard ceiling": ruleBytes <= ruleHardMaxBytes,
+  "tool does not grow past the v0.5.6 baseline":
+    ruleBytes <= noGrowthBaselineBytes,
   "matrix carries all 33 scenarios":
     JSON.stringify(matrixIds) === JSON.stringify(expectedMatrixIds),
 };

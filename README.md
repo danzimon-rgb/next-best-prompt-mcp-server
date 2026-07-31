@@ -19,10 +19,10 @@ module that the transports serving it import:
 - **stdio** (`src/`) — two entrypoints. `src/index.ts` is the v0.3
   `next_best_prompt` incumbent, published to npm as
   `@danzimon/next-best-prompt-mcp`. `src/closure-scheduler-index.ts` is
-  `closure_scheduler` v0.5.6. **Enable exactly one of them in a given client.**
+  `closure_scheduler` v0.5.7. **Enable exactly one of them in a given client.**
   For local clients: **Claude Code** and **Claude Desktop** (local install).
 - **HTTP** (`remote/`, Next.js + [`mcp-handler`](https://www.npmjs.com/package/mcp-handler))
-  — deployed to Vercel as a remote connector, serving `closure_scheduler` v0.5.6
+  — deployed to Vercel as a remote connector, serving `closure_scheduler` v0.5.7
   byte-identically with the stdio candidate. For **Claude.ai web + mobile** and
   any client that takes a hosted MCP URL.
 
@@ -31,7 +31,7 @@ field (a compact bootstrap), a `closure_scheduler` prompt, and a
 `get_next_best_prompts_rule` tool. The tool name is deliberately the same one the
 incumbent uses, so switching a client between them needs no other change.
 
-## closure_scheduler v0.5.6
+## closure_scheduler v0.5.7
 
 The `closure_scheduler` line has been live on stdio since 2026-07-28 and
 canonical since `5a5ba9d`. **As of 2026-07-30 the hosted endpoint serves that
@@ -70,6 +70,11 @@ active or gated cannot use that acknowledgement. The sole post-closure action is
 explicitly new optional scope, and a closed loop reopens only for changed input,
 failed completion proof, or a genuinely new defect class.
 
+v0.5.7 tightens the existing no-courier rule without growing the served prompt:
+when an in-scope agent result is readable, the current agent reads the named
+source directly instead of asking the operator to paste or relay it. If the
+source is unreadable, the existing checkpoint-and-never-infer path still applies.
+
 Rendered responses can be checked without adding runtime prompt tokens:
 
 ```bash
@@ -87,7 +92,9 @@ cross-surface agents whose required work must appear as either a self-contained
 `PASTE TO` action or a verified `IN FLIGHT` checkpoint. The committed fixtures
 cover the observed regressions and valid counterexamples. Terminal workflows use
 `terminalClosureRequired`, `terminalClosureForbidden`, and
-`postClosureOptional`. The root smoke warns above 17,408 bytes and fails above
+`postClosureOptional`. `readableAgentResult` plus `directReadSourcePatterns`
+exercise the direct-read/no-courier boundary. The root smoke rejects rule growth
+past the 17,330-byte v0.5.6 baseline, warns above 17,408 bytes, and fails above
 the deliberate 18,432-byte hard ceiling.
 
 ## Install
@@ -126,7 +133,7 @@ https://next-best-prompt-mcp-remote.vercel.app/api/mcp
 It's account-scoped, so it appears in the **mobile app** automatically. Requires
 a plan that supports custom connectors (Pro / Max / Team / Enterprise).
 
-This endpoint serves **`closure_scheduler` v0.5.6**, the same rule the local
+This endpoint serves **`closure_scheduler` v0.5.7**, the same rule the local
 stdio candidate serves. The Vercel project name (`next-best-prompt-mcp-remote`)
 and the tool name (`get_next_best_prompts_rule`) are unchanged, so an existing
 connector needs no edit. To confirm what a host is actually serving:
@@ -155,8 +162,8 @@ preferences or a project's custom instructions.
 That block is 2,559 bytes in two parts: a **bootstrap** telling the agent to call
 `get_next_best_prompts_rule` and follow whatever it returns, plus a compact
 **fallback** for surfaces where the tool is unavailable. Since the hosted
-connector serves v0.5.6, the bootstrap is the live path and the fallback rarely
-governs — which is exactly why it does not need to restate all 17,330 bytes.
+connector serves v0.5.7, the bootstrap is the live path and the fallback rarely
+governs — which is exactly why it does not need to restate all 17,270 bytes.
 
 ## Development
 

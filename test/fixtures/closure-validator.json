@@ -30,6 +30,55 @@
     ]
   },
   {
+    "name": "rejects asking Dan to bring back a readable agent result",
+    "context": {
+      "readableAgentResult": true,
+      "directReadSourcePatterns": [
+        "session c31ea6de"
+      ]
+    },
+    "output": "Claude should investigate the four contradictions first. When Claude returns, bring its report here and I will review it.\n\n**Next actions**\n\nNOW\n1. **[PASTE TO] → `Claude Code · teranode memory session c31ea6de · claude-opus-5 · xhigh`** \"Investigate the four contradictions read-only and report evidence for each. Do not edit MEMORY.md.\" Done when: Claude posts four evidence-based recommendations.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** ACTIVE\n- **Checkpoint:** investigation prompt prepared\n- **Next owner:** Dan — paste action 1 into Claude Code\n- **Human:** Dan — paste action 1",
+    "expectedCodes": [
+      "OPERATOR_COURIER",
+      "E30_MISSING_DIRECT_READ"
+    ]
+  },
+  {
+    "name": "accepts direct review of the exact readable agent session",
+    "context": {
+      "readableAgentResult": true,
+      "directReadSourcePatterns": [
+        "session c31ea6de"
+      ]
+    },
+    "output": "Claude owns the read-only investigation; Codex owns the independent review after its terminal report.\n\n**Next actions**\n\nNOW\n1. **[PASTE TO] → `Claude Code · teranode memory session c31ea6de · claude-opus-5 · xhigh`** \"Investigate the four contradictions read-only and report evidence for each. Do not edit MEMORY.md.\" Done when: Claude posts four evidence-based recommendations.\n\nQUEUE\n- **AFTER:** Claude Code report complete → Codex reads session c31ea6de directly and audits the evidence; Dan then rules\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** exact Claude session and review sequence identified\n- **Next owner:** Dan — paste action 1 into Claude Code\n- **Human:** Dan — paste action 1",
+    "expectedCodes": []
+  },
+  {
+    "name": "rejects substituting a newer session for the named readable source",
+    "context": {
+      "readableAgentResult": true,
+      "directReadSourcePatterns": [
+        "session c31ea6de"
+      ]
+    },
+    "output": "I will inspect whichever Claude transcript is newest after the investigation.\n\n**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh the newest Claude transcript.\" Done when: its latest status is reported.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** ACTIVE\n- **Checkpoint:** named Claude investigation remains active\n- **Next owner:** Claude Code — finish the investigation\n- **Human:** None",
+    "expectedCodes": [
+      "E30_MISSING_DIRECT_READ"
+    ]
+  },
+  {
+    "name": "accepts checkpoint request when the agent source is unreadable",
+    "context": {
+      "readableAgentResult": false,
+      "requiredAgentDispatchOwners": [
+        "Claude Code"
+      ]
+    },
+    "output": "Session c31ea6de is unreadable from this surface, so its state is unknown; request a checkpoint instead of inferring or relaying its result.\n\n**Next actions**\n\nNOW\n1. **[PASTE TO] → `Claude Code · teranode memory session c31ea6de · claude-opus-5 · xhigh`** \"Checkpoint the four contradiction findings to the shared teranode wiki log with evidence paths; do not edit MEMORY.md.\" Done when: the shared log has a timestamped checkpoint.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** GATED\n- **Checkpoint:** named agent source unreadable; checkpoint prompt prepared\n- **Next owner:** Dan — paste action 1 into Claude Code\n- **Human:** Dan — paste action 1",
+    "expectedCodes": []
+  },
+  {
     "name": "accepts the corrected Camba board with a defensible priority",
     "context": {
       "defensiblePriority": true
