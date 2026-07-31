@@ -20,11 +20,12 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "node scripts/check-sync.mjs && npm run build",
     "smoke": "node scripts/smoke.mjs",
-    "test": "npm run check-sync && npm run check-always-on && npm run build && npm run smoke && npm run smoke:closure && npm run test:closure-validator",
+    "test": "npm run check-sync && npm run check-always-on && npm run build && npm run smoke && npm run smoke:closure && npm run test:closure-validator && npm run test:wrapper-guard",
     "start": "node dist/index.js",
     "smoke:closure": "node scripts/smoke-closure.mjs",
     "smoke:remote": "node scripts/smoke-remote.mjs",
     "test:closure-validator": "node scripts/test-closure-validator.mjs",
+    "test:wrapper-guard": "node scripts/test-wrapper-guard.mjs",
     "validate:closure": "node scripts/validate-closure-output.mjs"
   },
   "keywords": [
