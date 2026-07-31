@@ -141,9 +141,14 @@ npm run dev        # local
 
 Only **Claude Code** auto-fires the rule every turn. On Desktop, web, and mobile,
 the server is available as an on-demand prompt/tool — for automatic every-turn
-behavior, paste the condensed **v0.5.5** rule into your account preferences or a
-project's custom instructions. See [`ALWAYS-ON.md`](ALWAYS-ON.md), which carries
-a 3,924-byte rendering of the 15,641-byte rule.
+behavior, paste the block from [`ALWAYS-ON.md`](ALWAYS-ON.md) into your account
+preferences or a project's custom instructions.
+
+That block is 2,118 bytes in two parts: a **bootstrap** telling the agent to call
+`get_next_best_prompts_rule` and follow whatever it returns, plus a compact
+**fallback** for surfaces where the tool is unavailable. Since the hosted
+connector serves v0.5.5, the bootstrap is the live path and the fallback rarely
+governs — which is exactly why it does not need to restate all 15,641 bytes.
 
 ## Development
 
@@ -169,6 +174,10 @@ itself and about the rule are both currently true — so any change to the rule
 fails the build and forces a human to re-read the condensed copy. It cannot
 prove the condensed wording is still *faithful*; treat a failure as "go re-read
 both", not "fix the number".
+
+It also cannot see the copy that actually matters — the one pasted into a
+person's account settings. Nothing in this repo can reach that, so when the block
+changes, re-pasting it is a manual step with no automated check behind it.
 
 `npm test` is hermetic; `smoke:remote` is the only script that touches the
 network.
