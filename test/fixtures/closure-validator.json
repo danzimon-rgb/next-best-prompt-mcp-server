@@ -211,5 +211,15 @@
     "expectedCodes": [
       "E33_POST_CLOSURE_NOT_NEW_SCOPE"
     ]
+  },
+  {
+    "name": "rejects a malformed second numbered action hidden after closure",
+    "context": {
+      "postClosureOptional": true
+    },
+    "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"New optional scope: create a checklist.\" Done when: the checklist is returned.\n2. Finish the old required review.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** rollout complete\n- **Next owner:** None\n- **Human:** None",
+    "expectedCodes": [
+      "E33_POST_CLOSURE_NOT_NEW_SCOPE"
+    ]
   }
 ]

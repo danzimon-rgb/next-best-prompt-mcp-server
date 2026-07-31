@@ -69,13 +69,15 @@ export function validateClosureOutput(output, context = {}) {
   const leadingTerminalAck = output.match(
     /^\s*\*\*Loop closed — .+ is complete; no required work remains\.\*\*(?:\r?\n|$)/i,
   );
-  const anyTerminalAck = output.match(
-    /\*\*Loop closed — .+ is complete; no required work remains\.\*\*/i,
-  );
   const terminalBlock = output.match(
     /^\s*\*\*Loop closed — .+ is complete; no required work remains\.\*\*\r?\n\*\*Proof:\*\*\s+(.+)(?:\r?\n|$)/i,
   );
   const nowOptional = /(?:^|\n)NOW \(optional\)\s*\n/i.test(output);
+  const nowBody =
+    output.match(
+      /(?:^|\n)NOW(?: \(optional\))?\s*\n([\s\S]*?)(?=\n(?:QUEUE|IN FLIGHT|\*\*Execution handoff\*\*)|\s*$)/i,
+    )?.[1] ?? "";
+  const numberedNowCount = [...nowBody.matchAll(/^\s*\d+\.\s+/gm)].length;
 
   if (actions.length === 0) {
     add(
@@ -169,7 +171,10 @@ export function validateClosureOutput(output, context = {}) {
     }
   }
 
-  if (context.terminalClosureForbidden === true && anyTerminalAck) {
+  if (
+    context.terminalClosureForbidden === true &&
+    /\bLoop closed\b/i.test(output)
+  ) {
     add(
       "E32_PREMATURE_TERMINAL_ACK",
       "Do not declare terminal closure while the program remains active or gated.",
@@ -178,6 +183,7 @@ export function validateClosureOutput(output, context = {}) {
 
   if (context.postClosureOptional === true) {
     const actionsAreNewScope =
+      numberedNowCount === 1 &&
       actions.length === 1 &&
       /^["'“”]?New optional scope:/i.test(actions[0].content);
     if (!actionsAreNewScope) {
