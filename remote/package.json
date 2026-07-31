@@ -1,8 +1,8 @@
 {
   "name": "next-best-prompt-mcp-remote",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "private": true,
-  "description": "Remote (always-on) MCP server for the closure_scheduler v0.5.5 end-of-turn rule. Serves the rule over Streamable HTTP via mcp-handler on Vercel. No secrets, no compute, stateless. The package name is kept because it is the Vercel project name; it served the v0.3 next_best_prompt incumbent until 2026-07-30.",
+  "description": "Remote (always-on) MCP server for the closure_scheduler v0.5.6 end-of-turn rule. Serves the rule over Streamable HTTP via mcp-handler on Vercel. No secrets, no compute, stateless. The package name is kept because it is the Vercel project name; it served the v0.3 next_best_prompt incumbent until 2026-07-30.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

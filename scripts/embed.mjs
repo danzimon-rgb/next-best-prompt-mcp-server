@@ -6,7 +6,7 @@
 // Two bundles:
 //   next_best_prompt   — the v0.3 incumbent. stdio only, published to npm as
 //                        @danzimon/next-best-prompt-mcp. No hosted target.
-//   closure_scheduler  — v0.5.5. Served by BOTH the stdio entrypoint and the
+//   closure_scheduler  — v0.5.6. Served by BOTH the stdio entrypoint and the
 //                        hosted HTTP server in remote/, byte-identically.
 //
 // This reverses PR #6, which held the hosted target on the incumbent so the

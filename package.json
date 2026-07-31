@@ -1,7 +1,7 @@
 {
   "name": "@danzimon/next-best-prompt-mcp",
   "version": "0.3.0",
-  "description": "MCP server for the next_best_prompt 'next-best-prompts' end-of-turn rule \u2014 end a substantive turn with 2-4 ranked, copy-paste-ready next moves, and skip when there's none. Pure guidance: no secrets, no network, no side-effecting tools. Install locally (stdio) for Claude Code / Claude Desktop. The repo's hosted endpoint (remote/) serves the newer closure_scheduler v0.5.5 rule instead; enable only one end-of-turn rule server per client.",
+  "description": "MCP server for the next_best_prompt 'next-best-prompts' end-of-turn rule \u2014 end a substantive turn with 2-4 ranked, copy-paste-ready next moves, and skip when there's none. Pure guidance: no secrets, no network, no side-effecting tools. Install locally (stdio) for Claude Code / Claude Desktop. The repo's hosted endpoint (remote/) serves the newer closure_scheduler v0.5.6 rule instead; enable only one end-of-turn rule server per client.",
   "type": "module",
   "bin": {
     "next-best-prompt-mcp": "dist/index.js",

@@ -59,15 +59,17 @@ const carriesReviewBreaker = (text) => text.includes(reviewBreaker);
 const invertedToolText = toolText.replace(reviewBreaker, invertedReviewBreaker);
 const matrixIds = [...toolText.matchAll(/^\| (E\d{2}) \|/gm)].map((match) => match[1]);
 const expectedMatrixIds = Array.from(
-  { length: 30 },
+  { length: 33 },
   (_, index) => `E${String(index + 1).padStart(2, "0")}`,
 );
+const ruleWarningBytes = 17_408;
+const ruleHardMaxBytes = 18_432;
 
 await client.close();
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.5": serverInfo?.version === "0.5.5",
+  "server identifies as version 0.5.6": serverInfo?.version === "0.5.6",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
@@ -107,8 +109,12 @@ const checks = {
     !carriesReviewBreaker(invertedToolText),
   "tool locks cross-agent evidence to the named source":
     toolText.includes(sourceLock),
-  "tool stays within the v0.5 no-growth ceiling": ruleBytes <= 15_655,
-  "matrix carries all 30 scenarios":
+  "tool carries terminal closure acknowledgement":
+    toolText.includes("**Loop closed — <objective> is complete; no required work remains.**") &&
+    toolText.includes("**Proof:** <artifact, approval, gate result, terminal event, or other observable evidence>") &&
+    toolText.includes("Loop reopened — <reason>"),
+  "tool stays within the 18 KiB hard ceiling": ruleBytes <= ruleHardMaxBytes,
+  "matrix carries all 33 scenarios":
     JSON.stringify(matrixIds) === JSON.stringify(expectedMatrixIds),
 };
 
@@ -117,6 +123,11 @@ console.log("tools:", tools.join(", ") || "(none)");
 console.log("prompts:", prompts.join(", ") || "(none)");
 console.log("instructions bytes:", Buffer.byteLength(instructions, "utf8"));
 console.log("tool rule bytes:", ruleBytes);
+if (ruleBytes > ruleWarningBytes) {
+  console.log(
+    `WARN — tool rule exceeds the ${ruleWarningBytes}-byte review threshold`,
+  );
+}
 let ok = true;
 for (const [name, pass] of Object.entries(checks)) {
   console.log(`${pass ? "PASS" : "FAIL"} — ${name}`);

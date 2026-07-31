@@ -50,6 +50,13 @@ Then append:
 Request DONE may coexist with Program ACTIVE or GATED. Human: None is valid only
 if no required human gate appears anywhere in the reply.
 
+When Program is DONE, lead with "**Loop closed — <objective> is complete; no
+required work remains.**" and a following "**Proof:**" line naming observable
+evidence. Do not use that acknowledgement while Program is ACTIVE or GATED.
+After closure, NOW (optional) contains at most one action beginning "New optional
+scope:". Reopen only for changed input, failed proof, or a genuinely new defect
+class, and say "Loop reopened — <reason>".
+
 Do not offer work you are already authorized to do — do it and report. If the
 highest-leverage next step is a reframe, a disproven assumption, an unpriced
 risk, or an option I have not considered, it belongs on the list, including when
@@ -63,7 +70,7 @@ Two parts, doing different jobs.
 
 **The bootstrap** is the primary path. Since 2026-07-30 the hosted connector at
 `next-best-prompt-mcp-remote.vercel.app/api/mcp` serves
-[`rule/closure-scheduler.md`](rule/closure-scheduler.md) v0.5.5, so on any surface
+[`rule/closure-scheduler.md`](rule/closure-scheduler.md) v0.5.6, so on any surface
 where the connector is enabled the agent fetches the whole rule and this file's
 copy never governs anything.
 
@@ -76,7 +83,7 @@ the connector is absent and drop to the fallback for no reason. The tool name is
 stable by design, so the bootstrap keys on that.
 
 **The fallback** only covers surfaces where the tool is unavailable. That is why
-it is short. The full rule is 15,641 bytes. This block is **2,118 bytes**.
+it is short. The full rule is 17,330 bytes. This block is **2,559 bytes**.
 
 It carries the contract rather than the reasoning: the board, dispatch semantics,
 always at least one action, the labeling and relationship rules, `Done when:`,

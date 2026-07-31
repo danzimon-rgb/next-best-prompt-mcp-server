@@ -1,5 +1,5 @@
 // Smoke test: connect to a LIVE hosted endpoint over Streamable HTTP and assert
-// it serves closure_scheduler v0.5.5 — the same bytes as rule/closure-scheduler.md
+// it serves closure_scheduler v0.5.6 — the same bytes as rule/closure-scheduler.md
 // in this checkout.
 //
 // This is the only script in the repo that touches the network, so it is
@@ -104,7 +104,7 @@ await client.close();
 const checks = {
   "server identifies as closure_scheduler":
     serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.5": serverInfo?.version === "0.5.5",
+  "server identifies as version 0.5.6": serverInfo?.version === "0.5.6",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Unchanged from the incumbent on purpose: CLAUDE.md calls the tool by name,
   // so an already-added connector keeps working across the switch.
@@ -116,7 +116,7 @@ const checks = {
     instructions.length < 500 &&
     instructions.includes("get_next_best_prompts_rule") &&
     !instructions.includes("Adversarial evaluation matrix"),
-  "tool returns the v0.5.5 first line":
+  "tool returns the v0.5.6 first line":
     toolText.split("\n", 1)[0] === expectedFirstLine,
   "tool returns this checkout's rule, byte for byte": toolText === expectedRule,
   "prompt returns this checkout's rule, byte for byte":
