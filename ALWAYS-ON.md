@@ -15,6 +15,16 @@ the client the rule once via a place it injects into every conversation:
 - **Claude.ai web + mobile:** Settings → Profile → personal preferences — paste
   the block below. It syncs to the mobile app on the same account.
 
+> **Note (2026-07-30):** the hosted connector at
+> `next-best-prompt-mcp-remote.vercel.app/api/mcp` now serves `closure_scheduler`
+> v0.5.5, not the v0.3 incumbent. Its `get_next_best_prompts_rule` tool returns
+> the execution-board rule. **The paste-ready block below is still the v0.3
+> incumbent phrasing** — it is the always-on fallback for clients that ignore
+> server `instructions`, and it has not been rewritten for v0.5.5. If it is in
+> your preferences, web and mobile will follow v0.3 wording by default and
+> v0.5.5 only when the tool is called. Replacing it is a separate decision: the
+> v0.5.5 rule is ~15 KB, which is heavy for a preferences field.
+
 ## Paste-ready rule
 
 ```

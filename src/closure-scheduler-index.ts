@@ -3,9 +3,14 @@
  * closure-scheduler-mcp (stdio) — the v0.5 closure-scheduler rule.
  *
  * Runs ALONGSIDE next_best_prompt in this repo, never instead of it inside the
- * same build. It exists so the execution-board rule can be lived in for a few
+ * same build. It existed so the execution-board rule could be lived in for a few
  * days and then adopted or discarded without disturbing the incumbent, which
- * keeps serving rule/next-best-prompt.md byte-for-byte unchanged.
+ * still serves rule/next-best-prompt.md byte-for-byte unchanged from src/index.ts
+ * and npm.
+ *
+ * That evaluation concluded on 2026-07-30: this rule is what the hosted HTTP
+ * transport in remote/ now serves, from the same generated module, so Claude
+ * Code and claude.ai web/mobile follow one rule instead of two.
  *
  * ⚠ Enable exactly ONE of these two servers in any MCP client at a time. Both
  * activate a complete behavioral rule; loading both puts contradictory guidance

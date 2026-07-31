@@ -9,10 +9,13 @@
  * Verify sync with: npm run check-sync
  *
  * Deliberately a SEPARATE template from next-best-prompt.template.ts rather than
- * a shared parameterized one. closure_scheduler is an A/B candidate that must be
- * discardable without touching the incumbent, and next_best_prompt's generated
- * module has to stay byte-identical while both exist. One shared template would
- * couple their descriptions and make that guarantee impossible to keep.
+ * a shared parameterized one. The two rules ship on their own schedules and the
+ * incumbent's generated module has to stay byte-identical while both exist. One
+ * shared template would couple their descriptions and make that impossible.
+ *
+ * Since 2026-07-30 this module is generated into BOTH transports — the stdio
+ * entrypoint (src/) and the hosted HTTP server (remote/lib/) — so they are
+ * byte-identical by construction. scripts/check-sync.mjs enforces it.
  *
  * The `__CLOSURE_SCHEDULER_RULE_JSON__` token below is replaced by
  * scripts/embed.mjs with the JSON-encoded contents of rule/closure-scheduler.md.
