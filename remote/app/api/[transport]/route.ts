@@ -1,25 +1,40 @@
 import { createMcpHandler } from "mcp-handler";
-import { NEXT_BEST_PROMPT_RULE, registerNextBestPrompt } from "../../../lib/next-best-prompt.generated";
+import {
+  CLOSURE_SCHEDULER_BOOTSTRAP,
+  registerClosureScheduler,
+} from "../../../lib/closure-scheduler.generated";
 
-// Node runtime; next_best_prompt just returns text, so the default ceiling is plenty.
+// Node runtime; closure_scheduler just returns text, so the default ceiling is plenty.
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
 /**
- * Remote next_best_prompt MCP server over Streamable HTTP (endpoint: /api/mcp).
+ * Remote closure_scheduler MCP server over Streamable HTTP (endpoint: /api/mcp).
  *
  * The rule + the prompt/tool registration come from the shared generated
- * module (single source of truth: rule/next-best-prompt.md + shared/next-best-prompt.template.ts),
- * byte-identical with the stdio server in src/. Stateless: no Redis, no
- * secrets, no external calls.
+ * module (single source of truth: rule/closure-scheduler.md + shared/closure-scheduler.template.ts),
+ * byte-identical with the stdio server in src/closure-scheduler-index.ts.
+ * Stateless: no Redis, no secrets, no external calls.
+ *
+ * This surface served the v0.3 next_best_prompt incumbent until 2026-07-30.
+ * Holding it there while Claude Code ran closure_scheduler on stdio meant
+ * claude.ai web + mobile followed a different rule than the terminal — the
+ * split the rule itself forbids, spread across surfaces instead of within one
+ * session. Both transports now serve v0.5.5.
+ *
+ * `instructions` is the ~260-byte bootstrap rather than the full rule, matching
+ * stdio: clients that inject instructions get one required
+ * `get_next_best_prompts_rule` call, and the rule text is paid for once instead
+ * of in both places. The tool name is unchanged from the incumbent, so an
+ * already-added connector keeps working without reconfiguration.
  */
 const handler = createMcpHandler(
   (server) => {
-    registerNextBestPrompt(server);
+    registerClosureScheduler(server);
   },
   {
-    instructions: NEXT_BEST_PROMPT_RULE,
-    serverInfo: { name: "next_best_prompt", version: "0.3.0" },
+    instructions: CLOSURE_SCHEDULER_BOOTSTRAP,
+    serverInfo: { name: "closure_scheduler", version: "0.5.5" },
   },
   { basePath: "/api" },
 );

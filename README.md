@@ -11,25 +11,41 @@ and whether a named human intervention is required.
 Pure guidance: **no secrets, no network calls, no side-effecting tools.** Safe to
 install anywhere, against any project or chat.
 
-## One rule, two transports
+## Two rules, two transports
 
-The rule lives in [`rule/next-best-prompt.md`](rule/next-best-prompt.md) (single source of truth)
-and is code-generated into a shared module that both transports import:
+Each rule lives in `rule/` (single source of truth) and is code-generated into a
+module that the transports serving it import:
 
-- **stdio** (`src/`) — published to npm as `@danzimon/next-best-prompt-mcp`. For local
-  clients: **Claude Code** and **Claude Desktop** (local install).
+- **stdio** (`src/`) — two entrypoints. `src/index.ts` is the v0.3
+  `next_best_prompt` incumbent, published to npm as
+  `@danzimon/next-best-prompt-mcp`. `src/closure-scheduler-index.ts` is
+  `closure_scheduler` v0.5.5. **Enable exactly one of them in a given client.**
+  For local clients: **Claude Code** and **Claude Desktop** (local install).
 - **HTTP** (`remote/`, Next.js + [`mcp-handler`](https://www.npmjs.com/package/mcp-handler))
-  — deployed to Vercel as a remote connector. For **Claude.ai web + mobile** and
+  — deployed to Vercel as a remote connector, serving `closure_scheduler` v0.5.5
+  byte-identically with the stdio candidate. For **Claude.ai web + mobile** and
   any client that takes a hosted MCP URL.
 
-Both expose identical surfaces: the `instructions` field, a `next_best_prompt` prompt, and
-a `get_next_best_prompts_rule` tool.
+Both closure_scheduler transports expose identical surfaces: the `instructions`
+field (a compact bootstrap), a `closure_scheduler` prompt, and a
+`get_next_best_prompts_rule` tool. The tool name is deliberately the same one the
+incumbent uses, so switching a client between them needs no other change.
 
-## closure_scheduler v0.5.5 canary
+## closure_scheduler v0.5.5
 
-The repository also carries a separate, stdio-only `closure_scheduler` candidate.
-It keeps the incumbent and hosted behavior unchanged while the execution-board
-contract is evaluated.
+Live on stdio since 2026-07-28 and canonical since `5a5ba9d`. **As of
+2026-07-30 it is also what the hosted endpoint serves**, so claude.ai web and
+mobile run the same rule as Claude Code.
+
+That reverses [PR #6](https://github.com/danzimon-rgb/next-best-prompt-mcp-server/pull/6),
+which deliberately pinned the hosted target to the incumbent so the remote
+surface would never change behaviour underneath anyone. The guarantee was
+written while closure_scheduler was an untested draft. Once it had run on stdio
+for days, keeping it was the bigger hazard: the terminal and the web/mobile apps
+were following two different end-of-turn rules — exactly the split-brain the
+"enable exactly one" note forbids, spread across surfaces rather than within one
+session. ⚠ Existing claude.ai and mobile sessions changed behaviour at their next
+reconnect. Rollback is `git revert` of the merge plus the automatic redeploy.
 
 Its startup instructions are a 260-byte bootstrap that requires one
 `get_next_best_prompts_rule` call. The full rule is returned by that call instead
@@ -95,12 +111,22 @@ relaunch Desktop after editing the config.
 Mobile can't run a local server — use the hosted endpoint. On **claude.ai**
 (web): **Settings → Connectors → Add custom connector**, URL:
 
-```
+```text
 https://next-best-prompt-mcp-remote.vercel.app/api/mcp
 ```
 
 It's account-scoped, so it appears in the **mobile app** automatically. Requires
 a plan that supports custom connectors (Pro / Max / Team / Enterprise).
+
+This endpoint serves **`closure_scheduler` v0.5.5**, the same rule the local
+stdio candidate serves. The Vercel project name (`next-best-prompt-mcp-remote`)
+and the tool name (`get_next_best_prompts_rule`) are unchanged, so an existing
+connector needs no edit. To confirm what a host is actually serving:
+
+```bash
+npm run smoke:remote                                   # production endpoint
+npm run smoke:remote -- http://localhost:3000/api/mcp  # a local `next dev`
+```
 
 ### Self-host the hosted endpoint
 
@@ -114,7 +140,7 @@ npm run dev        # local
 ## Always-on everywhere
 
 Only **Claude Code** auto-fires the rule every turn. On Desktop, web, and mobile,
-next_best_prompt is available as an on-demand prompt/tool — for automatic every-turn
+the server is available as an on-demand prompt/tool — for automatic every-turn
 behavior, paste the condensed rule into your account preferences or a project's
 custom instructions. See [`ALWAYS-ON.md`](ALWAYS-ON.md).
 
@@ -122,14 +148,18 @@ custom instructions. See [`ALWAYS-ON.md`](ALWAYS-ON.md).
 
 ```bash
 npm install
-npm run embed        # rule/next-best-prompt.md + shared/next-best-prompt.template.ts -> generated modules
+npm run embed        # rule/*.md + shared/*.template.ts -> generated modules
 npm run check-sync   # fail if the generated copies drifted from source
 npm run build        # tsc -> dist/ (prebuild runs embed)
+npm test             # check-sync + build + both stdio smokes + validator fixtures
+npm run smoke:remote # live handshake against the hosted endpoint (network)
 ```
 
-Edit the rule in `rule/next-best-prompt.md` or the prompt/tool wiring in
-`shared/next-best-prompt.template.ts`, then `npm run embed`. `check-sync` (run on
-`prepublishOnly`) guarantees the stdio and HTTP builds never drift.
+Edit a rule in `rule/` or the prompt/tool wiring in the matching
+`shared/*.template.ts`, then `npm run embed`. `check-sync` (run on
+`prepublishOnly`) guarantees the stdio and HTTP builds never drift; it covers
+every target in `scripts/embed.mjs`, including `remote/lib/`. `npm test` is
+hermetic; `smoke:remote` is the only script that touches the network.
 
 ## License
 

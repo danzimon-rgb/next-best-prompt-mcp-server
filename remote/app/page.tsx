@@ -10,14 +10,16 @@ export default function Home() {
         color: "#1a1a1a",
       }}
     >
-      <h1 style={{ marginBottom: "0.25rem" }}>next_best_prompt</h1>
+      <h1 style={{ marginBottom: "0.25rem" }}>closure_scheduler</h1>
       <p style={{ color: "#666", marginTop: 0 }}>
-        next-best-prompts, served as a remote MCP server.
+        v0.5.5 — the closure-scheduler end-of-turn rule, served as a remote MCP
+        server.
       </p>
       <p>
-        End a substantive turn with 2–4 ranked, numbered, copy-paste-ready next
-        moves the user can pick with one digit — and skip entirely when there is
-        no high-value next step.
+        End a substantive turn with an execution board: 1–3 actions selectable by
+        a single digit, each with explicit dispatch semantics (RUN HERE / PASTE
+        TO / EXTERNAL), plus queued and in-flight work and a request/program
+        handoff.
       </p>
       <h2 style={{ fontSize: "1rem", marginTop: "2rem" }}>MCP endpoint</h2>
       <pre
@@ -39,8 +41,14 @@ export default function Home() {
           overflowX: "auto",
         }}
       >
-        <code>{`{ "mcpServers": { "next_best_prompt": { "url": "https://<this-host>/api/mcp" } } }`}</code>
+        <code>{`{ "mcpServers": { "closure_scheduler": { "url": "https://<this-host>/api/mcp" } } }`}</code>
       </pre>
+      <p style={{ color: "#666", fontSize: "0.9rem" }}>
+        The tool is named <code>get_next_best_prompts_rule</code>, unchanged from
+        the v0.3 <code>next_best_prompt</code> rule this endpoint served until
+        2026-07-30 — connectors added before then keep working, but now receive
+        the v0.5.5 rule. Enable only one end-of-turn rule server per client.
+      </p>
     </main>
   );
 }
