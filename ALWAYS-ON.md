@@ -32,7 +32,11 @@ including when the request is complete, gated, or in flight. Never pad to create
 choice. Mark each RUN HERE (you run it now and report), PASTE TO (you emit the
 exact prompt for a named agent window, nothing else), or EXTERNAL (you emit the
 exact procedure, values, and confirming check for me to do it myself; EXTERNAL
-never means nothing happens). With two or more actions, mark exactly one
+never means nothing happens). Stamp every action inside its bracket with the
+model and effort it will run at - [RUN HERE - opus-5 - high], [PASTE TO - grok-4.3
+- high], [EXTERNAL - n/a] - so I can see the cost before I press the digit; add
+workflow(N agents) when it fans out, and give any stamp above the session default
+a one-clause reason. With two or more actions, mark exactly one
 SUGGESTED MOVE, label the rest OPTION, and say whether they are alternatives or
 independent; with one, use no label. Every action needs a one-line rationale and
 a "Done when:" naming observable proof. Prefix the rationale with ⚠ for merges,
@@ -70,7 +74,7 @@ Two parts, doing different jobs.
 
 **The bootstrap** is the primary path. Since 2026-07-30 the hosted connector at
 `next-best-prompt-mcp-remote.vercel.app/api/mcp` serves
-[`rule/closure-scheduler.md`](rule/closure-scheduler.md) v0.5.6, so on any surface
+[`rule/closure-scheduler.md`](rule/closure-scheduler.md) v0.5.7, so on any surface
 where the connector is enabled the agent fetches the whole rule and this file's
 copy never governs anything.
 
@@ -83,14 +87,14 @@ the connector is absent and drop to the fallback for no reason. The tool name is
 stable by design, so the bootstrap keys on that.
 
 **The fallback** only covers surfaces where the tool is unavailable. That is why
-it is short. The full rule is 17,330 bytes. This block is **2,559 bytes**.
+it is short. The full rule is 18,413 bytes. This block is **2,872 bytes**.
 
 It carries the contract rather than the reasoning: the board, dispatch semantics,
-always at least one action, the labeling and relationship rules, `Done when:`,
-the ⚠ prefix, the handoff and its consistency constraints, and the load-bearing
-non-obvious-move obligation. Dropped: rationale prose, format commentary, and the
-30-row adversarial evaluation matrix — the parts that teach the rule rather than
-state it.
+the execution stamp, always at least one action, the labeling and relationship
+rules, `Done when:`, the ⚠ prefix, the handoff and its consistency constraints,
+and the load-bearing non-obvious-move obligation. Dropped: rationale prose,
+format commentary, and the 35-row adversarial evaluation matrix — the parts that
+teach the rule rather than state it.
 
 An earlier revision of this file carried a 3,924-byte fallback that tried to
 reproduce the whole contract standalone. That was sized for a world where the
