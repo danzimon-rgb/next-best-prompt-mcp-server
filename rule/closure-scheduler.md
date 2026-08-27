@@ -1,8 +1,8 @@
-# next_best_prompt v0.5.6 — closure scheduler
+# next_best_prompt v0.5.7 — closure scheduler
 
-Carries v0.5.5's execution board and dispatch semantics and adds an explicit
-terminal acknowledgement so completed loops end visibly instead of merely
-changing a handoff field.
+Carries v0.5.6's board, dispatch semantics, and terminal acknowledgement, and
+adds an execution stamp so a selectable action states what it costs to run
+before the digit is pressed.
 
 ## Objective
 
@@ -117,14 +117,23 @@ spending, cross-surface dispatch, defensible forks, or the best optional follow-
 
 ## 5. Dispatch semantics
 
-Every numbered action uses exactly one dispatch type:
+Every numbered action uses exactly one dispatch type and carries an **execution
+stamp** in its bracket naming what it costs to run:
 
-- **`RUN HERE`** — replying with the number authorizes the current agent to run
-  it in this session.
-- **`PASTE TO`** — the user sends the quoted prompt to the named agent window.
-  Name agent, window/tab, model, and effort.
-- **`EXTERNAL`** — a named human or outside surface must act. Name the actor and
-  surface; model and effort do not apply.
+- **`RUN HERE`** — `**[RUN HERE · <model> · <effort>]**` The current agent runs
+  it this session at that model and effort. Add `· workflow(<N> agents)` when it
+  fans out.
+- **`PASTE TO`** — ``**[PASTE TO · <model> · <effort>] → `agent · window`**``
+  The user sends the quoted prompt to that window.
+- **`EXTERNAL`** — ``**[EXTERNAL · n/a] → `actor · surface`**`` A human or
+  outside surface acts; no model applies, but the slot is still filled, so a
+  *missing* stamp is always a defect and never a category.
+
+The stamp is a commitment: if the action runs at a different model or effort,
+say so in the result. Any stamp above the session default, or carrying
+`workflow(...)`, prefixes its rationale with the reason — `⚠ xhigh:
+irreversible`. It never becomes a second sentence. It reports the model already
+chosen so the operator can overrule before spending.
 
 Do not claim the current agent will act when the action belongs elsewhere.
 
@@ -134,8 +143,8 @@ Do not claim the current agent will act when the action belongs elsewhere.
 **Next actions** (number selects; dispatch semantics shown):
 
 NOW
-1. **[SUGGESTED MOVE · RUN HERE]** "..." — Why suggested: <workflow reason>. Done when: <observable proof> (~time)
-2. **[OPTION · PASTE TO] → `agent · window · model · effort`** "..." — Tradeoff: <why a human might choose it>. Done when: <observable proof> (~time)
+1. **[SUGGESTED MOVE · RUN HERE · <model> · <effort>]** "..." — Why suggested: <workflow reason>. Done when: <observable proof> (~time)
+2. **[OPTION · PASTE TO · <model> · <effort>] → `agent · window`** "..." — Tradeoff: <why a human might choose it>. Done when: <observable proof> (~time)
 
 QUEUE
 - **AFTER:** <named checkpoint(s), comma-separated> → <task and owner>
@@ -155,8 +164,9 @@ Rules:
   for priority; label the others `OPTION`. *(L1)*
 - **A single option carries no label.** *(F1)* With nothing to choose between,
   `SUGGESTED MOVE` conveys nothing and "Why suggested" is vacuous. Render one
-  option as `**[RUN HERE]**` / `**[PASTE TO]**` / `**[EXTERNAL]**` alone, with a
-  plain rationale.
+  option as `**[RUN HERE · <model> · <effort>]**` / `**[PASTE TO · …]**` /
+  `**[EXTERNAL · n/a]**` alone, with a plain rationale. The stamp stays: it is
+  a price, not a label.
 - **State the relationship whenever more than one action is `NOW`.** *(F2)* End
   with *"1 and 2 are alternatives; picking one drops the other"* or *"1 and 2
   are independent and may both be dispatched."* Otherwise the board is ambiguous.
@@ -267,6 +277,8 @@ than thinking.
 10. If I withheld queued loops, did I name the count and where they went?
 11. If `Program: DONE`, did I lead with `Loop closed` and observable proof, then
     limit the board to one genuinely new optional scope?
+12. Does every action carry an execution stamp, and does every stamp above the
+    session default give its reason?
 
 If any answer fails, repair the board; never omit it.
 
@@ -309,5 +321,7 @@ If any answer fails, repair the board; never omit it.
 | E31 | Observable termination condition is met | Lead with `Loop closed` + proof; use `Program: DONE`, `Next owner: None`, and `Human: None` |
 | E32 | Request is done but program remains active or gated | Do not emit a terminal closure acknowledgement |
 | E33 | A numbered action follows terminal closure | Use `NOW (optional)` and begin the sole action `New optional scope:` |
+| E34 | A numbered action carries no execution stamp | Fail; repair the board. An unstamped action is unpriced |
+| E35 | A stamp exceeds the session default, or carries `workflow(N)` | Give the reason in one clause; never escalate silently |
 
 **Out of scope:** product compliance tests belong in product rules (§9).

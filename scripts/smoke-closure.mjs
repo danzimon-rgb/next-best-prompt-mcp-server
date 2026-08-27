@@ -59,7 +59,7 @@ const carriesReviewBreaker = (text) => text.includes(reviewBreaker);
 const invertedToolText = toolText.replace(reviewBreaker, invertedReviewBreaker);
 const matrixIds = [...toolText.matchAll(/^\| (E\d{2}) \|/gm)].map((match) => match[1]);
 const expectedMatrixIds = Array.from(
-  { length: 33 },
+  { length: 35 },
   (_, index) => `E${String(index + 1).padStart(2, "0")}`,
 );
 const ruleWarningBytes = 17_408;
@@ -69,7 +69,7 @@ await client.close();
 
 const checks = {
   "server identifies as closure_scheduler": serverInfo?.name === "closure_scheduler",
-  "server identifies as version 0.5.6": serverInfo?.version === "0.5.6",
+  "server identifies as version 0.5.7": serverInfo?.version === "0.5.7",
   "prompt 'closure_scheduler' present": prompts.includes("closure_scheduler"),
   // Same tool name as the incumbent on purpose: CLAUDE.md calls it by name, so
   // switching servers must not break that instruction.
@@ -114,7 +114,7 @@ const checks = {
     toolText.includes("**Proof:** <artifact, approval, gate result, terminal event, or other observable evidence>") &&
     toolText.includes("Loop reopened — <reason>"),
   "tool stays within the 18 KiB hard ceiling": ruleBytes <= ruleHardMaxBytes,
-  "matrix carries all 33 scenarios":
+  "matrix carries all 35 scenarios":
     JSON.stringify(matrixIds) === JSON.stringify(expectedMatrixIds),
 };
 
