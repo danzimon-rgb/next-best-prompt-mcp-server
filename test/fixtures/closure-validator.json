@@ -8,7 +8,7 @@
       ],
       "defensiblePriority": true
     },
-    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Fill the counts. Done when: counts are written.\n2. **[OPTION · RUN HERE]** Hunt the addresses. Done when: addresses are staged.\n3. **[EXTERNAL]** Dan approves the bodies. Done when: approval is recorded.\n\n1, 2, and 3 are independent and may all be dispatched.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** wave staged\n- **Next owner:** Dan — choose\n- **Human:** Dan — approve",
+    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE · opus-5 · high]** Fill the counts. Done when: counts are written.\n2. **[OPTION · RUN HERE · sonnet-5 · medium]** Hunt the addresses. Done when: addresses are staged.\n3. **[EXTERNAL · n/a]** Dan approves the bodies. Done when: approval is recorded.\n\n1, 2, and 3 are independent and may all be dispatched.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** wave staged\n- **Next owner:** Dan — choose\n- **Human:** Dan — approve",
     "expectedCodes": [
       "E01_AUTHORIZED_REOFFER",
       "E04_CONCURRENT_RUN_HERE",
@@ -34,7 +34,7 @@
     "context": {
       "defensiblePriority": true
     },
-    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Hunt the three missing addresses. Done when: all are staged.\n2. **[OPTION · EXTERNAL]** Dan reads the seven bodies in the staging file and confirms approval. Done when: approval is logged.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** count-complete draft\n- **Next owner:** Dan — approve the bodies\n- **Human:** Dan — body approval",
+    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE · opus-5 · high]** Hunt the three missing addresses. Done when: all are staged.\n2. **[OPTION · EXTERNAL · n/a]** Dan reads the seven bodies in the staging file and confirms approval. Done when: approval is logged.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** count-complete draft\n- **Next owner:** Dan — approve the bodies\n- **Human:** Dan — body approval",
     "expectedCodes": []
   },
   {
@@ -42,7 +42,7 @@
     "context": {
       "defensiblePriority": true
     },
-    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Apply the minimal patch. Done when: tests pass.\n2. **[OPTION · RUN HERE]** Revert the experiment. Done when: baseline is restored.\n\n1 and 2 are alternatives; picking one drops the other.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** two paths verified\n- **Next owner:** Dan — choose one path\n- **Human:** Dan — choose one path",
+    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE · opus-5 · high]** Apply the minimal patch. Done when: tests pass.\n2. **[OPTION · RUN HERE · sonnet-5 · medium]** Revert the experiment. Done when: baseline is restored.\n\n1 and 2 are alternatives; picking one drops the other.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** two paths verified\n- **Next owner:** Dan — choose one path\n- **Human:** Dan — choose one path",
     "expectedCodes": []
   },
   {
@@ -58,7 +58,7 @@
     "context": {
       "defensiblePriority": true
     },
-    "output": "**Next actions**\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Draft the patch. Done when: diff exists.\n2. **[OPTION · EXTERNAL]** Dan changes the setting. Done when: setting reads on.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** choices prepared\n- **Next owner:** Dan — change the setting\n- **Human:** Dan — change the setting",
+    "output": "**Next actions**\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE · opus-5 · high]** Draft the patch. Done when: diff exists.\n2. **[OPTION · EXTERNAL · n/a]** Dan changes the setting. Done when: setting reads on.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** choices prepared\n- **Next owner:** Dan — change the setting\n- **Human:** Dan — change the setting",
     "expectedCodes": [
       "E25_RELATIONSHIP"
     ]
@@ -66,7 +66,7 @@
   {
     "name": "rejects a labeled single action",
     "context": {},
-    "output": "**Next actions**\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE]** Run the focused test. Done when: it passes.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** test ready\n- **Next owner:** Dan — select action 1\n- **Human:** Dan — authorize action 1",
+    "output": "**Next actions**\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE · opus-5 · high]** Run the focused test. Done when: it passes.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** test ready\n- **Next owner:** Dan — select action 1\n- **Human:** Dan — authorize action 1",
     "expectedCodes": [
       "E24_SINGLE_LABEL"
     ]
@@ -76,7 +76,7 @@
     "context": {
       "defensiblePriority": true
     },
-    "output": "**Next actions**\n\nNOW\n1. **[OPTION · RUN HERE]** Draft the patch. Done when: diff exists.\n2. **[OPTION · EXTERNAL]** Dan changes the setting. Done when: setting reads on.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** choices prepared\n- **Next owner:** Dan — change the setting\n- **Human:** Dan — change the setting",
+    "output": "**Next actions**\n\nNOW\n1. **[OPTION · RUN HERE · sonnet-5 · medium]** Draft the patch. Done when: diff exists.\n2. **[OPTION · EXTERNAL · n/a]** Dan changes the setting. Done when: setting reads on.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** ACTIVE\n- **Checkpoint:** choices prepared\n- **Next owner:** Dan — change the setting\n- **Human:** Dan — change the setting",
     "expectedCodes": [
       "G3_LABELING"
     ]
@@ -101,7 +101,7 @@
         "Claude Code"
       ]
     },
-    "output": "**Next actions**\n\nNOW\n1. **[PASTE TO] → `Claude Code · current VS Code window · Claude Fable 5 · xhigh`** \"Open /workspace/one-pager.md, fix the verified taxonomy contradiction, preserve the 15/11 counts, rerun the scanner trio, and report the exact diff and test results. Do not send or edit outreach bodies.\" Done when: Claude Code returns the bounded diff and scanner evidence.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** GATED\n- **Checkpoint:** paste-ready correction prompt prepared\n- **Next owner:** Dan — paste action 1 into Claude Code\n- **Human:** Dan — paste action 1",
+    "output": "**Next actions**\n\nNOW\n1. **[PASTE TO · opus-5 · high] → `Claude Code · current VS Code window · Claude Fable 5 · xhigh`** \"Open /workspace/one-pager.md, fix the verified taxonomy contradiction, preserve the 15/11 counts, rerun the scanner trio, and report the exact diff and test results. Do not send or edit outreach bodies.\" Done when: Claude Code returns the bounded diff and scanner evidence.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** GATED\n- **Checkpoint:** paste-ready correction prompt prepared\n- **Next owner:** Dan — paste action 1 into Claude Code\n- **Human:** Dan — paste action 1",
     "expectedCodes": []
   },
   {
@@ -111,7 +111,7 @@
         "Claude Code"
       ]
     },
-    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh Claude Code's live checkpoint and report whether the correction is complete.\" Done when: the latest transcript yields a timestamped terminal or in-flight status.\n\nIN FLIGHT\n- Claude Code · VS Code · correcting one-pager taxonomy at commit abc123 · verified 23:55 EDT\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** ACTIVE\n- **Checkpoint:** Claude Code editing from commit abc123\n- **Next owner:** Claude Code — return the bounded diff and scanner result\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE · opus-5 · high]** \"Refresh Claude Code's live checkpoint and report whether the correction is complete.\" Done when: the latest transcript yields a timestamped terminal or in-flight status.\n\nIN FLIGHT\n- Claude Code · VS Code · correcting one-pager taxonomy at commit abc123 · verified 23:55 EDT\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** ACTIVE\n- **Checkpoint:** Claude Code editing from commit abc123\n- **Next owner:** Claude Code — return the bounded diff and scanner result\n- **Human:** None",
     "expectedCodes": []
   },
   {
@@ -119,7 +119,7 @@
     "context": {
       "completionDeliveryRequired": true
     },
-    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish the checks\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE · opus-5 · high]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish the checks\n- **Human:** None",
     "expectedCodes": [
       "E29_MISSING_COMPLETION_NOTICE",
       "E30_MISSING_POST_COMPLETION_ACTION"
@@ -130,7 +130,7 @@
     "context": {
       "completionDeliveryRequired": true
     },
-    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5\n- **Next owner:** GitHub Actions — finish checks\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE · opus-5 · high]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5\n- **Next owner:** GitHub Actions — finish checks\n- **Human:** None",
     "expectedCodes": [
       "E29_MISSING_COMPLETION_NOTICE"
     ]
@@ -140,7 +140,7 @@
     "context": {
       "completionDeliveryRequired": true
     },
-    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\nQUEUE\n- **AFTER:** all nine PR #284 checks pass → offer the merge decision to Dan\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** GitHub will post terminal status on PR #284; this chat cannot proactively send after the turn, so the next user message triggers Codex to refresh and report the result.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE · opus-5 · high]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\nQUEUE\n- **AFTER:** all nine PR #284 checks pass → offer the merge decision to Dan\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** GitHub will post terminal status on PR #284; this chat cannot proactively send after the turn, so the next user message triggers Codex to refresh and report the result.\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
     "expectedCodes": []
   },
   {
@@ -148,7 +148,7 @@
     "context": {
       "completionDeliveryRequired": true
     },
-    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\nQUEUE\n- **AFTER:** pass → review\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** status report\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE · opus-5 · high]** \"Refresh PR #284 check status now.\" Done when: all checks and their current conclusions are reported.\n\nQUEUE\n- **AFTER:** pass → review\n\nIN FLIGHT\n- GitHub Actions · PR #284 · three checks pending · verified 08:56 EDT\n- **Completion notice:** status report\n\n**Execution handoff**\n- **Request:** WAITING\n- **Program:** GATED\n- **Checkpoint:** PR #284 head e96bdc5; three checks pending\n- **Next owner:** GitHub Actions — finish all nine checks\n- **Human:** None",
     "expectedCodes": [
       "E29_MISSING_COMPLETION_NOTICE",
       "E30_MISSING_POST_COMPLETION_ACTION"
@@ -157,7 +157,7 @@
   {
     "name": "accepts one optional next prompt after completed work",
     "context": {},
-    "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"Turn the completed audit into a reusable checklist.\" Done when: a concise checklist is returned.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** audit findings delivered\n- **Next owner:** None\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE · opus-5 · high]** \"Turn the completed audit into a reusable checklist.\" Done when: a concise checklist is returned.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** audit findings delivered\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": []
   },
   {
@@ -166,7 +166,7 @@
       "terminalClosureRequired": true,
       "postClosureOptional": true
     },
-    "output": "**Loop closed — generation 4 is complete; no required work remains.**\n**Proof:** all 242 gates pass and the rendered artifact hash is recorded.\n\n**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"New optional scope: turn the completed gate set into a reusable checklist.\" Done when: a standalone checklist is returned.\n\n**Execution handoff**\n- **Request:** `DONE`\n- **Program:** `DONE`\n- **Checkpoint:** generation-4 artifact e25b9a13; 242/242 gates pass\n- **Next owner:** `None`\n- **Human:** `None`",
+    "output": "**Loop closed — generation 4 is complete; no required work remains.**\n**Proof:** all 242 gates pass and the rendered artifact hash is recorded.\n\n**Next actions**\n\nNOW (optional)\n1. **[RUN HERE · opus-5 · high]** \"New optional scope: turn the completed gate set into a reusable checklist.\" Done when: a standalone checklist is returned.\n\n**Execution handoff**\n- **Request:** `DONE`\n- **Program:** `DONE`\n- **Checkpoint:** generation-4 artifact e25b9a13; 242/242 gates pass\n- **Next owner:** `None`\n- **Human:** `None`",
     "expectedCodes": []
   },
   {
@@ -174,7 +174,7 @@
     "context": {
       "terminalClosureRequired": true
     },
-    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Check the remaining deployment gate.\" Done when: its current status is reported.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** local tests pass; deployment pending\n- **Next owner:** Vercel — finish deployment\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE · opus-5 · high]** \"Check the remaining deployment gate.\" Done when: its current status is reported.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** local tests pass; deployment pending\n- **Next owner:** Vercel — finish deployment\n- **Human:** None",
     "expectedCodes": [
       "E31_MISSING_TERMINAL_ACK",
       "E31_MISSING_COMPLETION_PROOF",
@@ -186,7 +186,7 @@
     "context": {
       "terminalClosureForbidden": true
     },
-    "output": "**Loop closed — the rollout is complete; no required work remains.**\n**Proof:** local tests pass.\n\n**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Check the production deployment.\" Done when: the live endpoint reports its version.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** local tests pass; production deployment pending\n- **Next owner:** Vercel — finish deployment\n- **Human:** None",
+    "output": "**Loop closed — the rollout is complete; no required work remains.**\n**Proof:** local tests pass.\n\n**Next actions**\n\nNOW\n1. **[RUN HERE · opus-5 · high]** \"Check the production deployment.\" Done when: the live endpoint reports its version.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** GATED\n- **Checkpoint:** local tests pass; production deployment pending\n- **Next owner:** Vercel — finish deployment\n- **Human:** None",
     "expectedCodes": [
       "E32_PREMATURE_TERMINAL_ACK"
     ]
@@ -196,7 +196,7 @@
     "context": {
       "postClosureOptional": true
     },
-    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Finish the remaining required review.\" Done when: the reviewer approves.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** implementation complete\n- **Next owner:** None\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE · opus-5 · high]** \"Finish the remaining required review.\" Done when: the reviewer approves.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** implementation complete\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": [
       "E33_POST_CLOSURE_NOT_NEW_SCOPE",
       "E33_POST_CLOSURE_BOARD_NOT_OPTIONAL"
@@ -207,7 +207,7 @@
     "context": {
       "postClosureOptional": true
     },
-    "output": "**Next actions**\n\nNOW (optional)\n1. **[OPTION · RUN HERE]** \"New optional scope: create a checklist.\" Done when: the checklist is returned.\n2. **[OPTION · EXTERNAL]** \"New optional scope: archive the artifact.\" Done when: the archive is visible.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** rollout complete\n- **Next owner:** None\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW (optional)\n1. **[OPTION · RUN HERE · sonnet-5 · medium]** \"New optional scope: create a checklist.\" Done when: the checklist is returned.\n2. **[OPTION · EXTERNAL · n/a]** \"New optional scope: archive the artifact.\" Done when: the archive is visible.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** rollout complete\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": [
       "E33_POST_CLOSURE_NOT_NEW_SCOPE"
     ]
@@ -217,9 +217,35 @@
     "context": {
       "postClosureOptional": true
     },
-    "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE]** \"New optional scope: create a checklist.\" Done when: the checklist is returned.\n2. Finish the old required review.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** rollout complete\n- **Next owner:** None\n- **Human:** None",
+    "output": "**Next actions**\n\nNOW (optional)\n1. **[RUN HERE · opus-5 · high]** \"New optional scope: create a checklist.\" Done when: the checklist is returned.\n2. Finish the old required review.\n\n**Execution handoff**\n- **Request:** DONE\n- **Program:** DONE\n- **Checkpoint:** rollout complete\n- **Next owner:** None\n- **Human:** None",
     "expectedCodes": [
       "E33_POST_CLOSURE_NOT_NEW_SCOPE"
     ]
+  },
+  {
+    "name": "rejects an unstamped numbered action",
+    "context": {},
+    "output": "**Next actions**\n\nNOW\n1. **[RUN HERE]** \"Apply the minimal patch.\" Done when: the validator fixtures pass.\n\n**Execution handoff**\n- **Request:** WORKING\n- **Program:** ACTIVE\n- **Checkpoint:** patch drafted\n- **Next owner:** Claude — apply the patch\n- **Human:** None",
+    "expectedCodes": [
+      "E34_MISSING_EXECUTION_STAMP"
+    ]
+  },
+  {
+    "name": "rejects an unfilled stamp placeholder and a bare EXTERNAL slot",
+    "context": {
+      "defensiblePriority": true
+    },
+    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE · <model> · <effort>]** \"Rerun the pin freshness check.\" Done when: a drift report is written.\n2. **[OPTION · EXTERNAL]** \"Dan flips ENABLE_EXAMINER_PASS in Vercel.\" Done when: the env var reads true.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** GATED\n- **Checkpoint:** policy file read at ae6709a\n- **Next owner:** Dan — flip the flag\n- **Human:** Dan — flip the flag",
+    "expectedCodes": [
+      "E34_MISSING_EXECUTION_STAMP"
+    ]
+  },
+  {
+    "name": "accepts a stamped board with a workflow fan-out and an EXTERNAL slot",
+    "context": {
+      "defensiblePriority": true
+    },
+    "output": "**Next actions** (number selects):\n\nNOW\n1. **[SUGGESTED MOVE · RUN HERE · opus-5 · xhigh · workflow(6 agents)]** \"⚠ xhigh: irreversible. Audit every pinned model against the live catalog.\" Done when: a per-pin verdict table is written.\n2. **[OPTION · EXTERNAL · n/a] → `Dan · Vercel dashboard`** \"Flip ENABLE_EXAMINER_PASS to true.\" Done when: the env var reads true.\n\n1 and 2 are independent and may both be dispatched.\n\n**Execution handoff**\n- **Request:** HUMAN NEEDED\n- **Program:** GATED\n- **Checkpoint:** policy file read at ae6709a\n- **Next owner:** Dan — flip the flag\n- **Human:** Dan — flip the flag",
+    "expectedCodes": []
   }
 ]
