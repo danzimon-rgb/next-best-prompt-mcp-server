@@ -123,8 +123,9 @@ stamp** in its bracket naming what it costs to run:
 - **`RUN HERE`** — `**[RUN HERE · <model> · <effort>]**` The current agent runs
   it this session at that model and effort. Add `· workflow(<N> agents)` when it
   fans out.
-- **`PASTE TO`** — ``**[PASTE TO · <model> · <effort>] → `agent · window`**``
-  The user sends the quoted prompt to that window.
+- **`PASTE TO`** — ``**[PASTE TO · <their model> · <their effort>] → `agent ·
+  window`**`` The user sends the quoted prompt to that window. Verify their
+  setting; if you cannot, say so; never borrow your own.
 - **`EXTERNAL`** — ``**[EXTERNAL · n/a] → `actor · surface`**`` A human or
   outside surface acts; no model applies, but the slot is still filled, so a
   *missing* stamp is always a defect and never a category.
@@ -135,7 +136,6 @@ say so in the result. Any stamp above the session default, or carrying
 irreversible`. It never becomes a second sentence. It reports the model already
 chosen so the operator can overrule before spending.
 
-Do not claim the current agent will act when the action belongs elsewhere.
 
 ## 6. Execution board
 
