@@ -17,6 +17,42 @@ function isStatus(value, expected) {
   return value.replaceAll("`", "").trim().toUpperCase() === expected;
 }
 
+const DISPATCH_TYPES = ["RUN HERE", "PASTE TO", "EXTERNAL"];
+const LABEL_SEGMENTS = ["SUGGESTED MOVE", "OPTION"];
+
+// The execution stamp is the part of the bracket tag that follows the dispatch
+// type: `· <model> · <effort>` for RUN HERE / PASTE TO, `· n/a` for EXTERNAL.
+// A trailing `· workflow(N agents)` segment prices fan-out and is not itself a
+// model or effort, so it is excluded before counting.
+function parseStamp(tag) {
+  const segments = tag
+    .split("\u00b7")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  const dispatchIndex = segments.findIndex((segment) =>
+    DISPATCH_TYPES.includes(segment.toUpperCase()),
+  );
+  if (dispatchIndex === -1) return [];
+  return segments
+    .slice(dispatchIndex + 1)
+    .filter(
+      (segment) =>
+        !LABEL_SEGMENTS.includes(segment.toUpperCase()) &&
+        !/^workflow\(/i.test(segment),
+    );
+}
+
+function isUnfilledStampSegment(segment) {
+  return segment === "" || /^<.*>$/.test(segment);
+}
+
+function hasExecutionStamp(action) {
+  if (!action.dispatch) return false;
+  const required = action.dispatch === "EXTERNAL" ? 1 : 2;
+  if (action.stamp.length < required) return false;
+  return !action.stamp.slice(0, required).some(isUnfilledStampSegment);
+}
+
 function parseNowActions(output) {
   const nowMatch = output.match(
     /(?:^|\n)NOW(?: \(optional\))?\s*\n([\s\S]*?)(?=\n(?:QUEUE|IN FLIGHT|\*\*Execution handoff\*\*)|\s*$)/i,
@@ -36,9 +72,8 @@ function parseNowActions(output) {
         tag,
         content: body.trim(),
         body: `${target} ${body}`.trim(),
-        dispatch: ["RUN HERE", "PASTE TO", "EXTERNAL"].find((candidate) =>
-          tag.includes(candidate),
-        ),
+        dispatch: DISPATCH_TYPES.find((candidate) => tag.includes(candidate)),
+        stamp: parseStamp(tag),
         suggested: tag.includes("SUGGESTED MOVE"),
         option: tag.includes("OPTION"),
       };
@@ -83,6 +118,13 @@ export function validateClosureOutput(output, context = {}) {
     add(
       "E21_MISSING_NEXT_ACTION",
       "Every substantive response needs at least one numbered NOW action.",
+    );
+  }
+
+  if (actions.some((action) => !hasExecutionStamp(action))) {
+    add(
+      "E34_MISSING_EXECUTION_STAMP",
+      "Every numbered NOW action needs an execution stamp: `\u00b7 <model> \u00b7 <effort>` for RUN HERE and PASTE TO, `\u00b7 n/a` for EXTERNAL. An unstamped action is unpriced.",
     );
   }
 
