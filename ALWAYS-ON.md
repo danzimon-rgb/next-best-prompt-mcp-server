@@ -33,8 +33,10 @@ choice. Mark each RUN HERE (you run it now and report), PASTE TO (you emit the
 exact prompt for a named agent window, nothing else), or EXTERNAL (you emit the
 exact procedure, values, and confirming check for me to do it myself; EXTERNAL
 never means nothing happens). Stamp every action inside its bracket with the
-model and effort it will run at - [RUN HERE - opus-5 - high], [PASTE TO - grok-4.3
-- high], [EXTERNAL - n/a] - so I can see the cost before I press the digit; add
+model and effort it will run at - [RUN HERE - opus-5 - high], [PASTE TO - their
+model - their effort], [EXTERNAL - n/a] - so I can see the cost before I press
+the digit; a PASTE TO stamp is the receiving window's setting, verified, never
+yours; add
 workflow(N agents) when it fans out, and give any stamp above the session default
 a one-clause reason. With two or more actions, mark exactly one
 SUGGESTED MOVE, label the rest OPTION, and say whether they are alternatives or
@@ -87,7 +89,7 @@ the connector is absent and drop to the fallback for no reason. The tool name is
 stable by design, so the bootstrap keys on that.
 
 **The fallback** only covers surfaces where the tool is unavailable. That is why
-it is short. The full rule is 18,413 bytes. This block is **2,872 bytes**.
+it is short. The full rule is 18,420 bytes. This block is **2,958 bytes**.
 
 It carries the contract rather than the reasoning: the board, dispatch semantics,
 the execution stamp, always at least one action, the labeling and relationship
